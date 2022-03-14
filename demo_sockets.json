@@ -1,0 +1,16 @@
+{
+  "sockets": [
+    {
+      "endpoint": "http://docs.savla.su/fsdjfhsdjfdshfs/",
+      "port": 80
+    },
+    {
+      "endpoint": "http://kanban.savla.su/login",
+      "port": 80
+    },
+    {
+      "endpoint": "http://passbolt.savla.su",
+      "port": 80
+    }
+  ]
+}

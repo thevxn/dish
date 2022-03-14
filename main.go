@@ -1,36 +1,46 @@
-// Package swis-api is RESTful API core backend for sakalWeb Information System v5.
+// savla-dish executable -- providing a simple remote socket testing 
 package main
 
 import (
 	"fmt"
-	"swis-api/users"
-
-	"github.com/gin-gonic/gin"
+	"savla-dish/runner"
+	"savla-dish/zasuvka"
 )
 
-
 func main() {
-	router := gin.Default()
+	endpointFile := "demo_sockets.json"
+	//endpoint := "http://docs.savla.su/kus/hovna"
 
-	// testing proxy setting
-	router.SetTrustedProxies([]string{
-		"10.4.5.0/25",
-	})
+	sockets := zasuvka.GibPole(endpointFile, false)
 
-	// root URI
-	router.GET("/", func(c *gin.Context){
-		c.String(200, "yes papi")
-		fmt.Printf("ClientIP: %s\n", c.ClientIP())
-	})
+	for i := 0; i < len(sockets.Sockets); i++ {
+		e :=  sockets.Sockets[i].Endpoint
+		p := sockets.Sockets[i].Port
 
-	// users CRUD
-	router.GET("/users", users.GetUsers)
-	router.GET("/users/:id", users.GetUserByID)
-	router.POST("/users", users.PostUser)
-	//router.PUT("/users/:id", users.PutUserByID)
-	//router.DELETE("/users/:id", users.DeleteUserByID)
+		status := runner.Run(e, p)
+		fmt.Println(e, p, status)
+	}
 
-	// attach router to http.Server and start it
-	router.Run(":8080")
+	//fmt.Println( resp.Status ) 
+	//fmt.Println( resp.StatusCode )
+	//fmt.Println( resp.Proto )
+
+	/*
+	if resp.StatusCode == http.StatusOK {
+		bodyBytes, err := io.ReadAll(resp.Body)
+
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		bodyString := string(bodyBytes)
+		fmt.Println(bodyString)
+
+		for k, v := range resp.Header {
+              		fmt.Print(k)
+              		fmt.Print(" : ")
+              		fmt.Println(v)
+      		}
+	}*/
 }
 

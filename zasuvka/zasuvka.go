@@ -1,8 +1,10 @@
-package main
+// Zasuvka package to parse JSON input file
+package zasuvka
 
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"io/ioutil"
 	"os"
 )
@@ -16,15 +18,18 @@ type Socket struct {
 	Port     int    `json:"port"`
 }
 
-func main() {
-	
-	jsonFile, err := os.Open("sockets.json")
+func GibPole(f string, debug bool) (s Sockets) {
+	//jsonFile, err := os.Open("sockets.json")
+	jsonFile, err := os.Open(f)
 
 	if err != nil {
-		fmt.Println(err)
+		//fmt.Println(err)
+		log.Fatal(err)
 	}
 
-	fmt.Println("Successfully Opened sockets.json")
+	if debug {
+		fmt.Println("Successfully Opened sockets.json")
+	}
 	
 	defer jsonFile.Close()
 
@@ -34,10 +39,13 @@ func main() {
 
 	json.Unmarshal(byteValue, &sockets)
 
-	for i := 0; i < len(sockets.Sockets); i++ {
-		fmt.Println("Endpoint: " + sockets.Sockets[i].Endpoint)
-		fmt.Print("Port: ")
-		fmt.Print(sockets.Sockets[i].Port)
+	if debug {
+		for i := 0; i < len(sockets.Sockets); i++ {
+			fmt.Println("Endpoint: " + sockets.Sockets[i].Endpoint)
+			fmt.Print("Port: ")
+			fmt.Print(sockets.Sockets[i].Port)
+		}
 	}
 
+	return sockets
 }
