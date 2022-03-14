@@ -1,0 +1,25 @@
+version: '3.6'
+
+services:
+  dish:
+    image: ${DOCKER_DEV_IMAGE}
+    container_name: ${DOCKER_DEV_CONTAINER}
+    build:
+      context: .
+      args: 
+        APP_NAME: ${APP_NAME}
+        PROJECT_NAME: ${PROJECT_NAME}
+        DOCKER_DEV_PORT: ${DOCKER_DEV_PORT}
+    restart: unless-stopped
+    ports:
+      - "${DOCKER_DEV_EXTERNAL_PORT}:${DOCKER_DEV_PORT}"
+    networks:
+      - ${DOCKER_DEV_NETWORK}
+    labels:
+      - "traefik.http.routers.swis_api.rule=Host(`${APP_URL}`)"
+      - "traefik.http.services.swis_api.loadbalancer.server.port=${DOCKER_DEV_PORT}"
+      - "traefik.docker.network=${DOCKER_DEV_NETWORK}"
+
+networks:
+  traefik_savla:
+    name: ${DOCKER_DEV_NETWORK}
