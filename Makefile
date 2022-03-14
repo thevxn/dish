@@ -2,10 +2,6 @@
 # savla-dish / Makefile
 #
 
-#
-# VARS
-#
-
 -include .env
 
 PROJECT_NAME?=savla-dish
@@ -39,9 +35,6 @@ endif
 
 export
 
-#
-# TARGETS
-#
 
 .PHONY: all info build go src make doc
 
@@ -50,18 +43,13 @@ all: info
 info: 
 	@echo -e "\n${GREEN} ${PROJECT_NAME} / Makefile ${RESET}\n"
 
-	@echo -e "${YELLOW} make config  --- check dev environment ${RESET}"
-	@echo -e "${YELLOW} make fmt     --- reformat the go source (gofmt) ${RESET}"
-	@echo -e "${YELLOW} make doc     --- render documentation from code (go doc) ${RESET}\n"
+	@echo -e "${YELLOW} make fmt     --- reformat the go source (gofmt) ${RESET}\n"
+#@echo -e "${YELLOW} make doc     --- render documentation from code (go doc) ${RESET}\n"
 
 	@echo -e "${YELLOW} make build   --- build project (docker image) ${RESET}"
 	@echo -e "${YELLOW} make run     --- run project ${RESET}"
 	@echo -e "${YELLOW} make logs    --- fetch container's logs ${RESET}"
-	@echo -e "${YELLOW} make stop    --- stop and purge project (only docker containers!) ${RESET}"
-	@echo -e ""
-
-config:
-	@exit 0
+	@echo -e "${YELLOW} make stop    --- stop and purge project (only docker containers!) ${RESET}\n"
 
 fmt:
 	@echo -e "\n${YELLOW} Code reformating (gofmt)... ${RESET}\n"
@@ -71,11 +59,6 @@ fmt:
 build: 
 	@echo -e "\n${YELLOW} Building project (docker-compose build)... ${RESET}\n"
 	@docker-compose build 
-
-# || { echo -e "\n${RED} [FAIL] is docker engine running? ${RESET}"; exit 1 }
-
-#@docker build -t ${DOCKER_DEV_IMAGE} .
-#@docker run -it --rm --name ${DOCKER_DEV_CONTAINER} ${DOCKER_DEV_IMAGE}
 
 run:	build
 	@echo -e "\n${YELLOW} Starting project (docker-compose up)... ${RESET}\n"
@@ -89,5 +72,3 @@ stop:
 	@echo -e "\n${YELLOW} Stopping and purging project (docker-compose down)... ${RESET}\n"
 	@docker-compose down
 
-test:
-	@echo -e "\n${YELLOW} Running tests over the app/container... ${RESET}\n"
