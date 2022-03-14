@@ -1,0 +1,8 @@
+    {
+        "sockets": [
+            {
+        "endpoint": "sdsd",
+        "port": 123
+        }
+    ]
+}
