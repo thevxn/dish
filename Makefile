@@ -43,20 +43,18 @@ all: info
 info: 
 	@echo -e "\n${GREEN} ${PROJECT_NAME} / Makefile ${RESET}\n"
 
-	@echo -e "${YELLOW} make fmt     --- reformat the go source (gofmt) ${RESET}\n"
-#@echo -e "${YELLOW} make doc     --- render documentation from code (go doc) ${RESET}\n"
-
+	@echo -e "${YELLOW} make fmt     --- reformat the go source (gofmt) ${RESET}"
+	@echo -e "${YELLOW} make test    --- run unit tests (go test) ${RESET}"
 	@echo -e "${YELLOW} make build   --- build project (docker image) ${RESET}"
 	@echo -e "${YELLOW} make run     --- run project ${RESET}"
 	@echo -e "${YELLOW} make logs    --- fetch container's logs ${RESET}"
 	@echo -e "${YELLOW} make stop    --- stop and purge project (only docker containers!) ${RESET}\n"
 
 fmt:
-	@echo -e "\n${YELLOW} Code reformating (gofmt)... ${RESET}\n"
-	@gofmt -d .
-	@find . -name "*.go" -exec gofmt {} \;
+	@echo -e "\n${YELLOW} Code reformating (using gofmt)... ${RESET}\n"
+	@go fmt ${APP_NAME}
 
-build: 
+build:  fmt
 	@echo -e "\n${YELLOW} Building project (docker-compose build)... ${RESET}\n"
 	@docker-compose build 
 
@@ -72,3 +70,6 @@ stop:
 	@echo -e "\n${YELLOW} Stopping and purging project (docker-compose down)... ${RESET}\n"
 	@docker-compose down
 
+test:
+	@echo -e "\n${YELLOW} Running unit tests (go test)... ${RESET}\n"
+	@go test ${APP_NAME}

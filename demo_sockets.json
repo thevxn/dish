@@ -9,7 +9,7 @@
       "port": 80
     },
     {
-      "endpoint": "http://passbolt.savla.su",
+      "endpoint": "http://traefik.savla.su",
       "port": 80
     }
   ]
