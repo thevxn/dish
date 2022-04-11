@@ -6,11 +6,11 @@
     },
     {
       "endpoint": "http://kanban.savla.su/login",
-      "port": 80
+      "port": 4656
     },
     {
-      "endpoint": "http://traefik.savla.su",
-      "port": 80
+      "endpoint": "https://mon.n0p.cz/",
+      "port": 443
     }
   ]
 }
