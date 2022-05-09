@@ -14,14 +14,13 @@ func main() {
 	sockets := zasuvka.GibPole(endpointFile, false)
 
 	msgText := ""
+	newLine := "%0A"
 
 	for i := 0; i < len(sockets.Sockets); i++ {
 		e := sockets.Sockets[i].Endpoint
 		p := sockets.Sockets[i].Port
 
 		status := runner.CheckSite(e, p)
-
-		newLine := "%0A"
 
 		msgText += fmt.Sprintf("%s %s %d %s", e, p, status, newLine)
 
