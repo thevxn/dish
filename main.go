@@ -13,11 +13,17 @@ func main() {
 
 	sockets := zasuvka.GibPole(endpointFile, false)
 
+	msgText := ""
+
 	for i := 0; i < len(sockets.Sockets); i++ {
 		e := sockets.Sockets[i].Endpoint
 		p := sockets.Sockets[i].Port
 
 		status := runner.CheckSite(e, p)
+
+		msgText += msgText + e + " " + p + " " + status + "\n"
+		msgText
+
 		fmt.Println(e, p, status)
 	}
 
