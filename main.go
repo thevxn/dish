@@ -3,6 +3,7 @@ package main
 
 import (
 	"fmt"
+	"savla-dish/messenger"
 	"savla-dish/runner"
 	"savla-dish/zasuvka"
 )
@@ -19,6 +20,8 @@ func main() {
 		status := runner.CheckSite(e, p)
 		fmt.Println(e, p, status)
 	}
+
+	messenger.SendMsg("testikl")
 
 	//fmt.Println( resp.Status )
 	//fmt.Println( resp.StatusCode )
