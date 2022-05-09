@@ -13,8 +13,8 @@ func main() {
 
 	sockets := zasuvka.GibPole(endpointFile, false)
 
-	msgText := ""
 	newLine := "%0A"
+	msgText := fmt.Sprintf("savla-dish run results: %s", newLine)
 
 	for i := 0; i < len(sockets.Sockets); i++ {
 		e := sockets.Sockets[i].Endpoint
