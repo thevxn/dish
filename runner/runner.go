@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func CheckSite(endpoint string, port string) (status int) {
+func CheckSite(endpoint string, port int) (status int) {
 	req, err := http.NewRequest("GET", endpoint, nil)
 	req.Header.Set("Content-Type", "application/json")
 

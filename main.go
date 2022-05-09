@@ -22,7 +22,7 @@ func main() {
 
 		status := runner.CheckSite(e, p)
 
-		msgText += fmt.Sprintf("%s %s %d %s", e, p, status, newLine)
+		msgText += fmt.Sprintf("%s %d %d %s", e, p, status, newLine)
 
 		fmt.Println(e, p, status)
 	}

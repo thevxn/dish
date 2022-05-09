@@ -4,8 +4,8 @@ package zasuvka
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"io/ioutil"
+	"log"
 	"os"
 )
 
@@ -15,7 +15,7 @@ type Sockets struct {
 
 type Socket struct {
 	Endpoint string `json:"endpoint`
-	Port     string    `json:"port"`
+	Port     int    `json:"port"`
 }
 
 func GibPole(f string, debug bool) (s Sockets) {
@@ -30,7 +30,7 @@ func GibPole(f string, debug bool) (s Sockets) {
 	if debug {
 		fmt.Println("Successfully Opened sockets.json")
 	}
-	
+
 	defer jsonFile.Close()
 
 	byteValue, _ := ioutil.ReadAll(jsonFile)
