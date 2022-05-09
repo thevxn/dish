@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func SendMsg(msg string) string {
+func SendMsg(msg string) {
 	req := "https://api.telegram.org/bot5226521972:AAEqJJYsnBbI3umEEOtEfoHFpnPtxRzXRiM/sendMessage?chat_id=-1001512138288&text=" + msg
 	resp, err := http.Get(req)
 	if err != nil {
@@ -20,6 +20,4 @@ func SendMsg(msg string) string {
 	//Convert the body to type string
 	sb := string(body)
 	log.Printf(sb)
-
-	return "done"
 }

@@ -21,13 +21,14 @@ func main() {
 
 		status := runner.CheckSite(e, p)
 
-		msgText += msgText + e + " " + p + " " + status + "\n"
-		msgText
+		newLine := "%0A"
+
+		msgText += fmt.Sprintf("%s %s %d %s", e, p, status, newLine)
 
 		fmt.Println(e, p, status)
 	}
 
-	messenger.SendMsg("testikl")
+	messenger.SendMsg(msgText)
 
 	//fmt.Println( resp.Status )
 	//fmt.Println( resp.StatusCode )

@@ -15,7 +15,7 @@ type Sockets struct {
 
 type Socket struct {
 	Endpoint string `json:"endpoint`
-	Port     int    `json:"port"`
+	Port     string    `json:"port"`
 }
 
 func GibPole(f string, debug bool) (s Sockets) {
