@@ -27,15 +27,10 @@ jobs:
         GOPATH: /usr/local/savla-dev/github-runner/_work/savla-dish/savla-dish
 
     - name: Init
-      run: go mod init savla-dish
+      run: go mod init savla-dish && go mod tidy
       env: 
         GOPATH: /usr/local/savla-dev/github-runner/_work/savla-dish/savla-dish
       
-    - name: Get
-      run: go get ./...
-      env: 
-        GOPATH: /usr/local/savla-dev/github-runner/_work/savla-dish/savla-dish
-
     - name: Build
       run: go build -v ./...
       env: 
