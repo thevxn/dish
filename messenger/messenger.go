@@ -12,7 +12,8 @@ func SendMsg(msg string) {
 		return
 	}
 
-	t_endpoint := "https://api.telegram.org/bot5226521972:AAEqJJYsnBbI3umEEOtEfoHFpnPtxRzXRiM/sendMessage?chat_id=-1001512138288&text=" + msg
+	chat_id := "-1001248157564"
+	t_endpoint := "https://api.telegram.org/bot5226521972:AAEqJJYsnBbI3umEEOtEfoHFpnPtxRzXRiM/sendMessage?chat_id=" + chat_id + "&text=" + msg
 	req, err := http.NewRequest("GET", t_endpoint, nil)
 	if err != nil {
 		// status = err
