@@ -3,7 +3,6 @@ package zasuvka
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -15,7 +14,7 @@ type Sockets struct {
 
 type Socket struct {
 	Name         string `json:"socket_name"`
-	Endpoint     string `json:"endpoint_url`
+	Host	     string `json:"endpoint_url"`
 	Port         int    `json:"port_tcp"`
 	ExpectedCode int    `json:"expected_http_port"`
 }
@@ -23,17 +22,14 @@ type Socket struct {
 func GibPole(f string, debug bool) (s Sockets) {
 	//jsonFile, err := os.Open("sockets.json")
 	jsonFile, err := os.Open(f)
-
 	if err != nil {
-		//fmt.Println(err)
 		log.Fatal(err)
 	}
+	defer jsonFile.Close()
 
 	if debug {
-		fmt.Println("Successfully Opened sockets.json")
+		log.Println("Successfully Opened sockets.json")
 	}
-
-	defer jsonFile.Close()
 
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 
@@ -43,9 +39,8 @@ func GibPole(f string, debug bool) (s Sockets) {
 
 	if debug {
 		for i := 0; i < len(sockets.Sockets); i++ {
-			fmt.Println("Endpoint: " + sockets.Sockets[i].Endpoint)
-			fmt.Print("Port: ")
-			fmt.Print(sockets.Sockets[i].Port)
+			log.Printf("zasuvka: Host: %s", sockets.Sockets[i].Host)
+			log.Printf("zasuvka: Port: %d", sockets.Sockets[i].Port)
 		}
 	}
 
