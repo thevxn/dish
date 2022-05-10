@@ -9,7 +9,7 @@ on:
 jobs:
 
   build:
-    runs-on: [ viking-roura-internal, ubuntu-latest ]
+    runs-on: [ viking-roura-internal, stokrle ]
     strategy: 
       matrix:
         go: [ '1.16', '1.17', '1.18' ]
