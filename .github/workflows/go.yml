@@ -22,6 +22,12 @@ jobs:
       with:
         go-version: ${{ matrix.go }}
 
+    - name: Init
+      run: go mod init savla-dish
+      
+    - name: Get
+      run: go get ./...
+
     - name: Build
       run: go build -v ./...
 
