@@ -1,6 +1,12 @@
 {
   "sockets": [
     {
+      "socket_name": "frank public SSH",
+      "endpoint_url": "165.22.94.196",
+      "port_tcp": 22,
+      "expected_http_code": []
+    },
+    {
       "socket_name": "fgrebox SSH",
       "endpoint_url": "fgrebox.savla.su",
       "port_tcp": 22,
@@ -11,12 +17,6 @@
       "endpoint_url": "frank.savla.su",
       "port_tcp": 22,
       "expected_http_code": [] 
-    },
-    {
-      "socket_name": "frank public SSH",
-      "endpoint_url": "165.22.94.196",
-      "port_tcp": 22,
-      "expected_http_code": []
     },
     {
       "socket_name": "squabbit SSH",
