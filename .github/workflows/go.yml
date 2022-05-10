@@ -32,15 +32,3 @@ jobs:
       env: 
         GOPATH: /usr/local/savla-dev/github-runner/_work/savla-dish/savla-dish
 
-
-    - name: Build
-      run: go build -v ./...
-      when: never
-      env: 
-        GOPATH: /usr/local/savla-dev/github-runner/_work/savla-dish/savla-dish
-
-    - name: Test
-      run: go test -v ./...
-      when: never
-      env: 
-        GOPATH: /usr/local/savla-dev/github-runner/_work/savla-dish/savla-dish
