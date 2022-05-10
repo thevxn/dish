@@ -4,9 +4,10 @@
 
 # https://hub.docker.com/_/golang
 
-FROM golang:1.17.6-alpine
+FROM golang:1.17-alpine
 
 MAINTAINER krusty@savla.dev
+MAINTAINER tack@savla.dev
 
 ARG APP_NAME
 ARG DOCKER_DEV_PORT

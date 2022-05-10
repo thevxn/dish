@@ -2,8 +2,8 @@
 # savla-dish / Makefile
 #
 
-include .env.example
 -include .env
+include .env.example
 
 PROJECT_NAME?=savla-dish
 
@@ -55,7 +55,7 @@ fmt:
 	@echo -e "\n${YELLOW} Code reformating (using gofmt)... ${RESET}\n"
 	@go fmt ${APP_NAME}
 
-build:  fmt
+build:  
 	@echo -e "\n${YELLOW} Building project (docker-compose build)... ${RESET}\n"
 	@docker-compose build 
 

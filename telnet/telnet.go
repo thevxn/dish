@@ -1,12 +1,18 @@
-package runner
+package telnet
 
 import (
 	/*"fmt"*/
 	"log"
 	"net/http"
+
+	"github.com/reiver/go-telnet"
 )
 
 func CheckSite(endpoint string, port int) (status int) {
+
+	var caller telnet.Caller = telnet.StandardCaller
+
+	telnet.DialToAndCall(endpoint + ":" + string(port), caller)
 	req, err := http.NewRequest("GET", endpoint, nil)
 
 	if err != nil {
