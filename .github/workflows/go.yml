@@ -28,5 +28,5 @@ jobs:
 
     - run: go run -v ./.
       env: 
-        GOPATH: /usr/local/savla-dev/github-runner/_work/savla-dish/savla-dish/go/src/savla-dish
+        GOPATH: /usr/local/savla-dev/github-runner/_work/savla-dish/savla-dish/go
 
