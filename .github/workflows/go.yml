@@ -16,20 +16,32 @@ jobs:
     
     steps:
     - uses: actions/checkout@v3
+      with:
+        path: /go/src/savla-dish
 
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
         go-version: ${{ matrix.go }}
+      env: 
+        GOPATH: /go/src/savla-dish
 
     - name: Init
       run: go mod init savla-dish
+      env: 
+        GOPATH: /go/src/savla-dish
       
     - name: Get
       run: go get ./...
+      env: 
+        GOPATH: /go/src/savla-dish
 
     - name: Build
       run: go build -v ./...
+      env: 
+        GOPATH: /go/src/savla-dish
 
     - name: Test
       run: go test -v ./...
+      env: 
+        GOPATH: /go/src/savla-dish

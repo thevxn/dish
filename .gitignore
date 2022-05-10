@@ -1,2 +1,4 @@
 .env
 go.mod
+go.sum
+savla-dish
