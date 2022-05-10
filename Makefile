@@ -2,6 +2,7 @@
 # savla-dish / Makefile
 #
 
+include .env.example
 -include .env
 
 PROJECT_NAME?=savla-dish

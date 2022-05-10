@@ -16,8 +16,8 @@ services:
     networks:
       - ${DOCKER_DEV_NETWORK}
     labels:
-      - "traefik.http.routers.swis_api.rule=Host(`${APP_URL}`)"
-      - "traefik.http.services.swis_api.loadbalancer.server.port=${DOCKER_DEV_PORT}"
+      - "traefik.http.routers.${APP_NAME}.rule=Host(`${APP_URL}`)"
+      - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=${DOCKER_DEV_PORT}"
       - "traefik.docker.network=${DOCKER_DEV_NETWORK}"
 
 networks:
