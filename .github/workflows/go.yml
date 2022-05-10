@@ -24,9 +24,9 @@ jobs:
       with:
         go-version: ${{ matrix.go }}
       env: 
-        GOPATH: /usr/local/savla-dev/github-runner/_work/savla-dish/
+        GOPATH: /usr/local/savla-dev/github-runner/_work/savla-dish/savla-dish
 
     - run: go run -v ./.
       env: 
-        GOPATH: /usr/local/savla-dev/github-runner/_work/savla-dish/
+        GOPATH: /usr/local/savla-dev/github-runner/_work/savla-dish/savla-dish
 
