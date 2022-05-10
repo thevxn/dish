@@ -16,7 +16,8 @@ ENV APP_NAME ${APP_NAME}
 ENV DOCKER_DEV_PORT ${DOCKER_DEV_PORT}
 
 WORKDIR /go/src/${APP_NAME}
-COPY . .
+COPY . /go/src/${APP_NAME}
+COPY .docker/resolv.conf /etc/resolv.conf
 
 RUN go mod init
 RUN go get -d -v ./...
