@@ -6,15 +6,19 @@ import (
 	"net/http"
 )
 
+const (
+	bot_token string = "5226521972:AAEqJJYsnBbI3umEEOtEfoHFpnPtxRzXRiM"
+	chat_id string = "-1001248157564"
+	t_endpoint string = "https://api.telegram.org/bot" + bot_token + "/sendMessage?chat_id=" + chat_id + "&text="
+)
+
 func SendMsg(msg string) {
 	if msg == "" {
 		log.Print("no message given")
 		return
 	}
 
-	chat_id := "-1001248157564"
-	t_endpoint := "https://api.telegram.org/bot5226521972:AAEqJJYsnBbI3umEEOtEfoHFpnPtxRzXRiM/sendMessage?chat_id=" + chat_id + "&text=" + msg
-	req, err := http.NewRequest("GET", t_endpoint, nil)
+	req, err := http.NewRequest("GET", t_endpoint + msg, nil)
 	if err != nil {
 		// status = err
 		// continue
