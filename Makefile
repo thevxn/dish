@@ -52,7 +52,7 @@ info:
 	@echo -e "${YELLOW} make stop    --- stop and purge project (only docker containers!) ${RESET}\n"
 
 fmt:
-	@echo -e "\n${YELLOW} Code reformating (using gofmt)... ${RESET}\n"
+	@echo -e "\n${YELLOW} [local] Code reformating (using gofmt)... ${RESET}\n"
 	@go fmt ${APP_NAME}
 
 build:  
@@ -63,6 +63,11 @@ run:	build
 	@echo -e "\n${YELLOW} Starting project (docker-compose up)... ${RESET}\n"
 	@docker-compose up --force-recreate --detach
 
+## THIS IS NOT STABLE!
+export: run
+	@echo -e "\n${YELLOW} Exporting built golang binary... ${RESET}\n"
+	@docker cp ${DOCKER_DEV_CONTAINER}:/go/bin/${APP_NAME} - > ${APP_NAME}_go${GOLANG_VERSION_MINOR}
+
 logs:
 	@echo -e "\n${YELLOW} Fetching container's logs (CTRL-C to exit)... ${RESET}\n"
 	@docker logs ${DOCKER_DEV_CONTAINER} -f
@@ -72,5 +77,5 @@ stop:
 	@docker-compose down
 
 test:
-	@echo -e "\n${YELLOW} Running unit tests (go test)... ${RESET}\n"
+	@echo -e "\n${YELLOW} [local] Running unit tests (go test)... ${RESET}\n"
 	@go test ${APP_NAME}
