@@ -8,9 +8,11 @@ services:
       context: .
       args: 
         APP_NAME: ${APP_NAME}
-        PROJECT_NAME: ${PROJECT_NAME}
-        DOCKER_DEV_PORT: ${DOCKER_DEV_PORT}
+        #DOCKER_DEV_PORT: ${DOCKER_DEV_PORT}
     restart: unless-stopped
+    dns:
+      - 10.4.5.130
+      - 1.1.1.2
     ports:
       - "${DOCKER_DEV_EXTERNAL_PORT}:${DOCKER_DEV_PORT}"
     networks:

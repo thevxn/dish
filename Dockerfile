@@ -4,25 +4,28 @@
 
 # https://hub.docker.com/_/golang
 
-FROM golang:1.17-alpine
+ARG GOLANG_VERSION_MINOR=1.17
+
+FROM golang:${GOLANG_VERSION_MINOR}-alpine
 
 MAINTAINER krusty@savla.dev
 MAINTAINER tack@savla.dev
 
 ARG APP_NAME
-ARG DOCKER_DEV_PORT
 
 ENV APP_NAME ${APP_NAME}
-ENV DOCKER_DEV_PORT ${DOCKER_DEV_PORT}
+ENV APP_VERSION ${APP_NAME}_${GOLANG_VERSION_MINOR}
 
 WORKDIR /go/src/${APP_NAME}
 COPY . /go/src/${APP_NAME}
 COPY .docker/resolv.conf /etc/resolv.conf
 
-RUN go mod init
+# run "build job"
+RUN go mod init 
 RUN go get -d -v ./...
-RUN go install 
+RUN go version; go env
+RUN go install ${APP_NAME} && \
+	ln -s ${GOPATH}/bin/${APP_NAME} ${GOPATH}/bin/${APP_VERSION}
 
-EXPOSE ${DOCKER_DEV_PORT}
-CMD ${APP_NAME}
+CMD ${APP_VERSION}
 

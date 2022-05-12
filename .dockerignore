@@ -1,0 +1,6 @@
+!.docker/resolv.conf
+.git*
+go.mod
+go.sum
+Dockerfile
+
