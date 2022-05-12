@@ -52,13 +52,13 @@ func RawConnect(protocol string, host string, port int) (status int, err error) 
 // CheckSite executes test over HTTP/S endpoints exclusively
 func CheckSite(host string, port int) (status int) {
 	var netClient = &http.Client{}
-	url := getEndpoint(host, port)
+	//url := getEndpoint(host, port)
 
 	// console debug (should be toggable to increase speed)
-	log.Println("runner: checksite: " + url)
+	log.Println("runner: checksite: " + host)
 
 	// open socket
-	resp, err := netClient.Get(url)
+	resp, err := netClient.Get(host + ":" + strconv.Itoa(port))
 	if err != nil {
 		log.Fatalln(err)
 		return 1

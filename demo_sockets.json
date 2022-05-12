@@ -55,12 +55,6 @@
       "expected_http_code": []
     },
     {
-      "socket_name": "api.n0p.cz HTTPS",
-      "host_name": "https://api.n0p.cz",
-      "port_tcp": 443,
-      "expected_http_code": [ 200, 301 ]
-    },
-    {
       "socket_name": "docs.savla.su HTTP",
       "host_name": "http://docs.savla.su",
       "port_tcp": 80,
