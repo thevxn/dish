@@ -3,6 +3,7 @@ package main
 
 import (
 	"fmt"
+	"regexp"
 
 	"savla-dish/messenger"
 	"savla-dish/runner"
@@ -26,21 +27,21 @@ func main() {
 
 	// iterate over given/loaded sockets
 	for i := 0; i < len(sockets.Sockets); i++ {
-	//for _, sock := range sockets.Sockets {
-		//h := sock.Endpoint
-		//p := sock.Port
 		h := sockets.Sockets[i].Host
 		p := sockets.Sockets[i].Port
-		//e := net.JoinHostPort(h, p)
 
-		// testing paradigmas 
-		//status := runner.CheckSite(h, p)
-		//status := telnet.TestDial(h, p)
-		status, _ := runner.RawConnect(h, p)
+		// http/https app protocol patterns check
+		match, _ := regexp.MatchString(`^([http|https])://`, h); if match {
+			status := runner.CheckSite(h, p)
+			msgText += fmt.Sprintf("%s %d %d %s", h, p, status, newLine)
+			continue
+		}
 
+		// testing raw host and port (tcp)
+		status, _ := runner.RawConnect("tcp", h, p)
 		msgText += fmt.Sprintf("%s %d %d %s", h, p, status, newLine)
 
-		fmt.Println(h, p, status)
+		//fmt.Println(h, p, status)
 	}
 
 	// mute dish messenger if needed in a custom build/env

@@ -13,10 +13,10 @@ type Sockets struct {
 }
 
 type Socket struct {
-	Name         string `json:"socket_name"`
-	Host	     string `json:"endpoint_url"`
-	Port         int    `json:"port_tcp"`
-	ExpectedCode int    `json:"expected_http_port"`
+	Name         	  string `json:"socket_name"`
+	Host	     	  string `json:"host_name"`
+	Port         	  int    `json:"port_tcp"`
+	ExpectedHttpCode  int    `json:"expected_http_port"`
 }
 
 func GibPole(f string, debug bool) (s Sockets) {

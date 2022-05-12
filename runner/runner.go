@@ -8,30 +8,34 @@ import (
 	//"time"
 )
 
-
-func RawConnect(host string, port int) (status int, err error) {
+// getEndpoint private (unexported) macro
+func getEndpoint(host string, port int) string {
 	// reformat int port to number string
 	portString := strconv.Itoa(port)
 
+	return net.JoinHostPort(host, portString)
+}
+
+
+func RawConnect(protocol string, host string, port int) (status int, err error) {
 	// vars
-	endpoint := net.JoinHostPort(host, portString)
-	//endpoint := host + ":" + portString
-	//protocol := "tcp"
+	endpoint := getEndpoint(host, port)
 	//timeout := time.Second
 
-	log.Println("runner: " + endpoint)
+	// console debug
+	log.Println("runner: rawconnect: " + endpoint)
 
 	// open the socket
 	//conn, err := net.DialTimeout("tcp", endpoint, timeout)
-	conn, err := net.Dial("tcp", endpoint)
+	conn, err := net.Dial(protocol, endpoint)
 
-	// Close open conn after 5 seconds
-	//&conn.SetReadDeadline(time.Seconds(&timeout))
+	// close open conn after 5 seconds
+	//conn.SetReadDeadline(time.Second*5)
 
 	// prolly more possible to get not-nil err, than not-nil conn 
-	// https://stackoverflow.com/a/56336811
+	// see https://stackoverflow.com/a/56336811
 	if err != nil {
-		log.Println("runner: conn error: " + endpoint)
+		log.Println("runner: rawconnect: conn error: " + endpoint)
 		log.Println(err)
 		return 1, err
 	}
@@ -41,16 +45,23 @@ func RawConnect(host string, port int) (status int, err error) {
 		return 0, nil
 	}
 
-	return 0, nil
+	// unexpected error
+	return 1, nil
 }
 
-func CheckSite(endpoint string, port int) (status int) {
+// CheckSite executes test over HTTP/S endpoints exclusively
+func CheckSite(host string, port int) (status int) {
 	var netClient = &http.Client{}
+	url := getEndpoint(host, port)
 
-	resp, err := netClient.Get("http://" + endpoint + "" + strconv.Itoa(port))
+	// console debug (should be toggable to increase speed)
+	log.Println("runner: checksite: " + url)
 
+	// open socket
+	resp, err := netClient.Get(url)
 	if err != nil {
 		log.Fatalln(err)
+		return 1
 	}
 
 	log.Print(resp)
