@@ -9,7 +9,7 @@ on:
 jobs:
 
   build:
-    runs-on: [ self-hosted, stokrle ]
+    runs-on: [ viking-roura-internal, stokrle ]
     strategy: 
       matrix:
         go: [ '1.16', '1.17' ]
