@@ -31,15 +31,15 @@ func main() {
 		p := sockets.Sockets[i].Port
 
 		// http/https app protocol patterns check
-		match, _ := regexp.MatchString(`^([http|https])://`, h); if match {
+		match, _ := regexp.MatchString("^(http|https)://", h); if match {
 			status := runner.CheckSite(h, p)
-			msgText += fmt.Sprintf("%s %d %d %s", h, p, status, newLine)
+			msgText += fmt.Sprintf("%s:%d %d %s", h, p, status, newLine)
 			continue
 		}
 
 		// testing raw host and port (tcp)
 		status, _ := runner.RawConnect("tcp", h, p)
-		msgText += fmt.Sprintf("%s %d %d %s", h, p, status, newLine)
+		msgText += fmt.Sprintf("%s:%d %d %s", h, p, status, newLine)
 
 		//fmt.Println(h, p, status)
 	}
