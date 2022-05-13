@@ -18,42 +18,43 @@ const (
 	DevMode = true
 	// could be a character/type byte too maybe
 	newLine string = "%0A"
-	socketsListFile string = "demo_sockets.json"
+	socketListFile string = "demo_sockets.json"
 )
 
 func main() {
 	// load init config/socket list to run tests on --- external file!
-	sockets := zasuvka.GibPole(socketsListFile)
+	sockets := zasuvka.GibPole(socketListFile)
 
 	// final report header
 	msgText := fmt.Sprintf("savla-dish run results (failed): %s", newLine)
 
 	// iterate over given/loaded sockets
-	for i := 0; i < len(sockets.Sockets); i++ {
-		h := sockets.Sockets[i].Host
-		p := sockets.Sockets[i].Port
-
+	for _, socket := range sockets.Sockets {
+		host := socket.Host
+		port := socket.Port
+		
 		// http/https app protocol patterns check
-		match, _ := regexp.MatchString("^(http|https)://", h); if match {
+		match, _ := regexp.MatchString("^(http|https)://", host); if match {
 			// compare HTTP response codes 
-			exp := sockets.Sockets[i].ExpectedHttpCodes
-			status := runner.CheckSite(h, p, exp); if status != 0 {
-				msgText += fmt.Sprintf("%s:%d %d %s", h, p, status, newLine)
+			expectedCodes := socket.ExpectedHttpCodes
+			path := socket.PathHttp
+
+			status := runner.CheckSite(host, port, path, expectedCodes); if status != 0 {
+				msgText += fmt.Sprintf("%s:%d %d %s", host, port, status, newLine)
 			}
 			continue
 		}
 
 		// testing raw host and port (tcp), report only unsuccessful connects?
-		status, _ := runner.RawConnect("tcp", h, p); if status > 0 {
-			msgText += fmt.Sprintf("%s:%d %d %s", h, p, status, newLine)
+		status, _ := runner.RawConnect("tcp", host, port); if status > 0 {
+			msgText += fmt.Sprintf("%s:%d %d %s", host, port, status, newLine)
 		}
-
-		//fmt.Println(h, p, status)
 	}
 
 	// mute dish messenger if needed in a custom build/env
 	if !DevMode {
 		messenger.SendMsg(msgText)
+		//message.Send()
 	}
 
 	// final report output to stdout/console/logs

@@ -21,7 +21,7 @@ func getEndpoint(host string, port int) string {
 	return net.JoinHostPort(host, portString)
 }
 
-
+// RawConnect function to direct host:port socket check 
 func RawConnect(protocol string, host string, port int) (status int, err error) {
 	endpoint := getEndpoint(host, port)
 	timeout := time.Duration(5 * time.Second)
@@ -69,19 +69,20 @@ func checkHttpCode(responseCode int, expectedCodes []int) (status int) {
 }
 
 // CheckSite executes test over HTTP/S endpoints exclusively
-func CheckSite(host string, port int, expectedCodes []int) (status int) {
+func CheckSite(host string, port int, path string, expectedCodes []int) (status int) {
+	// config http client
 	var netClient = &http.Client{
 		Timeout: 5 * time.Second,
 	}
+	url := host + ":" + strconv.Itoa(port) + path
 
-	// console debug (should be toggable to increase speed)
+	// console debug
 	if DevMode {
-		log.Println("runner: checksite: " + host)
+		log.Println("runner: checksite: " + url)
 	}
 
 	// open socket --- give Head
-	//resp, err := netClient.Get(host + ":" + strconv.Itoa(port))
-	resp, err := netClient.Head(host + ":" + strconv.Itoa(port))
+	resp, err := netClient.Head(url)
 	if err != nil {
 		// this construct prolly halts the main process, close socket, not the whole executable...
 		//log.Fatalln(err)

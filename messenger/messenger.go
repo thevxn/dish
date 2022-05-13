@@ -11,38 +11,39 @@ import (
 const (
 	// see http://docs.savla.su/projects/telegram-bots
 	// TODO: do not hardcode telegram bots!
-	bot_token string = "5226521972:AAEqJJYsnBbI3umEEOtEfoHFpnPtxRzXRiM"
-	chat_id string = "-1001248157564"
-	t_endpoint string = "https://api.telegram.org/bot" + bot_token + "/sendMessage?chat_id=" + chat_id + "&text="
+	botToken string = "5226521972:AAEqJJYsnBbI3umEEOtEfoHFpnPtxRzXRiM"
+	chatID string = "-1001248157564"
+	telegramURL string = "https://api.telegram.org/bot" + botToken + "/sendMessage?chat_id=" + chatID + "&text="
 )
 
-func SendMsg(msg string) {
+func SendMsg(msg string) (status int) {
 	if msg == "" {
-		log.Print("no message given")
-		return
+		log.Println("messager: no message given")
+		return 1
 	}
 
-	req, err := http.NewRequest("GET", t_endpoint + msg, nil)
-	if err != nil {
-		// status = err
-		// continue
-		log.Fatal(err)
+	req, err := http.NewRequest("GET", telegramURL + msg, nil); if err != nil {
+		log.Println(err)
+		return 1
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := http.DefaultClient.Do(req)
-	//resp, err := http.Get(t_endpoint + msg)
-	if err != nil {
-		log.Fatal(err)
+	//resp, err := http.DefaultClient.Do(req)
+	resp, err := http.Get(telegramURL + msg); if err != nil {
+		log.Println(err)
+		return 1
 	}
 
 	// We Read the response body on the line below.
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatalln(err)
+	body, err := ioutil.ReadAll(resp.Body); if err != nil {
+		log.Println(err)
+		return 1
 	}
 
 	// Convert the body to type string
+	resp.Body.Close()
 	sb := string(body)
 	log.Printf(sb)
+
+	return 0
 }

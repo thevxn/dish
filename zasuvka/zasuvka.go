@@ -16,7 +16,8 @@ type Socket struct {
 	Name         	  string `json:"socket_name"`
 	Host	     	  string `json:"host_name"`
 	Port         	  int    `json:"port_tcp"`
-	ExpectedHttpCodes []int  `json:"expected_http_code"`
+	ExpectedHttpCodes []int  `json:"expected_http_code_array"`
+	PathHttp	  string `json:"path_http"`
 }
 
 func GibPole(f string) (s Sockets) {
