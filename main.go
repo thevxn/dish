@@ -14,6 +14,7 @@ import (
 )
 
 const (
+	// if false, messenger sends telegrams
 	DevMode = true
 	// could be a character/type byte too maybe
 	newLine string = "%0A"
@@ -25,7 +26,7 @@ func main() {
 	sockets := zasuvka.GibPole(socketsListFile)
 
 	// final report header
-	msgText := fmt.Sprintf("savla-dish run results: %s", newLine)
+	msgText := fmt.Sprintf("savla-dish run results (failed): %s", newLine)
 
 	// iterate over given/loaded sockets
 	for i := 0; i < len(sockets.Sockets); i++ {
@@ -36,9 +37,9 @@ func main() {
 		match, _ := regexp.MatchString("^(http|https)://", h); if match {
 			// compare HTTP response codes 
 			exp := sockets.Sockets[i].ExpectedHttpCodes
-			status := runner.CheckSite(h, p, exp); 
-
-			msgText += fmt.Sprintf("%s:%d %d %s", h, p, status, newLine)
+			status := runner.CheckSite(h, p, exp); if status != 0 {
+				msgText += fmt.Sprintf("%s:%d %d %s", h, p, status, newLine)
+			}
 			continue
 		}
 
