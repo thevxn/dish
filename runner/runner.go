@@ -1,3 +1,6 @@
+// +build dev
+
+// Runner package for custom socket test execution
 package runner
 
 import (
@@ -5,8 +8,10 @@ import (
 	"net"
 	"net/http"
 	"strconv"
-	//"time"
+	"time"
 )
+
+const DevMode = true
 
 // getEndpoint private (unexported) macro
 func getEndpoint(host string, port int) string {
@@ -18,16 +23,17 @@ func getEndpoint(host string, port int) string {
 
 
 func RawConnect(protocol string, host string, port int) (status int, err error) {
-	// vars
 	endpoint := getEndpoint(host, port)
-	//timeout := time.Second
+	timeout := time.Duration(5 * time.Second)
 
 	// console debug
-	log.Println("runner: rawconnect: " + endpoint)
+	if DevMode {
+		log.Println("runner: rawconnect: " + endpoint)
+	}
 
 	// open the socket
 	//conn, err := net.DialTimeout("tcp", endpoint, timeout)
-	conn, err := net.Dial(protocol, endpoint)
+	conn, err := net.DialTimeout(protocol, endpoint, timeout)
 
 	// close open conn after 5 seconds
 	//conn.SetReadDeadline(time.Second*5)
@@ -40,8 +46,7 @@ func RawConnect(protocol string, host string, port int) (status int, err error) 
 		return 1, err
 	}
 	if conn != nil {
-		defer conn.Close()
-		//log.Println("[-] Opened: " + conn.Read())
+		conn.Close()
 		return 0, nil
 	}
 
@@ -49,23 +54,55 @@ func RawConnect(protocol string, host string, port int) (status int, err error) 
 	return 1, nil
 }
 
+// checkHttpCode function for response and expected HTTP codes comparsion
+func checkHttpCode(responseCode int, expectedCodes []int) (status int) {
+	for _, code := range expectedCodes {
+		if responseCode == code {
+			// site is OK! do not report ok sites?
+			//&msgText += fmt.Sprintf("%s:%d %d %s", h, p, status, newLine)
+			return 0
+			break
+		}
+	}
+
+	return 1
+}
+
 // CheckSite executes test over HTTP/S endpoints exclusively
-func CheckSite(host string, port int) (status int) {
-	var netClient = &http.Client{}
-	//url := getEndpoint(host, port)
+func CheckSite(host string, port int, expectedCodes []int) (status int) {
+	var netClient = &http.Client{
+		Timeout: 5 * time.Second,
+	}
 
 	// console debug (should be toggable to increase speed)
-	log.Println("runner: checksite: " + host)
+	if DevMode {
+		log.Println("runner: checksite: " + host)
+	}
 
-	// open socket
-	resp, err := netClient.Get(host + ":" + strconv.Itoa(port))
+	// open socket --- give Head
+	//resp, err := netClient.Get(host + ":" + strconv.Itoa(port))
+	resp, err := netClient.Head(host + ":" + strconv.Itoa(port))
 	if err != nil {
-		log.Fatalln(err)
+		// this construct prolly halts the main process, close socket, not the whole executable...
+		//log.Fatalln(err)
+		log.Println(err)
 		return 1
 	}
 
-	log.Print(resp)
-	return 0
+	// fetch StatusCode for HTTP expected code comparsion
+	if resp != nil {
+		//defer resp.Body.Close()
+		//log.Print(resp.StatusCode)
+		//return resp.StatusCode
+		return checkHttpCode(resp.StatusCode, expectedCodes)
+	}
+
+	return 1
+
+
+	//
+	// LEGACY, to be deleted
+	//
 
 	/*
 	req, err := http.NewRequest("GET", endpoint, nil)

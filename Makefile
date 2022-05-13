@@ -59,11 +59,17 @@ build:
 	@echo -e "\n${YELLOW} Building project (docker-compose build)... ${RESET}\n"
 	@docker-compose build 
 
+local_build: 
+	@echo -e "\n${YELLOW} [local] Building project... ${RESET}\n"
+	@go mod init 2>/dev/null; \
+		go build -tags dev ${APP_NAME}
+
 run:	build
 	@echo -e "\n${YELLOW} Starting project (docker-compose up)... ${RESET}\n"
 	@docker-compose up --force-recreate --detach
 
 ## THIS IS NOT STABLE!
+
 export: run
 	@echo -e "\n${YELLOW} Exporting built golang binary... ${RESET}\n"
 	@docker cp ${DOCKER_DEV_CONTAINER}:/go/bin/${APP_NAME} - > ${APP_NAME}_go${GOLANG_VERSION_MINOR}

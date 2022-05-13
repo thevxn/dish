@@ -1,3 +1,5 @@
+// go:build ignore
+
 // savla-dish executable -- providing a simple remote socket testing
 package main
 
@@ -12,17 +14,17 @@ import (
 )
 
 const (
-	devMode = true
+	DevMode = true
 	// could be a character/type byte too maybe
 	newLine string = "%0A"
 	socketsListFile string = "demo_sockets.json"
 )
 
 func main() {
-	// load init config/socket list to run tests on
-	sockets := zasuvka.GibPole(socketsListFile, false)
+	// load init config/socket list to run tests on --- external file!
+	sockets := zasuvka.GibPole(socketsListFile)
 
-	// header
+	// final report header
 	msgText := fmt.Sprintf("savla-dish run results: %s", newLine)
 
 	// iterate over given/loaded sockets
@@ -32,20 +34,24 @@ func main() {
 
 		// http/https app protocol patterns check
 		match, _ := regexp.MatchString("^(http|https)://", h); if match {
-			status := runner.CheckSite(h, p)
+			// compare HTTP response codes 
+			exp := sockets.Sockets[i].ExpectedHttpCodes
+			status := runner.CheckSite(h, p, exp); 
+
 			msgText += fmt.Sprintf("%s:%d %d %s", h, p, status, newLine)
 			continue
 		}
 
-		// testing raw host and port (tcp)
-		status, _ := runner.RawConnect("tcp", h, p)
-		msgText += fmt.Sprintf("%s:%d %d %s", h, p, status, newLine)
+		// testing raw host and port (tcp), report only unsuccessful connects?
+		status, _ := runner.RawConnect("tcp", h, p); if status > 0 {
+			msgText += fmt.Sprintf("%s:%d %d %s", h, p, status, newLine)
+		}
 
 		//fmt.Println(h, p, status)
 	}
 
 	// mute dish messenger if needed in a custom build/env
-	if !devMode {
+	if !DevMode {
 		messenger.SendMsg(msgText)
 	}
 

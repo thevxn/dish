@@ -1,3 +1,5 @@
+// +build dev
+
 package messenger
 
 import (
@@ -7,6 +9,8 @@ import (
 )
 
 const (
+	// see http://docs.savla.su/projects/telegram-bots
+	// TODO: do not hardcode telegram bots!
 	bot_token string = "5226521972:AAEqJJYsnBbI3umEEOtEfoHFpnPtxRzXRiM"
 	chat_id string = "-1001248157564"
 	t_endpoint string = "https://api.telegram.org/bot" + bot_token + "/sendMessage?chat_id=" + chat_id + "&text="

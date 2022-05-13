@@ -16,10 +16,12 @@ type Socket struct {
 	Name         	  string `json:"socket_name"`
 	Host	     	  string `json:"host_name"`
 	Port         	  int    `json:"port_tcp"`
-	ExpectedHttpCode  int    `json:"expected_http_port"`
+	ExpectedHttpCodes []int  `json:"expected_http_code"`
 }
 
-func GibPole(f string, debug bool) (s Sockets) {
+func GibPole(f string) (s Sockets) {
+	const DevMode = false
+
 	//jsonFile, err := os.Open("sockets.json")
 	jsonFile, err := os.Open(f)
 	if err != nil {
@@ -27,7 +29,7 @@ func GibPole(f string, debug bool) (s Sockets) {
 	}
 	defer jsonFile.Close()
 
-	if debug {
+	if DevMode {
 		log.Println("Successfully Opened sockets.json")
 	}
 
@@ -37,10 +39,11 @@ func GibPole(f string, debug bool) (s Sockets) {
 
 	json.Unmarshal(byteValue, &sockets)
 
-	if debug {
+	if DevMode {
 		for i := 0; i < len(sockets.Sockets); i++ {
 			log.Printf("zasuvka: Host: %s", sockets.Sockets[i].Host)
 			log.Printf("zasuvka: Port: %d", sockets.Sockets[i].Port)
+			log.Printf("zasuvka: Port: %d", sockets.Sockets[i].ExpectedHttpCodes)
 		}
 	}
 
