@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-const DevMode = true
+const DevMode = false
 
 // getEndpoint private (unexported) macro
 func getEndpoint(host string, port int) string {
@@ -65,7 +65,7 @@ func checkHttpCode(responseCode int, expectedCodes []int) (status int) {
 		}
 	}
 
-	return 1
+	return responseCode
 }
 
 // CheckSite executes test over HTTP/S endpoints exclusively
@@ -93,8 +93,7 @@ func CheckSite(host string, port int, path string, expectedCodes []int) (status 
 	// fetch StatusCode for HTTP expected code comparsion
 	if resp != nil {
 		//defer resp.Body.Close()
-		log.Print(resp.StatusCode)
-		//return resp.StatusCode
+		//log.Print(resp.StatusCode)
 		return checkHttpCode(resp.StatusCode, expectedCodes)
 	}
 

@@ -15,7 +15,7 @@ import (
 
 const (
 	// if false, messenger sends telegrams
-	DevMode = true
+	DevMode = false
 	// could be a character/type byte too maybe
 	newLine string = "%0A"
 	//socketListSource string = "./demo_sockets.json"
@@ -28,6 +28,7 @@ func main() {
 
 	// final report header
 	msgText := fmt.Sprintf("savla-dish run results (failed): %s", newLine)
+	failedCount := 0
 
 	// iterate over given/loaded sockets
 	for _, socket := range sockets.Sockets {
@@ -40,20 +41,24 @@ func main() {
 			expectedCodes := socket.ExpectedHttpCodes
 			path := socket.PathHttp
 
+			// here, 'status' should contain HTTP code if >0
 			status := runner.CheckSite(host, port, path, expectedCodes); if status != 0 {
 				msgText += fmt.Sprintf("%s:%d %d %s", host, port, status, newLine)
+				failedCount++
 			}
 			continue
 		}
 
-		// testing raw host and port (tcp), report only unsuccessful connects?
+		// testing raw host and port (tcp), report only unsuccessful tests
 		status, _ := runner.RawConnect("tcp", host, port); if status > 0 {
-			msgText += fmt.Sprintf("%s:%d %d %s", host, port, status, newLine)
+			msgText += fmt.Sprintf("%s:%d %s %s", host, port, "timeout", newLine)
+			failedCount++
+			//msgText += fmt.Sprintf("%s:%d %d %s", host, port, status, newLine)
 		}
 	}
 
 	// mute dish messenger if needed in a custom build/env
-	if !DevMode {
+	if !DevMode && failedCount > 0 {
 		messenger.SendMsg(msgText)
 		//message.Send()
 	}
