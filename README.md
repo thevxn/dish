@@ -8,5 +8,5 @@ package `messenger` contains sensitive data (token, chat_id etc), therefore it i
 
 ```
 # build binary/module with all packages
-go build -tags dev savla-dev
+go build -tags dev savla-dish
 ```
