@@ -93,7 +93,7 @@ func CheckSite(host string, port int, path string, expectedCodes []int) (status 
 	// fetch StatusCode for HTTP expected code comparsion
 	if resp != nil {
 		//defer resp.Body.Close()
-		//log.Print(resp.StatusCode)
+		log.Print(resp.StatusCode)
 		//return resp.StatusCode
 		return checkHttpCode(resp.StatusCode, expectedCodes)
 	}

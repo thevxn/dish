@@ -18,12 +18,13 @@ const (
 	DevMode = true
 	// could be a character/type byte too maybe
 	newLine string = "%0A"
-	socketListFile string = "demo_sockets.json"
+	//socketListSource string = "./demo_sockets.json"
+	socketListSource string = "http://swapi.savla.su:80/dish/sockets"
 )
 
 func main() {
 	// load init config/socket list to run tests on --- external file!
-	sockets := zasuvka.GibPole(socketListFile)
+	sockets := zasuvka.GibPole(socketListSource)
 
 	// final report header
 	msgText := fmt.Sprintf("savla-dish run results (failed): %s", newLine)

@@ -109,7 +109,7 @@
       "socket_name": "kyrspa.wz.cz litter HTTP",
       "host_name": "http://kyrspa.wz.cz",
       "port_tcp": 80,
-      "path_http": "/litter",
+      "path_http": "/litter/?page=login",
       "expected_http_code_array": [ 200, 301, 302, 404 ]
     },
     {
@@ -151,7 +151,7 @@
       "socket_name": "swapi.savla.su HTTP",
       "host_name": "http://swapi.savla.su",
       "port_tcp": 80,
-      "path_http": "/",
+      "path_http": "/dish/ping",
       "expected_http_code_array": [ 200 ]
     },
     {
