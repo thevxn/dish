@@ -1,49 +1,54 @@
-// +build dev
-
 package messenger
 
 import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 )
 
-const (
-	// see http://docs.savla.su/projects/telegram-bots
-	// TODO: do not hardcode telegram bots!
-	botToken string = "5226521972:AAEqJJYsnBbI3umEEOtEfoHFpnPtxRzXRiM"
-	chatID string = "-1001248157564"
-	telegramURL string = "https://api.telegram.org/bot" + botToken + "/sendMessage?chat_id=" + chatID + "&text="
+var (
+	UseTelegram *bool
+	TelegramBotToken *string
+	TelegramChatID *string
+	telegramURL string
 )
 
-func SendMsg(msg string) (status int) {
-	if msg == "" {
+func SendMsg(rawMessage string, verbose bool) (status int) {
+	if rawMessage == "" && verbose {
 		log.Println("messager: no message given")
 		return 1
 	}
 
-	req, err := http.NewRequest("GET", telegramURL + msg, nil); if err != nil {
+	// escape dish report string for Telegram
+	msg := url.QueryEscape(rawMessage)
+	
+	// form the Telegram URL
+	telegramURL = "https://api.telegram.org/bot" + *TelegramBotToken + "/sendMessage?chat_id=" + *TelegramChatID + "&text="
+
+	req, err := http.NewRequest("GET", telegramURL + msg, nil); if err != nil && verbose {
 		log.Println(err)
 		return 1
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	//resp, err := http.DefaultClient.Do(req)
-	resp, err := http.Get(telegramURL + msg); if err != nil {
+	resp, err := http.Get(telegramURL + msg); if err != nil && verbose {
 		log.Println(err)
 		return 1
 	}
 
-	// We Read the response body on the line below.
-	body, err := ioutil.ReadAll(resp.Body); if err != nil {
+	// read the response body
+	body, err := ioutil.ReadAll(resp.Body); if err != nil && verbose {
 		log.Println(err)
 		return 1
 	}
 
-	// Convert the body to type string
 	resp.Body.Close()
-	sb := string(body)
-	log.Printf(sb)
+
+	if verbose {
+		log.Println(telegramURL)
+		log.Println(string(body))
+	}
 
 	return 0
 }

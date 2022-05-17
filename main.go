@@ -1,72 +1,68 @@
 // go:build ignore
 
-// savla-dish executable -- providing a simple remote socket testing
+// savla-dish one-shot package for fast batch socket testing
 package main
 
 import (
 	"fmt"
+	"flag"
 	"regexp"
 
 	"savla-dish/messenger"
 	"savla-dish/runner"
-	//"savla-dish/telnet"
-	"savla-dish/zasuvka"
-)
-
-const (
-	// if false, messenger sends telegrams
-	DevMode = false
-	// could be a character/type byte too maybe
-	newLine string = "%0A"
-	//socketListSource string = "./demo_sockets.json"
-	socketListSource string = "http://swapi.savla.su:80/dish/sockets"
+	"savla-dish/socket"
 )
 
 func main() {
+	// predefine flags --- flag returns a pointer!
+	sourceFlag  := flag.String("source", "demo_sockets.json", "a string, path to/URL JSON socket list")
+	verboseFlag := flag.Bool("verbose", false, "a bool, console stdout logging toggle")
+
+	// telegram provider flags
+	messenger.UseTelegram = flag.Bool("telegram", false, "a bool, Telegram provider usage toggle")
+	messenger.TelegramBotToken = flag.String("telegramBotToken", "", "a string, Telegram bot private token")
+	messenger.TelegramChatID = flag.String("telegramChatID", "", "a string/signet int, Telegram chat/channel ID")
+
+	flag.Parse()
+
 	// load init config/socket list to run tests on --- external file!
-	sockets := zasuvka.GibPole(socketListSource)
+	sockets := socket.FetchSocketList(*sourceFlag, *verboseFlag)
 
 	// final report header
-	msgText := fmt.Sprintf("savla-dish run results (failed): %s", newLine)
-	failedCount := 0
+	messengerText := fmt.Sprintln("[ savla-dish run results (failed) ]")
+	var failedCount int8 = 0
 
 	// iterate over given/loaded sockets
 	for _, socket := range sockets.Sockets {
-		host := socket.Host
-		port := socket.Port
-		
 		// http/https app protocol patterns check
-		match, _ := regexp.MatchString("^(http|https)://", host); if match {
-			// compare HTTP response codes 
-			expectedCodes := socket.ExpectedHttpCodes
-			path := socket.PathHttp
-
+		match, _ := regexp.MatchString("^(http|https)://", socket.Host); if match {
 			// here, 'status' should contain HTTP code if >0
-			status := runner.CheckSite(host, port, path, expectedCodes); if status != 0 {
-				msgText += fmt.Sprintf("%s:%d %d %s", host, port, status, newLine)
+			status := runner.CheckSite(socket, *verboseFlag); if status != 0 {
+				messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, socket.PathHttp, "--", status)
 				failedCount++
 			}
 			continue
 		}
 
-		// testing raw host and port (tcp), report only unsuccessful tests
-		status, _ := runner.RawConnect("tcp", host, port); if status > 0 {
-			msgText += fmt.Sprintf("%s:%d %s %s", host, port, "timeout", newLine)
+		// testing raw host and port (tcp), report only unsuccessful tests; exclusively non-HTTP/S sockets
+		status, _ := runner.RawConnect(socket, *verboseFlag); if status > 0 {
+			messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, "-- timeout")
 			failedCount++
-			//msgText += fmt.Sprintf("%s:%d %d %s", host, port, status, newLine)
 		}
 	}
 
-	// mute dish messenger if needed in a custom build/env
-	if !DevMode && failedCount > 0 {
-		messenger.SendMsg(msgText)
-		//message.Send()
+	// reporting threshold
+	if failedCount > 0 {
+		// send alert message
+		if *messenger.UseTelegram {
+			messenger.SendMsg(messengerText, *verboseFlag)
+		}
+
+		// final report output to stdout/console/docker logs
+		fmt.Printf(messengerText)
+		return
 	}
 
-	// final report output to stdout/console/logs
-	fmt.Printf(msgText)
-
-	//fmt.Println( resp.Status )
-	//fmt.Println( resp.StatusCode )
-	//fmt.Println( resp.Proto )
+	fmt.Println("dish run: all tests ok")
 }
+

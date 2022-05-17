@@ -1,5 +1,5 @@
-// Zasuvka package to parse JSON input file
-package zasuvka
+// socket package to fetch and 'parse' JSON stream from given sourcePointer
+package socket
 
 import (
 	"encoding/json"
@@ -9,9 +9,6 @@ import (
 	"os"
 )
 
-const (
-	devMode = false
-)
 
 type Sockets struct {
 	Sockets []Socket `json:"sockets"`
@@ -31,7 +28,7 @@ type Socket struct {
 func fetchRemoteStream(url string) (byteStream *[]byte) {
 	// try URL
 	req, err := http.NewRequest("GET", url, nil); if err != nil {
-                log.Println(err)
+                //log.Println(err)
                 return nil
         }
 
@@ -41,17 +38,15 @@ func fetchRemoteStream(url string) (byteStream *[]byte) {
                 return nil
         }
 
-        // We Read the response body on the line below.
+        // read response body stream
         body, err := ioutil.ReadAll(resp.Body); if err != nil {
-                log.Println(err)
+                //log.Println(err)
                 return nil
         }
 
         // Convert the body to type string
         defer resp.Body.Close()
 	return &body
-        //stringStream := string(body)
-	//return &stringStream
 }
 
 // fetchFileStream
@@ -70,7 +65,7 @@ func fetchFileStream(input string) (byteStream *[]byte) {
 }
 
 
-// getStreamFromInput method ('case-like macro') tries to load data stream from given source; returns pointer to stream
+// getStreamFromInput metamethod ('case-like macro') tries to load data stream from given source; returns pointer to stream
 func getStreamFromInput(input string) (byteStream *[]byte) {
 	// try to open stream, if URL, else open file
 	stream := fetchRemoteStream(input); if stream != nil {
@@ -85,12 +80,12 @@ func getStreamFromInput(input string) (byteStream *[]byte) {
 	return nil
 }
 
-// GibPole method ... 
+// FetchSocketList method ... 
 // 'input' should be a string like '/path/filename.json', or a HTTP URL string
-func GibPole(input string) (socketsPointer *Sockets) {
+func FetchSocketList(input string, verbose bool) (socketsPointer *Sockets) {
 	// fetch JSON byte stream from input URL/path
 	stream := getStreamFromInput(input); if stream == nil {
-		log.Fatalln("zasuvka: fatal: no JSON stream to get socket list")
+		log.Fatalln("socket: fatal: no JSON stream to get socket list")
 		return nil
 	}
 
@@ -99,11 +94,11 @@ func GibPole(input string) (socketsPointer *Sockets) {
 	json.Unmarshal(*stream, &sockets)
 
 	// write JSON data to console
-	if devMode {
-		for i := 0; i < len(sockets.Sockets); i++ {
-			log.Printf("zasuvka: Host: %s", sockets.Sockets[i].Host)
-			log.Printf("zasuvka: Port: %d", sockets.Sockets[i].Port)
-			log.Printf("zasuvka: Port: %d", sockets.Sockets[i].ExpectedHttpCodes)
+	if verbose {
+		for _, socket := range sockets.Sockets {
+			log.Println("socket: Host:", socket.Host)
+			log.Println("socket: Port:", socket.Port)
+			log.Println("socket: ExpectedHttpCodes:", socket.ExpectedHttpCodes)
 		}
 	}
 
