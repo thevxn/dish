@@ -1,134 +1,8 @@
 {
   "sockets": [
     {
-      "socket_name": "frank public SSH",
-      "host_name": "frank-public.savla.su",
-      "port_tcp": 22,
-      "path_http": "",
-      "expected_http_code_array": []
-    },
-    {
-      "socket_name": "fgrebox SSH",
-      "host_name": "fgrebox.savla.su",
-      "port_tcp": 22,
-      "path_http": "",
-      "expected_http_code_array": []
-    },
-    {
-      "socket_name": "frank SSH",
-      "host_name": "frank.savla.su",
-      "port_tcp": 22,
-      "path_http": "",
-      "expected_http_code_array": [] 
-    },
-    {
-      "socket_name": "squabbit SSH",
-      "host_name": "squabbit.savla.su",
-      "port_tcp": 22,
-      "path_http": "",
-      "expected_http_code_array": []
-    },
-    {
-      "socket_name": "stafle SSH",
-      "host_name": "stafle.savla.su",
-      "port_tcp": 22,
-      "path_http": "",
-      "expected_http_code_array": []
-    },
-    {
-      "socket_name": "stokrle SSH",
-      "host_name": "stokrle.savla.su",
-      "port_tcp": 22,
-      "path_http": "",
-      "expected_http_code_array": []
-    },
-    {
-      "socket_name": "tackbox SSH",
-      "host_name": "tackbox.savla.su",
-      "port_tcp": 22,
-      "path_http": "",
-      "expected_http_code_array": []
-    },
-    {
-      "socket_name": "talion SSH",
-      "host_name": "talion.savla.su",
-      "port_tcp": 22,
-      "path_http": "",
-      "expected_http_code_array": []
-    },
-    {
-      "socket_name": "viking SSH",
-      "host_name": "viking.savla.su",
-      "port_tcp": 22,
-      "path_http": "",
-      "expected_http_code_array": []
-    },
-    {
-      "socket_name": "docs.savla.su HTTP",
-      "host_name": "http://docs.savla.su",
-      "port_tcp": 80,
-      "path_http": "/howto/docs",
-      "expected_http_code_array": [ 200 ]
-    },
-    {
-      "socket_name": "elden-bling.savla.su HTTP",
-      "host_name": "http://elden-bling.savla.su",
-      "port_tcp": 80,
-      "path_http": "/",
-      "expected_http_code_array": [ 200 ]
-    },
-    {
       "socket_name": "eldenbling.net HTTPS",
       "host_name": "https://eldenbling.net",
-      "port_tcp": 443,
-      "path_http": "/",
-      "expected_http_code_array": [ 200, 301 ]
-    },
-    {
-      "socket_name": "kanban.savla.su HTTP",
-      "host_name": "http://kanban.savla.su",
-      "port_tcp": 80,
-      "path_http": "/login",
-      "expected_http_code_array": [ 200 ]
-    },
-    {
-      "socket_name": "ks.savla.dev HTTPS",
-      "host_name": "https://ks.savla.dev",
-      "port_tcp": 443,
-      "path_http": "/",
-      "expected_http_code_array": [ 200, 301 ]
-    },
-    {
-      "socket_name": "kss.savla.dev HTTPS",
-      "host_name": "https://kss.savla.dev",
-      "port_tcp": 443,
-      "path_http": "/",
-      "expected_http_code_array": [ 200, 301 ]
-    },
-    {
-      "socket_name": "kyrspa.wz.cz litter HTTP",
-      "host_name": "http://kyrspa.wz.cz",
-      "port_tcp": 80,
-      "path_http": "/litter/?page=login",
-      "expected_http_code_array": [ 200, 301, 302, 404 ]
-    },
-    {
-      "socket_name": "modul.savla.dev HTTPS",
-      "host_name": "https://modul.savla.dev",
-      "port_tcp": 443,
-      "path_http": "/",
-      "expected_http_code_array": [ 200, 301 ]
-    },
-    {
-      "socket_name": "passbolt.savla.su HTTP",
-      "host_name": "http://passbolt.savla.su",
-      "port_tcp": 80,
-      "path_http": "/",
-      "expected_http_code_array": [ 200 ]
-    },
-    {
-      "socket_name": "red.n0p.cz HTTPS",
-      "host_name": "https://red.n0p.cz",
       "port_tcp": 443,
       "path_http": "/",
       "expected_http_code_array": [ 200, 301 ]
@@ -145,14 +19,7 @@
       "host_name": "https://sc.cz",
       "port_tcp": 443,
       "path_http": "/",
-      "expected_http_code_array": [ 200, 301 ]
-    },
-    {
-      "socket_name": "swapi.savla.su HTTP",
-      "host_name": "http://swapi.savla.su",
-      "port_tcp": 80,
-      "path_http": "/dish/ping",
-      "expected_http_code_array": [ 200 ]
+      "expected_http_code_array": [ 200, 301, 401 ]
     },
     {
       "socket_name": "text.n0p.cz HTTPS",
@@ -160,27 +27,6 @@
       "port_tcp": 443,
       "path_http": "/",
       "expected_http_code_array": [ 200, 301 ]
-    },
-    {
-      "socket_name": "web.n0p.cz HTTPS",
-      "host_name": "https://web.n0p.cz",
-      "port_tcp": 443,
-      "path_http": "/",
-      "expected_http_code_array": [ 200, 301 ]
-    },
-    {
-      "socket_name": "wiki.n0p.cz HTTPS",
-      "host_name": "https://wiki.n0p.cz",
-      "port_tcp": 443,
-      "path_http": "/",
-      "expected_http_code_array": [ 200, 301 ]
-    },
-    {
-      "socket_name": "savla-intranet DNS",
-      "host_name": "10.4.5.130",
-      "port_tcp": 53,
-      "path_http": "",
-      "expected_http_code_array": []
     },
     {
       "socket_name": "openttd TCP",

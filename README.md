@@ -14,30 +14,11 @@ as the alerting system (in case of socket test timeout threshold hit, or an unex
 # get the actual git version
 go get github.com/savla-dev/savla-dish
 
-# load sockets from demo_sockets.json file (by default) and use telegram provider for alerting
+# load sockets from demo_sockets.json file (by default) and use telegram provider for alerting (hardcoded token and chatID -- messenger/messenger.go)
 savla-dish -source=demo_sockets.json -telegram
-savla-dish -source=demo_sockets.json -telegram -telegram_chat_id=-123456789
 
 # use remote RESTful API service's socket list, use _explicit_ telegram bot and chat
-savla-dish -source='https://api.example.com/dish/source' -telegram -telegram_chat_id=-123456789 -telegram_bot_token='idk:00779988ddd'
-```
-
-
-## dev environment
-
-~~package `messenger` contains sensitive data (token, chat_id etc), therefore it is secured/exclusively excluded in build time (may raise an error)~~
-
-```
-# build binary/module with all packages
-go build -tags dev savla-dish
-```
-
-### environment variables
-
-```
-export $(cat .env | sed -e 'd/^#.*/' | xargs) 
-
-./savla-dish
+savla-dish -source='https://api.example.com/dish/source' -telegram -telegramChatID=-123456789 -telegramBotToken='idk:00779988ddd'
 ```
 
 ### cronjob example
@@ -48,10 +29,5 @@ cronjob -u
 ```
 
 ```
-DISH_ENVIRONMENT=prod
-DISH_SOCKET_SOURCE="http://restapi.endpoint.com/dish"
-DISH_TELEGRAM_BOT_TOKEN="token:whatever"
-DISH_TELEGRAM_CHAT_ID="-123456789"
-
 */1 * * * * /path/to/savla-dish -flags
 ```
