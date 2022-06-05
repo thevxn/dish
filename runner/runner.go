@@ -1,4 +1,3 @@
-// Runner package for custom socket test execution
 package runner
 
 import (

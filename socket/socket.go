@@ -1,4 +1,3 @@
-// socket package to fetch and 'parse' JSON stream from given sourcePointer
 package socket
 
 import (

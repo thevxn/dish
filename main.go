@@ -1,6 +1,3 @@
-// go:build ignore
-
-// savla-dish one-shot package for fast batch socket testing
 package main
 
 import (
