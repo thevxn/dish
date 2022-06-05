@@ -54,7 +54,7 @@ func RawConnect(socket socket.Socket, verbose bool) (status int, err error) {
 	return 2, nil
 }
 
-// checkHttpCode function for response and expected HTTP codes comparsion
+// checkHttpCode function for response and expected HTTP codes comparison
 func checkHttpCode(responseCode int, expectedCodes []int) (status int) {
 	for _, code := range expectedCodes {
 		if responseCode == code {
@@ -89,7 +89,7 @@ func CheckSite(socket socket.Socket, verbose bool) (status int) {
 		return resp.StatusCode
 	}
 
-	// fetch StatusCode for HTTP expected code comparsion
+	// fetch StatusCode for HTTP expected code comparison
 	if resp != nil {
 		//defer resp.Body.Close()
 		//log.Print(resp.StatusCode)
