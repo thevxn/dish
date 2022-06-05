@@ -1,5 +1,8 @@
 # savla-dish (golang1.18)
 
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/savla-dev/savla-dish)](https://pkg.go.dev/github.com/savla-dev/savla-dish)
+[![Go Report Card](https://goreportcard.com/badge/github.com/savla-dev/savla-dish)](https://goreportcard.com/report/github.com/savla-dev/savla-dish)
+
   + __tiny__ monitoring one-shot service
   + __clusterable__ (peer-to-peer idea **TBD**), remote configuration of independent 'dish network' (`-source=$REMOTE_JSON_API_URL`)
   + __fast__ (quick load and exec time, 5s timeout per socket -- hardcoded), instant messaging connectors
@@ -62,7 +65,7 @@ TELEGRAM_CHATID="-12345678900"
 DISH_EXECUTABLE_PATH=/home/dish/golang/bin/savla-dish
 DISH_SOURCE=http://restapi.example.com/dish/sockets/${HOSTNAME}
 
-*/1 * * * * $DISH_EXECUTABLE_PATH -source=${DISH_SOURCE} -telegram -telegramBotToken=${TELEGRAM_TOKEN} -telegramChatID=${TELEGRAM_CHATID}
+*/1 * * * * ${DISH_EXECUTABLE_PATH} -source=${DISH_SOURCE} -telegram -telegramBotToken=${TELEGRAM_TOKEN} -telegramChatID=${TELEGRAM_CHATID}
 ```
 
 Please note, that `savla-dish` executable returns "dish run: all tests ok" and exit code `0`, as soon as the execution ends (and no problems are present to report).
