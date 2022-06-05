@@ -4,7 +4,7 @@
   + __clusterable__ (peer-to-peer idea **TBD**), remote configuration of independent 'dish network' (`-source=$REMOTE_JSON_API_URL`)
   + __fast__ (quick load and exec time, 5s timeout per socket -- hardcoded), instant messaging connectors
 
-```
+```shell
 $ go get github.com/savla-dev/savla-dish
 
 $ savla-dish -h
@@ -35,7 +35,7 @@ as the alerting system (in case of socket test timeout threshold hit, or an unex
 
 ## examples
 
-```
+```shell
 # get the actual git version
 go get github.com/savla-dev/savla-dish
 
@@ -48,11 +48,21 @@ savla-dish -source='https://api.example.com/dish/source' -telegram -telegramChat
 
 ### cronjob example
 
-```
-# non-root user
-cronjob -u
+```shell
+# non-root user!
+crontab -e
 ```
 
+```shell
+# m h  dom mon dow   command
+MAILTO=monitoring@example.com
+
+TELEGRAM_TOKEN="000001:AFFDS45454d5ccfsadf34" 
+TELEGRAM_CHATID="-12345678900"
+DISH_EXECUTABLE_PATH=/home/dish/golang/bin/savla-dish
+DISH_SOURCE=http://restapi.example.com/dish/sockets/${HOSTNAME}
+
+*/1 * * * * $DISH_EXECUTABLE_PATH -source=${DISH_SOURCE} -telegram -telegramBotToken=${TELEGRAM_TOKEN} -telegramChatID=${TELEGRAM_CHATID}
 ```
-*/1 * * * * /path/to/savla-dish -flags
-```
+
+Please note, that `savla-dish` executable returns "dish run: all tests ok" and exit code `0`, as soon as the execution ends (and no problems are present to report).
