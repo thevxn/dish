@@ -4,8 +4,8 @@
 package main
 
 import (
-	"fmt"
 	"flag"
+	"fmt"
 	"regexp"
 
 	"savla-dish/messenger"
@@ -15,7 +15,7 @@ import (
 
 func main() {
 	// predefine flags --- flag returns a pointer!
-	sourceFlag  := flag.String("source", "demo_sockets.json", "a string, path to/URL JSON socket list")
+	sourceFlag := flag.String("source", "demo_sockets.json", "a string, path to/URL JSON socket list")
 	verboseFlag := flag.Bool("verbose", false, "a bool, console stdout logging toggle")
 
 	// telegram provider flags
@@ -35,9 +35,11 @@ func main() {
 	// iterate over given/loaded sockets
 	for _, socket := range sockets.Sockets {
 		// http/https app protocol patterns check
-		match, _ := regexp.MatchString("^(http|https)://", socket.Host); if match {
+		match, _ := regexp.MatchString("^(http|https)://", socket.Host)
+		if match {
 			// here, 'status' should contain HTTP code if >0
-			status := runner.CheckSite(socket, *verboseFlag); if status != 0 {
+			status := runner.CheckSite(socket, *verboseFlag)
+			if status != 0 {
 				messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, socket.PathHttp, "--", status)
 				failedCount++
 			}
@@ -45,7 +47,8 @@ func main() {
 		}
 
 		// testing raw host and port (tcp), report only unsuccessful tests; exclusively non-HTTP/S sockets
-		status, _ := runner.RawConnect(socket, *verboseFlag); if status > 0 {
+		status, _ := runner.RawConnect(socket, *verboseFlag)
+		if status > 0 {
 			messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, "-- timeout")
 			failedCount++
 		}
@@ -65,4 +68,3 @@ func main() {
 
 	fmt.Println("dish run: all tests ok")
 }
-

@@ -19,7 +19,7 @@ func getEndpoint(host string, port int) string {
 	return net.JoinHostPort(host, portString)
 }
 
-// RawConnect function to direct host:port socket check 
+// RawConnect function to direct host:port socket check
 func RawConnect(socket socket.Socket, verbose bool) (status int, err error) {
 	endpoint := getEndpoint(socket.Host, socket.Port)
 	timeout := time.Duration(5 * time.Second)
@@ -36,7 +36,7 @@ func RawConnect(socket socket.Socket, verbose bool) (status int, err error) {
 	// close open conn after 5 seconds
 	//conn.SetReadDeadline(time.Second*5)
 
-	// prolly more possible to get not-nil err, than not-nil conn 
+	// prolly more possible to get not-nil err, than not-nil conn
 	// see https://stackoverflow.com/a/56336811
 	if err != nil {
 		if verbose {
@@ -81,7 +81,8 @@ func CheckSite(socket socket.Socket, verbose bool) (status int) {
 	}
 
 	// open socket --- give Head
-	resp, err := netClient.Head(url); if err != nil {
+	resp, err := netClient.Head(url)
+	if err != nil {
 		if verbose {
 			log.Println(err)
 		}

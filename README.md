@@ -1,4 +1,4 @@
-# savla-dish (golang1.17)
+# savla-dish (golang1.18)
 
   + __tiny__ monitoring one-shot service
   + __clusterable__ (peer-to-peer idea **TBD**), remote configuration of independent 'dish network' (`-source=$REMOTE_JSON_API_URL`)

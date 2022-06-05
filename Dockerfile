@@ -4,7 +4,7 @@
 
 # https://hub.docker.com/_/golang
 
-ARG GOLANG_VERSION_MINOR=1.17
+ARG GOLANG_VERSION_MINOR=1.18
 FROM golang:${GOLANG_VERSION_MINOR}-alpine
 
 MAINTAINER krusty@savla.dev

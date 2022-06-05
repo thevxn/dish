@@ -1,3 +1,5 @@
+// +build dev
+
 package telnet
 
 import (
@@ -17,7 +19,7 @@ func TestDial(endpoint string, port int) (status int) {
 		return 1
 	}
 
-	var data []byte;
+	var data []byte
 	log.Print(conn.Read(data))
 	conn.Close()
 

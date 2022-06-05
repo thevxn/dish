@@ -1,6 +1,6 @@
 package socket
 
-import ( 
+import (
 	"testing"
 )
 
