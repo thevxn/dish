@@ -8,13 +8,16 @@ import (
 )
 
 var (
-	UseTelegram      *bool
 	TelegramBotToken *string
 	TelegramChatID   *string
 	telegramURL      string
+	UseTelegram      *bool
+	Verbose          *bool
 )
 
-func SendMsg(rawMessage string, verbose bool) (status int) {
+func SendTelegram(rawMessage string) (status int) {
+	verbose := *Verbose
+
 	if rawMessage == "" && verbose {
 		log.Println("messager: no message given")
 		return 1
@@ -39,6 +42,8 @@ func SendMsg(rawMessage string, verbose bool) (status int) {
 		return 1
 	}
 
+	defer resp.Body.Close()
+
 	// read the response body
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil && verbose {
@@ -46,8 +51,7 @@ func SendMsg(rawMessage string, verbose bool) (status int) {
 		return 1
 	}
 
-	resp.Body.Close()
-
+	// write to console log if verbose flag set
 	if verbose {
 		log.Println(telegramURL)
 		log.Println(string(body))
