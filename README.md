@@ -11,9 +11,13 @@
 $ go get github.com/savla-dev/savla-dish
 
 $ savla-dish -h
-Usage of go/bin/savla-dish:
+Usage of ./savla-dish:
+  -pushgw
+    	a bool, enable reporter module to post dish results to pushgateway
   -source string
     	a string, path to/URL JSON socket list (default "demo_sockets.json")
+  -target string
+    	a string, result update path/URL, plaintext/byte output
   -telegram
     	a bool, Telegram provider usage toggle
   -telegramBotToken string
@@ -28,13 +32,26 @@ Usage of go/bin/savla-dish:
 
 the idea of a tiny one-shot service comes with the need of a quick monitoring service implementation over HTTP/S and generic TCP endpoints (more like 'sockets' = hosts and their ports)
 
+it is not meant to be a competition with blackbox exporter, this is just another implementation approach
+
 ### socket list
 
 the list of sockets can be provided via a local JSON-formated file, or via remote REST/RESTful JSON-returning API (JSON structure has to be of the same structure anyway; see `demo_sockets.json`)
 
+```
+./savla-dish -source=http://restapi.example.com/dish/sockets/:instance
+```
+
 ### alerting
 
-as the alerting system (in case of socket test timeout threshold hit, or an unexpected HTTP response code) we provide a simple embedded `messenger` with Telegram IM implementation example (see `messenger/messenger.go`); since the Telegram bot token and the potential Telegram chat ID are considered as the **secrets**, we do recommend including these to the custom, local, binary executable instead of passing them into the CLI shell (security breach as secrets can then leak in process list)
+as the alerting system (in case of socket test timeout threshold hit, or an unexpected HTTP response code) we provide a simple embedded `messenger` with Telegram IM implementation example (see `messenger/messenger.go`); since the Telegram bot token and the potential Telegram chat ID are considered as the **secrets**, we do recommend including these to the custom, local, binary executable instead of passing them into the CLI shell (security breach as secrets can then leak in process list --- to be reviewed)
+
+### pushgateway
+
+to keep dish simple and light, we decided not to import http server (even though net/http package is used) and use just its Client interface to push/post results to Pushgateway by Prometheus (TODO: insert pushgateway into docker-compose.yml config)
+
+job name and instance name are hardcoded constants in the [reporter](/reporter/reporter.go) module source
+
 
 ## examples
 
@@ -48,6 +65,23 @@ savla-dish -source=demo_sockets.json -telegram
 # use remote RESTful API service's socket list, use _explicit_ telegram bot and chat
 savla-dish -source='https://api.example.com/dish/source' -telegram -telegramChatID=-123456789 -telegramBotToken='idk:00779988ddd'
 ```
+
+### docker it!
+
+we use `.env` and `gnumake` (Makefile) to simplify/semiautomate our development procedures, feel free to give it a try
+
+```
+# copy, and/or edit dot-env file
+cp .env.example .env
+vim .env
+
+# build an image
+make build
+
+# run! (not the same as `make run`, but it should've been so)
+docker run --rm -i savla-dish:golang1.18 -verbose -pushgw -source=http://[...] -target=http://pushgateway.example.com
+```
+
 
 ### cronjob example
 
