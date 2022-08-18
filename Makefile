@@ -57,7 +57,7 @@ fmt:
 
 build:  
 	@echo -e "\n${YELLOW} Building project (docker-compose build)... ${RESET}\n"
-	@docker-compose build 
+	@docker compose build 
 
 local_build: 
 	@echo -e "\n${YELLOW} [local] Building project... ${RESET}\n"
@@ -66,7 +66,7 @@ local_build:
 
 run:	build
 	@echo -e "\n${YELLOW} Starting project (docker-compose up)... ${RESET}\n"
-	@docker-compose up --force-recreate --detach
+	@docker compose up --force-recreate --detach
 
 ## THIS IS NOT STABLE!
 
@@ -80,7 +80,7 @@ logs:
 
 stop:  
 	@echo -e "\n${YELLOW} Stopping and purging project (docker-compose down)... ${RESET}\n"
-	@docker-compose down
+	@docker compose down
 
 test:
 	@echo -e "\n${YELLOW} [local] Running unit tests (go test)... ${RESET}\n"

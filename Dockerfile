@@ -5,7 +5,7 @@
 # https://hub.docker.com/_/golang
 
 ARG GOLANG_VERSION=1.18
-FROM golang:${GOLANG_VERSION}-alpine
+FROM golang:${GOLANG_VERSION}-alpine as dish-build
 
 MAINTAINER krusty@savla.dev
 MAINTAINER tack@savla.dev
@@ -27,5 +27,10 @@ RUN go version; go env
 RUN go install -tags dev ${APP_NAME} && \
 	ln -s ${GOPATH}/bin/${APP_NAME} ${GOPATH}/bin/${APP_VERSION}
 
-CMD ${APP_VERSION}
+
+FROM alpine:3.15 as dish-binary
+
+COPY --from=dish-build /go/bin/${APP_NAME} /usr/local/bin/${APP_NAME}
+
+CMD ${APP_NAME}
 
