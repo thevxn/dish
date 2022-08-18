@@ -4,30 +4,25 @@
 # does not serve any HTTP
 #
 
-version: '3.6'
+version: '3.9'
 
 services:
   dish:
-    image: ${DOCKER_DEV_IMAGE}
-    container_name: ${DOCKER_DEV_CONTAINER}
+    image: ${DOCKER_IMAGE_TAG}
     build:
       context: .
       args: 
         APP_NAME: ${APP_NAME}
-        #DOCKER_DEV_PORT: ${DOCKER_DEV_PORT}
-    restart: unless-stopped
+        APP_FLAGS: ${APP_FLAGS}
+    restart: "no"
+    healthcheck:
+      test: ["CMD", "${GOROOT}/bin/${APP_NAME}", "${APP_FLAGS}"]
+      #test: ["CMD", "", "-f", "http://localhost/api/v2/TestServiceAll", "-H", "X-Api-Key: ${SUPERVISOR_APIKEY}"]
+      interval: 3m
+      timeout: 60s
+      retries: 0
+      start_period: 15s
     dns:
       - 10.4.5.130
       - 1.1.1.2
-    ports:
-      - "${DOCKER_DEV_EXTERNAL_PORT}:${DOCKER_DEV_PORT}"
-    networks:
-      - ${DOCKER_DEV_NETWORK}
-    labels:
-      - "traefik.http.routers.${APP_NAME}.rule=Host(`${APP_URL}`)"
-      - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=${DOCKER_DEV_PORT}"
-      - "traefik.docker.network=${DOCKER_DEV_NETWORK}"
 
-networks:
-  traefik_savla:
-    name: ${DOCKER_DEV_NETWORK}
