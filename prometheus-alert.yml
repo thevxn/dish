@@ -1,0 +1,17 @@
+---
+groups:
+  - name: savla-dish
+    rules:
+
+    # firing when dish instance ins't sending any new data
+    - alert: DishStaleLastTime
+      expr: rate(push_time_seconds{exported_job="dish_results"}[5m]) == 0
+      for: 1m
+      labels:
+        severity: critical
+
+    # generic sih socket down alert
+    - alert: DishSocketDown
+      expr: dish_failed_count > 0
+      for: 3m
+
