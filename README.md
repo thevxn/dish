@@ -1,4 +1,4 @@
-# savla-dish (golang1.18)
+# savla-dish (golang1.19)
 
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/savla-dev/savla-dish)](https://pkg.go.dev/github.com/savla-dev/savla-dish)
 [![Go Report Card](http://goreportcard.com/badge/github.com/savla-dev/savla-dish)](https://goreportcard.com/report/github.com/savla-dev/savla-dish)
@@ -79,7 +79,7 @@ vim .env
 make build
 
 # run! (not the same as `make run`, but it should've been so)
-docker run --rm -i savla-dish:golang1.18 -verbose -pushgw -source=http://[...] -target=http://pushgateway.example.com
+docker run --rm -i savla-dish:golang-1.19 -verbose -pushgw -source=http://[...] -target=http://pushgateway.example.com
 ```
 
 
