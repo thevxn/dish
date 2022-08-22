@@ -24,8 +24,7 @@ COPY .docker/resolv.conf /etc/resolv.conf
 RUN go mod init 
 RUN go get -d -v ./...
 RUN go version; go env
-RUN go install -tags dev ${APP_NAME} && \
-	ln -s ${GOPATH}/bin/${APP_NAME} ${GOPATH}/bin/${APP_VERSION}
+RUN go install -tags dev ${APP_NAME}
 
 #
 # "flatten" the base image

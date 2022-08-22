@@ -5,8 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	//"strconv"
-	//"time"
+	"time"
 )
 
 const (
@@ -20,6 +19,7 @@ const (
 type Report struct {
 	FailedCount int8
 	message     []byte
+	timestamp   time.Time
 }
 
 var (
