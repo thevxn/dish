@@ -30,6 +30,8 @@ Usage of ./savla-dish:
 
 ## use-cases
 
+[savla-dish history article](https://krusty.savla.dev/projects/savla-dish/)
+
 the idea of a tiny one-shot service comes with the need of a quick monitoring service implementation over HTTP/S and generic TCP endpoints (more like 'sockets' = hosts and their ports)
 
 it is not meant to be a competition with blackbox exporter, this is just another implementation approach
