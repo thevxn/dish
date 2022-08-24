@@ -54,6 +54,7 @@ to keep dish simple and light, we decided not to import http server (even though
 
 job name and instance name are hardcoded constants in the [reporter](/reporter/reporter.go) module source
 
+[short article on motivation and history behind dish](https://krusty.savla.dev/projects/savla-dish/)
 
 ## examples
 
