@@ -5,6 +5,10 @@ import (
 	"log"
 )
 
+var (
+	Verbose *bool
+)
+
 type Sockets struct {
 	Sockets []Socket `json:"sockets"`
 }
@@ -23,11 +27,9 @@ type Socket struct {
 
 type Results struct {
 	HTTPCode      int   `json:"http_response_code"`
-	SocketReached bool  `json:"socket_reached" default:true`
+	SocketReached bool  `json:"socket_reached" default:"true"`
 	Error         error `json:"error_message"`
 }
-
-var Verbose *bool
 
 // FetchSocketList method ...
 // 'input' should be a string like '/path/filename.json', or a HTTP URL string
@@ -40,17 +42,16 @@ func FetchSocketList(input string) (socketsPointer *Sockets) {
 	}
 
 	// got stream, load struct Sockets
-	var sockets Sockets
-	json.Unmarshal(*stream, &sockets)
+	json.Unmarshal(stream, socketsPointer)
 
 	// write JSON data to console
 	if *Verbose {
-		for _, socket := range sockets.Sockets {
+		for _, socket := range socketsPointer.Sockets {
 			log.Println("socket: Host:", socket.Host)
 			log.Println("socket: Port:", socket.Port)
 			log.Println("socket: ExpectedHTTPCodes:", socket.ExpectedHTTPCodes)
 		}
 	}
 
-	return &sockets
+	return socketsPointer
 }

@@ -28,7 +28,7 @@ var (
 	UsePushgateway *bool
 )
 
-func composeMessage() (message []byte) {
+func composeMessage() []byte {
 	var messageString string
 	messageString += failedCountHelp + "\n"
 	messageString += failedCountType + "\n"
@@ -38,7 +38,7 @@ func composeMessage() (message []byte) {
 	return []byte(messageString)
 }
 
-func PushDishResults() (err error) {
+func PushDishResults() error {
 	Reporter.message = composeMessage()
 
 	bodyReader := bytes.NewReader(Reporter.message)
@@ -49,7 +49,6 @@ func PushDishResults() (err error) {
 	req, err := http.NewRequest(http.MethodPost, formattedURL, bodyReader)
 	if err != nil {
 		panic(err)
-		return err
 	}
 	req.Header.Set("Content-Type", "application/byte")
 
@@ -58,27 +57,9 @@ func PushDishResults() (err error) {
 	res, err := client.Do(req)
 	if err != nil {
 		panic(err)
-		return err
 	}
 
 	defer res.Body.Close()
 
 	return nil
 }
-
-// fetchFileStream
-/*
-func fetchFileStream(input string) (byteStream *[]byte) {
-	//jsonFile, err := os.Open("sockets.json")
-	jsonFile, err := os.Open(input)
-	if err != nil {
-		log.Fatal(err)
-		return nil
-	}
-
-	defer jsonFile.Close()
-
-	// use local var as "buffer", then return pointer to data
-	stream, _ := ioutil.ReadAll(jsonFile)
-	return &stream
-}*/

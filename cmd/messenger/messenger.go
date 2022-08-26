@@ -15,7 +15,8 @@ var (
 	Verbose          *bool
 )
 
-func SendTelegram(rawMessage string) (status int) {
+// returns a status
+func SendTelegram(rawMessage string) int {
 	verbose := *Verbose
 
 	if rawMessage == "" && verbose {
@@ -29,7 +30,7 @@ func SendTelegram(rawMessage string) (status int) {
 	// form the Telegram URL
 	telegramURL = "https://api.telegram.org/bot" + *TelegramBotToken + "/sendMessage?chat_id=" + *TelegramChatID + "&text="
 
-	req, err := http.NewRequest("GET", telegramURL+msg, nil)
+	req, err := http.NewRequest(http.MethodGet, telegramURL+msg, nil)
 	if err != nil && verbose {
 		log.Println(err)
 		return 1

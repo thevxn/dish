@@ -10,7 +10,7 @@ import (
 
 // fetchRemoteStream sends a GET HTTP request to remote RESTful API endpoint, returns JSON stream
 // 'url' argument should be a full-quality URL to remote http server, e.g. http://api.example.com:5569/stream?query=variable
-func fetchRemoteStream(url string) (byteStream *[]byte) {
+func fetchRemoteStream(url string) []byte {
 	// try URL
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -33,11 +33,11 @@ func fetchRemoteStream(url string) (byteStream *[]byte) {
 	}
 
 	defer resp.Body.Close()
-	return &body
+	return body
 }
 
 // fetchFileStream
-func fetchFileStream(input string) (byteStream *[]byte) {
+func fetchFileStream(input string) []byte {
 	//jsonFile, err := os.Open("sockets.json")
 	jsonFile, err := os.Open(input)
 	if err != nil {
@@ -49,11 +49,11 @@ func fetchFileStream(input string) (byteStream *[]byte) {
 
 	// use local var as "buffer", then return pointer to data
 	stream, _ := ioutil.ReadAll(jsonFile)
-	return &stream
+	return stream
 }
 
 // getStreamFromInput metamethod ('case-like macro') tries to load data stream from given source; returns pointer to stream
-func getStreamFromInput(input string) (byteStream *[]byte) {
+func getStreamFromInput(input string) []byte {
 	// try to open stream, if URL, else open file
 	stream := fetchRemoteStream(input)
 	if stream != nil {
@@ -68,5 +68,3 @@ func getStreamFromInput(input string) (byteStream *[]byte) {
 
 	return nil
 }
-
-

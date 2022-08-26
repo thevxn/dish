@@ -7,10 +7,12 @@ import (
 	"strconv"
 	"time"
 
-	"savla-dish/socket"
+	"savla-dish/pkg/socket"
 )
 
-var Verbose *bool
+var (
+	Verbose *bool
+)
 
 // getEndpoint private (unexported) macro
 func getEndpoint(host string, port int) string {
@@ -21,7 +23,7 @@ func getEndpoint(host string, port int) string {
 }
 
 // RawConnect function to direct host:port socket check
-func RawConnect(socket socket.Socket) (status int, err error) {
+func RawConnect(socket socket.Socket) (int, error) {
 	endpoint := getEndpoint(socket.Host, socket.Port)
 	timeout := time.Duration(5 * time.Second)
 
@@ -30,7 +32,6 @@ func RawConnect(socket socket.Socket) (status int, err error) {
 	}
 
 	// open the socket
-	//conn, err := net.DialTimeout("tcp", endpoint, timeout)
 	conn, err := net.DialTimeout("tcp", endpoint, timeout)
 
 	// close open conn after 5 seconds
@@ -62,14 +63,13 @@ func checkHTTPCode(responseCode int, expectedCodes []int) (status int) {
 		if responseCode == code {
 			// site is OK! do not report ok sites?
 			return 0
-			break
 		}
 	}
 	return responseCode
 }
 
 // CheckSite executes test over HTTP/S endpoints exclusively
-func CheckSite(socket socket.Socket) (status int) {
+func CheckSite(socket socket.Socket) int {
 	// config http client
 	var netClient = &http.Client{
 		Timeout: 5 * time.Second,

@@ -6,20 +6,16 @@ import (
 	"log"
 	"regexp"
 
-	"savla-dish/messenger"
-	"savla-dish/reporter"
-	"savla-dish/runner"
-	"savla-dish/socket"
-	//"github.com/savla-dev/savla-dish/messenger"
-	//"github.com/savla-dev/savla-dish/reporter"
-	//"github.com/savla-dev/savla-dish/runner"
-	//"github.com/savla-dev/savla-dish/socket"
+	"savla-dish/cmd/messenger"
+	"savla-dish/cmd/runner"
+	"savla-dish/pkg/reporter"
+	"savla-dish/pkg/socket"
 )
 
 func main() {
 	// predefine flags --- flag returns a pointer! TODO: tidy this...
 	sourceFlag := flag.String("source", "demo_sockets.json", "a string, path to/URL JSON socket list")
-	runner.Verbose = flag.Bool("verbose", false, "a bool, console stdout logging toggle")
+	runner.Verbose = flag.Bool("verbose", true, "a bool, console stdout logging toggle")
 	socket.Verbose = runner.Verbose
 	messenger.Verbose = runner.Verbose
 
@@ -45,8 +41,8 @@ func main() {
 	// iterate over given/loaded sockets
 	for _, socket := range sockets.Sockets {
 		// http/https app protocol patterns check
-		match, _ := regexp.MatchString("^(http|https)://", socket.Host)
-		if match {
+		_, err := regexp.Compile("^(http|https)://" + socket.Host)
+		if err == nil {
 			// here, 'status' should contain HTTP code if >0
 			status := runner.CheckSite(socket)
 			if status != 0 {
@@ -80,7 +76,7 @@ func main() {
 		}
 
 		// final report output to stdout/console/docker logs
-		log.Printf(messengerText)
+		log.Println(messengerText)
 		return
 	}
 

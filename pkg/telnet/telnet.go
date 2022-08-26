@@ -3,16 +3,15 @@
 package telnet
 
 import (
-	/*"fmt"*/
+	"fmt"
 	"log"
 
 	"github.com/reiver/go-telnet"
 )
 
 func TestDial(endpoint string, port int) (status int) {
-	//var caller telnet.Caller = telnet.StandardCaller
 
-	conn, err := telnet.DialTo(endpoint + ":" + string(port))
+	conn, err := telnet.DialTo(endpoint + ":" + fmt.Sprint(port))
 
 	if err != nil {
 		log.Print(err)
