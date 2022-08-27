@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"log"
 	"net/http"
+	"savla-dish/pkg/config"
 	"strconv"
 	"time"
 )
@@ -23,9 +24,7 @@ type Report struct {
 }
 
 var (
-	Reporter       Report
-	TargetURL      *string
-	UsePushgateway *bool
+	Reporter Report
 )
 
 func composeMessage() []byte {
@@ -42,7 +41,7 @@ func PushDishResults() error {
 	Reporter.message = composeMessage()
 
 	bodyReader := bytes.NewReader(Reporter.message)
-	formattedURL := *TargetURL + "/metrics/job/" + jobName + "/instance/" + instanceName
+	formattedURL := config.TargetURL + "/metrics/job/" + jobName + "/instance/" + instanceName
 
 	log.Println(formattedURL)
 

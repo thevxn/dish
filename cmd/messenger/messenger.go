@@ -1,25 +1,20 @@
 package messenger
 
 import (
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
+	"savla-dish/pkg/config"
 )
 
 var (
-	TelegramBotToken *string
-	TelegramChatID   *string
-	telegramURL      string
-	UseTelegram      *bool
-	Verbose          *bool
+	telegramURL string
 )
 
 // returns a status
 func SendTelegram(rawMessage string) int {
-	verbose := *Verbose
-
-	if rawMessage == "" && verbose {
+	if rawMessage == "" && config.Verbose {
 		log.Println("messager: no message given")
 		return 1
 	}
@@ -28,17 +23,17 @@ func SendTelegram(rawMessage string) int {
 	msg := url.QueryEscape(rawMessage)
 
 	// form the Telegram URL
-	telegramURL = "https://api.telegram.org/bot" + *TelegramBotToken + "/sendMessage?chat_id=" + *TelegramChatID + "&text="
+	telegramURL = "https://api.telegram.org/bot" + config.TelegramBotToken + "/sendMessage?chat_id=" + config.TelegramChatID + "&text="
 
 	req, err := http.NewRequest(http.MethodGet, telegramURL+msg, nil)
-	if err != nil && verbose {
+	if err != nil && config.Verbose {
 		log.Println(err)
 		return 1
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := http.Get(telegramURL + msg)
-	if err != nil && verbose {
+	if err != nil && config.Verbose {
 		log.Println(err)
 		return 1
 	}
@@ -46,14 +41,14 @@ func SendTelegram(rawMessage string) int {
 	defer resp.Body.Close()
 
 	// read the response body
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil && verbose {
+	body, err := io.ReadAll(resp.Body)
+	if err != nil && config.Verbose {
 		log.Println(err)
 		return 1
 	}
 
 	// write to console log if verbose flag set
-	if verbose {
+	if config.Verbose {
 		log.Println(telegramURL)
 		log.Println(string(body))
 	}

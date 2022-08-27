@@ -1,10 +1,4 @@
-#
-# savla-dish / _EXAMPLE_ docker-compose.yml file
-# mainly used for savla-dish binary building process, as the binary itself 
-# does not serve any HTTP
-#
-
-version: '3.9'
+version: '3'
 
 services:
   dish:
@@ -13,10 +7,7 @@ services:
       context: .
       args: 
         APP_NAME: ${APP_NAME}
-        APP_FLAGS: ${APP_FLAGS}
-        GOLANG_VERSION: ${GOLANG_VERSION}
     restart: "no"
     dns:
       - 10.4.5.130
       - 1.1.1.2
-

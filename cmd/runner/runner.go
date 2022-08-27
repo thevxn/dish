@@ -7,27 +7,16 @@ import (
 	"strconv"
 	"time"
 
+	"savla-dish/pkg/config"
 	"savla-dish/pkg/socket"
 )
 
-var (
-	Verbose *bool
-)
-
-// getEndpoint private (unexported) macro
-func getEndpoint(host string, port int) string {
-	// reformat int port to number string
-	portString := strconv.Itoa(port)
-
-	return net.JoinHostPort(host, portString)
-}
-
 // RawConnect function to direct host:port socket check
 func RawConnect(socket socket.Socket) (int, error) {
-	endpoint := getEndpoint(socket.Host, socket.Port)
+	endpoint := net.JoinHostPort(socket.Host, socket.Port)
 	timeout := time.Duration(5 * time.Second)
 
-	if *Verbose {
+	if config.Verbose {
 		log.Println("runner: rawconnect: " + endpoint)
 	}
 
@@ -40,7 +29,7 @@ func RawConnect(socket socket.Socket) (int, error) {
 	// prolly more possible to get not-nil err, than not-nil conn
 	// see --> https://stackoverflow.com/a/56336811
 	if err != nil {
-		if *Verbose {
+		if config.Verbose {
 			log.Println("runner: rawconnect: conn error:", endpoint)
 			log.Println(err)
 		}
@@ -58,9 +47,12 @@ func RawConnect(socket socket.Socket) (int, error) {
 }
 
 // checkHTTPCode function for response and expected HTTP codes comparison
-func checkHTTPCode(responseCode int, expectedCodes []int) (status int) {
+func checkHTTPCode(responseCode int, expectedCodes []string) int {
 	for _, code := range expectedCodes {
-		if responseCode == code {
+		if code, err := strconv.Atoi(code); responseCode == code {
+			if err != nil {
+				panic(err)
+			}
 			// site is OK! do not report ok sites?
 			return 0
 		}
@@ -74,16 +66,16 @@ func CheckSite(socket socket.Socket) int {
 	var netClient = &http.Client{
 		Timeout: 5 * time.Second,
 	}
-	url := socket.Host + ":" + strconv.Itoa(socket.Port) + socket.PathHTTP
+	url := socket.Host + ":" + socket.Port + socket.PathHTTP
 
-	if *Verbose {
+	if config.Verbose {
 		log.Println("runner: checksite:", url)
 	}
 
 	// open socket --- give Head
 	resp, err := netClient.Head(url)
 	if err != nil {
-		if *Verbose {
+		if config.Verbose {
 			log.Println(err)
 		}
 
@@ -93,8 +85,7 @@ func CheckSite(socket socket.Socket) int {
 
 	// fetch StatusCode for HTTP expected code comparison
 	if resp != nil {
-		//defer resp.Body.Close()
-		//log.Print(resp.StatusCode)
+		defer resp.Body.Close()
 		socket.Results.HTTPCode = resp.StatusCode
 		return checkHTTPCode(resp.StatusCode, socket.ExpectedHTTPCodes)
 	}

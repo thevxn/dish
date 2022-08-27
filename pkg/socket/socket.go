@@ -3,22 +3,19 @@ package socket
 import (
 	"encoding/json"
 	"log"
+	"savla-dish/pkg/config"
 )
 
-var (
-	Verbose *bool
-)
-
-type Sockets struct {
-	Sockets []Socket `json:"sockets"`
+type SocketList struct {
+	Sockets []Socket
 }
 
 type Socket struct {
-	Name              string `json:"socket_name"`
-	Host              string `json:"host_name"`
-	Port              int    `json:"port_tcp"`
-	ExpectedHTTPCodes []int  `json:"expected_http_code_array"`
-	PathHTTP          string `json:"path_http"`
+	Name              string   `json:"socket_name"`
+	Host              string   `json:"host_name"`
+	Port              string   `json:"port_tcp"`
+	ExpectedHTTPCodes []string `json:"expected_http_code_array"`
+	PathHTTP          string   `json:"path_http"`
 
 	// can be blank, dish name here is meant as socket list owner/target from remote RESTful API server
 	DishName string  `json:"dish_list"`
@@ -31,27 +28,29 @@ type Results struct {
 	Error         error `json:"error_message"`
 }
 
-// FetchSocketList method ...
 // 'input' should be a string like '/path/filename.json', or a HTTP URL string
-func FetchSocketList(input string) (socketsPointer *Sockets) {
-	// fetch JSON byte stream from input URL/path
-	stream := getStreamFromInput(input)
-	if stream == nil {
-		log.Fatalln("socket: fatal: no JSON stream to get socket list")
-		return nil
+func FetchSocketList(input string) (list SocketList) {
+	// fetch JSON byte reader from input URL/path
+	reader, err := getStreamFromPath(input)
+	if err != nil {
+		panic(err)
 	}
 
-	// got stream, load struct Sockets
-	json.Unmarshal(stream, socketsPointer)
+	// got data, load struct Sockets
+	err = json.NewDecoder(reader).Decode(&list)
+	if err != nil {
+		panic(err)
+	}
+	reader.Close()
 
 	// write JSON data to console
-	if *Verbose {
-		for _, socket := range socketsPointer.Sockets {
+	if config.Verbose {
+		for _, socket := range list.Sockets {
 			log.Println("socket: Host:", socket.Host)
 			log.Println("socket: Port:", socket.Port)
 			log.Println("socket: ExpectedHTTPCodes:", socket.ExpectedHTTPCodes)
 		}
 	}
 
-	return socketsPointer
+	return list
 }

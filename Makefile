@@ -51,10 +51,6 @@ info:
 	@echo -e "${YELLOW} make logs    --- fetch container's logs ${RESET}"
 	@echo -e "${YELLOW} make stop    --- stop and purge project (only docker containers!) ${RESET}\n"
 
-fmt:
-	@echo -e "\n${YELLOW} [local] Code reformating (using gofmt)... ${RESET}\n"
-	@go fmt ${APP_NAME}
-
 build:  
 	@echo -e "\n${YELLOW} Building project (docker-compose build)... ${RESET}\n"
 	@docker compose build 
