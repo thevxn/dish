@@ -2,11 +2,11 @@ package reporter
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"net/http"
 	"savla-dish/pkg/config"
 	"strconv"
-	"time"
 )
 
 const (
@@ -17,37 +17,28 @@ const (
 	failedCountType = "#TYPE dish_failed_count counter"
 )
 
-type Report struct {
-	FailedCount int8
-	message     []byte
-	timestamp   time.Time
+type Message struct {
+	FailedCount int
+	body        string
 }
 
-var (
-	Reporter Report
-)
-
-func composeMessage() []byte {
-	var messageString string
-	messageString += failedCountHelp + "\n"
-	messageString += failedCountType + "\n"
-	messageString += failedCountName + " " + strconv.Itoa(int(Reporter.FailedCount)) + "\n"
-
-	log.Println(messageString)
-	return []byte(messageString)
+func MakeMessage(count int) Message {
+	msg := Message{}
+	msg.FailedCount = count
+	messageString := fmt.Sprintln(failedCountName, strconv.Itoa(msg.FailedCount))
+	msg.body = messageString
+	return msg
 }
 
-func PushDishResults() error {
-	Reporter.message = composeMessage()
-
-	bodyReader := bytes.NewReader(Reporter.message)
+func (msg Message) PushDishResults() error {
+	bodyReader := bytes.NewReader([]byte(msg.body))
 	formattedURL := config.TargetURL + "/metrics/job/" + jobName + "/instance/" + instanceName
 
 	log.Println(formattedURL)
 
 	req, err := http.NewRequest(http.MethodPost, formattedURL, bodyReader)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	req.Header.Set("Content-Type", "application/byte")
 
@@ -55,7 +46,7 @@ func PushDishResults() error {
 
 	res, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	defer res.Body.Close()

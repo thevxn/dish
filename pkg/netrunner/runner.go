@@ -1,4 +1,4 @@
-package runner
+package netrunner
 
 import (
 	"log"
@@ -12,9 +12,9 @@ import (
 )
 
 // RawConnect function to direct host:port socket check
-func RawConnect(socket socket.Socket) (int, error) {
+func RawConnect(socket *socket.Socket) error {
 	endpoint := net.JoinHostPort(socket.Host, socket.Port)
-	timeout := time.Duration(5 * time.Second)
+	timeout := time.Duration(time.Second * 5)
 
 	if config.Verbose {
 		log.Println("runner: rawconnect: " + endpoint)
@@ -22,48 +22,40 @@ func RawConnect(socket socket.Socket) (int, error) {
 
 	// open the socket
 	conn, err := net.DialTimeout("tcp", endpoint, timeout)
-
-	// close open conn after 5 seconds
-	//conn.SetReadDeadline(time.Second*5)
-
-	// prolly more possible to get not-nil err, than not-nil conn
-	// see --> https://stackoverflow.com/a/56336811
 	if err != nil {
 		if config.Verbose {
 			log.Println("runner: rawconnect: conn error:", endpoint)
 			log.Println(err)
 		}
 		socket.Results.Error = err
-		return 1, err
+		return err
 	}
+	defer conn.Close()
+	conn.SetReadDeadline(time.Now().Add(time.Second * 5))
 
-	if conn != nil {
-		conn.Close()
-		return 0, nil
-	}
-
-	// unexpected error
-	return 2, nil
+	return nil
 }
 
 // checkHTTPCode function for response and expected HTTP codes comparison
-func checkHTTPCode(responseCode int, expectedCodes []string) int {
+// panics if it fails to convert expected code to int
+func checkHTTPCode(responseCode int, expectedCodes []string) bool {
 	for _, code := range expectedCodes {
-		if code, err := strconv.Atoi(code); responseCode == code {
-			if err != nil {
-				panic(err)
-			}
-			// site is OK! do not report ok sites?
-			return 0
+		code, err := strconv.Atoi(code)
+		if err != nil {
+			panic(err)
+		}
+
+		if responseCode != code {
+			return false
 		}
 	}
-	return responseCode
+	return true
 }
 
 // CheckSite executes test over HTTP/S endpoints exclusively
-func CheckSite(socket socket.Socket) int {
+func CheckSite(socket *socket.Socket) bool {
 	// config http client
-	var netClient = &http.Client{
+	netClient := &http.Client{
 		Timeout: 5 * time.Second,
 	}
 	url := socket.Host + ":" + socket.Port + socket.PathHTTP
@@ -72,7 +64,7 @@ func CheckSite(socket socket.Socket) int {
 		log.Println("runner: checksite:", url)
 	}
 
-	// open socket --- give Head
+	// open socket --- Head to url
 	resp, err := netClient.Head(url)
 	if err != nil {
 		if config.Verbose {
@@ -80,7 +72,7 @@ func CheckSite(socket socket.Socket) int {
 		}
 
 		socket.Results.Error = err
-		return 0
+		return true
 	}
 
 	// fetch StatusCode for HTTP expected code comparison
@@ -90,5 +82,5 @@ func CheckSite(socket socket.Socket) int {
 		return checkHTTPCode(resp.StatusCode, socket.ExpectedHTTPCodes)
 	}
 
-	return 2
+	return false
 }
