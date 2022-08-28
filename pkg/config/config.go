@@ -20,7 +20,7 @@ func init() {
 
 	sourceFlag := flag.String("source", "demo_sockets.json", "a string, path to/URL JSON socket list")
 	verboseFlag := flag.Bool("verbose", true, "a bool, console stdout logging toggle")
-	timeoutFlag := flag.Int("timeout", 10, "timeount in seconds for http and tcp calls")
+	timeoutFlag := flag.Int("timeout", 10, "a int, timeout in seconds for http and tcp calls")
 	targetURLFlag := flag.String("target", "", "a string, result update path/URL, plaintext/byte output")
 	usePushgatewayFlag := flag.Bool("pushgw", false, "a bool, enable reporter module to post dish results to pushgateway")
 

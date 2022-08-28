@@ -8,7 +8,7 @@
   + __fast__ (quick load and exec time, 5s timeout per socket -- hardcoded), instant messaging connectors
 
 ```shell
-$ go get github.com/savla-dev/savla-dish
+$ go install github.com/savla-dev/savla-dish
 
 $ savla-dish -h
 Usage of ./savla-dish:
@@ -26,6 +26,8 @@ Usage of ./savla-dish:
     	a string/signet int, Telegram chat/channel ID
   -verbose
     	a bool, console stdout logging toggle
+  -timeout
+      a int, timeout in seconds for http/s and tcp calls
 ```
 
 ## use-cases
