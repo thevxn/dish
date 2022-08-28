@@ -17,7 +17,7 @@ services:
         GOLANG_VERSION: ${GOLANG_VERSION}
     restart: "no"
     healthcheck:
-      test: ["CMD", "${GOROOT}/bin/${APP_NAME}", "${APP_FLAGS}"]
+      test: ["CMD", "./main", "${APP_FLAGS}"]
       #test: ["CMD", "", "-f", "http://localhost/api/v2/TestServiceAll", "-H", "X-Api-Key: ${SUPERVISOR_APIKEY}"]
       interval: 3m
       timeout: 60s

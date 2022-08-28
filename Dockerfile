@@ -5,9 +5,9 @@ ARG APP_NAME
 ENV APP_NAME ${APP_NAME}
 
 WORKDIR /go/src/${APP_NAME}
-COPY . /go/src/${APP_NAME}
-COPY .docker/resolv.conf /etc/resolv.conf
+ADD . /go/src/${APP_NAME}
+ADD .docker/resolv.conf /etc/resolv.conf
 
-RUN go build main.go
+RUN go build cmd/main.go
 
 CMD [ ./main ]

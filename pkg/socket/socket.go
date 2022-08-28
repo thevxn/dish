@@ -18,15 +18,15 @@ type Socket struct {
 	PathHTTP          string   `json:"path_http"`
 
 	// can be blank, dish name here is meant as socket list owner/target from remote RESTful API server
-	DishName string  `json:"dish_list"`
-	Results  Results `json:"dish_results"`
+	DishName string `json:"dish_list"`
+	// Results  Results `json:"dish_results"`
 }
 
-type Results struct {
-	HTTPCode      int   `json:"http_response_code"`
-	SocketReached bool  `json:"socket_reached" default:"true"`
-	Error         error `json:"error_message"`
-}
+// type Results struct {
+// 	HTTPCode      int   `json:"http_response_code"`
+// 	SocketReached bool  `json:"socket_reached" default:"true"`
+// 	Error         error `json:"error_message"`
+// }
 
 // 'input' should be a string like '/path/filename.json', or a HTTP URL string
 func FetchSocketList(input string) (list SocketList) {

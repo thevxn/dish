@@ -1,9 +1,10 @@
 !.docker/resolv.conf
 .git*
-Dockerfile
 *.example
 *.backup
-docker-compose.yml
 .gitignore
-README.md
+main
+# README.md
+# Dockerfile
+# docker-compose.yml
 

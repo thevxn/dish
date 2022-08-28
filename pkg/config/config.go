@@ -12,27 +12,15 @@ var (
 	UseTelegram      bool
 	TelegramBotToken string
 	TelegramChatID   string
+	Timeout          int // In seconds
 )
-
-// var Config Flags
-
-// type Flags struct {
-// 	Source           string
-// 	Verbose          bool
-// 	TargetURL        string
-// 	UsePushgateway   bool
-// 	UseTelegram      bool
-// 	TelegramBotToken string
-// 	TelegramChatID   string
-// }
 
 // Gets called before main()
 func init() {
 
-	sourceFlag := flag.String("source", "/home/geeko/savla/savla-dish/demo_sockets.json", "a string, path to/URL JSON socket list")
+	sourceFlag := flag.String("source", "demo_sockets.json", "a string, path to/URL JSON socket list")
 	verboseFlag := flag.Bool("verbose", true, "a bool, console stdout logging toggle")
-
-	// reporter driver flags
+	timeoutFlag := flag.Int("timeout", 10, "timeount in seconds for http and tcp calls")
 	targetURLFlag := flag.String("target", "", "a string, result update path/URL, plaintext/byte output")
 	usePushgatewayFlag := flag.Bool("pushgw", false, "a bool, enable reporter module to post dish results to pushgateway")
 
@@ -50,15 +38,6 @@ func init() {
 	UseTelegram = *useTelegramFlag
 	TelegramBotToken = *telegramBotTokenFlag
 	TelegramChatID = *telegramChatIDFlag
-
-	// Config = Flags{
-	// 	Source:           *sourceFlag,
-	// 	Verbose:          *verboseFlag,
-	// 	TargetURL:        *targetURLFlag,
-	// 	UsePushgateway:   *usePushgatewayFlag,
-	// 	UseTelegram:      *useTelegramFlag,
-	// 	TelegramBotToken: *telegramBotTokenFlag,
-	// 	TelegramChatID:   *telegramChatIDFlag,
-	// }
+	Timeout = *timeoutFlag
 
 }

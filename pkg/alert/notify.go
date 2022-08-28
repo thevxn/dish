@@ -1,6 +1,7 @@
 package alert
 
 import (
+	"errors"
 	"io"
 	"log"
 	"net/http"
@@ -8,10 +9,10 @@ import (
 	"savla-dish/pkg/config"
 )
 
-// returns true or fals whether it sends
+// returns an error if given message is a empty string or if a request cannot be sent
 func SendTelegram(rawMessage string) error {
-	if rawMessage == "" && config.Verbose {
-		panic("messager: no message given")
+	if rawMessage == "" {
+		return errors.New("empty message string given")
 	}
 
 	// escape dish report string for Telegram
@@ -22,18 +23,12 @@ func SendTelegram(rawMessage string) error {
 
 	req, err := http.NewRequest(http.MethodGet, telegramURL+msg, nil)
 	if err != nil {
-		if config.Verbose {
-			log.Println(err)
-		}
 		return err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := http.Get(telegramURL + msg)
 	if err != nil {
-		if config.Verbose {
-			log.Println(err)
-		}
 		return err
 	}
 	defer resp.Body.Close()
@@ -41,9 +36,6 @@ func SendTelegram(rawMessage string) error {
 	// read the response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		if config.Verbose {
-			log.Println(err)
-		}
 		return err
 	}
 

@@ -12,9 +12,9 @@ import (
 )
 
 // RawConnect function to direct host:port socket check
-func RawConnect(socket *socket.Socket) error {
+func RawConnect(socket socket.Socket) error {
 	endpoint := net.JoinHostPort(socket.Host, socket.Port)
-	timeout := time.Duration(time.Second * 5)
+	timeout := time.Duration(time.Second * time.Duration(config.Timeout))
 
 	if config.Verbose {
 		log.Println("runner: rawconnect: " + endpoint)
@@ -23,15 +23,9 @@ func RawConnect(socket *socket.Socket) error {
 	// open the socket
 	conn, err := net.DialTimeout("tcp", endpoint, timeout)
 	if err != nil {
-		if config.Verbose {
-			log.Println("runner: rawconnect: conn error:", endpoint)
-			log.Println(err)
-		}
-		socket.Results.Error = err
 		return err
 	}
 	defer conn.Close()
-	conn.SetReadDeadline(time.Now().Add(time.Second * 5))
 
 	return nil
 }
@@ -45,18 +39,18 @@ func checkHTTPCode(responseCode int, expectedCodes []string) bool {
 			panic(err)
 		}
 
-		if responseCode != code {
-			return false
+		if responseCode == code {
+			return true
 		}
 	}
-	return true
+	return false
 }
 
 // CheckSite executes test over HTTP/S endpoints exclusively
-func CheckSite(socket *socket.Socket) bool {
+func CheckSite(socket socket.Socket) (bool, error) {
 	// config http client
-	netClient := &http.Client{
-		Timeout: 5 * time.Second,
+	client := &http.Client{
+		Timeout: time.Duration(config.Timeout) * time.Second,
 	}
 	url := socket.Host + ":" + socket.Port + socket.PathHTTP
 
@@ -65,22 +59,16 @@ func CheckSite(socket *socket.Socket) bool {
 	}
 
 	// open socket --- Head to url
-	resp, err := netClient.Head(url)
+	resp, err := client.Head(url)
 	if err != nil {
-		if config.Verbose {
-			log.Println(err)
-		}
-
-		socket.Results.Error = err
-		return true
+		return false, err
 	}
 
 	// fetch StatusCode for HTTP expected code comparison
 	if resp != nil {
 		defer resp.Body.Close()
-		socket.Results.HTTPCode = resp.StatusCode
-		return checkHTTPCode(resp.StatusCode, socket.ExpectedHTTPCodes)
+		return checkHTTPCode(resp.StatusCode, socket.ExpectedHTTPCodes), nil
 	}
 
-	return false
+	return true, nil
 }
