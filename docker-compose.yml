@@ -1,10 +1,8 @@
-#
 # savla-dish / _EXAMPLE_ docker-compose.yml file
 # mainly used for savla-dish binary building process, as the binary itself 
 # does not serve any HTTP
-#
 
-version: '3.9'
+version: '3'
 
 services:
   dish:
@@ -17,7 +15,7 @@ services:
         GOLANG_VERSION: ${GOLANG_VERSION}
     restart: "no"
     healthcheck:
-      test: ["CMD", "${GOROOT}/bin/${APP_NAME}", "${APP_FLAGS}"]
+      test: ["CMD", "./main", "${APP_FLAGS}"]
       #test: ["CMD", "", "-f", "http://localhost/api/v2/TestServiceAll", "-H", "X-Api-Key: ${SUPERVISOR_APIKEY}"]
       interval: 3m
       timeout: 60s
