@@ -13,7 +13,7 @@ import (
 
 // RawConnect function to direct host:port socket check
 func RawConnect(socket socket.Socket) error {
-	endpoint := net.JoinHostPort(socket.Host, socket.Port)
+	endpoint := net.JoinHostPort(socket.Host, strconv.Itoa(socket.Port))
 	timeout := time.Duration(time.Second * time.Duration(config.Timeout))
 
 	if config.Verbose {
@@ -32,13 +32,8 @@ func RawConnect(socket socket.Socket) error {
 
 // checkHTTPCode function for response and expected HTTP codes comparison
 // panics if it fails to convert expected code to int
-func checkHTTPCode(responseCode int, expectedCodes []string) bool {
+func checkHTTPCode(responseCode int, expectedCodes []int) bool {
 	for _, code := range expectedCodes {
-		code, err := strconv.Atoi(code)
-		if err != nil {
-			panic(err)
-		}
-
 		if responseCode == code {
 			return true
 		}
@@ -52,7 +47,7 @@ func CheckSite(socket socket.Socket) (bool, error) {
 	client := &http.Client{
 		Timeout: time.Duration(config.Timeout) * time.Second,
 	}
-	url := socket.Host + ":" + socket.Port + socket.PathHTTP
+	url := socket.Host + ":" + strconv.Itoa(socket.Port) + socket.PathHTTP
 
 	if config.Verbose {
 		log.Println("runner: checksite:", url)
