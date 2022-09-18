@@ -3,35 +3,35 @@
     {
       "socket_name": "eldenbling.net HTTPS",
       "host_name": "https://eldenbling.net",
-      "port_tcp": "443",
+      "port_tcp": 443,
       "path_http": "/",
-      "expected_http_code_array": [ "200", "301" ]
+      "expected_http_code_array": [ 200, 301 ]
     },
     {
       "socket_name": "savla.dev HTTPS",
       "host_name": "https://savla.dev",
-      "port_tcp": "443",
+      "port_tcp": 443,
       "path_http": "/",
-      "expected_http_code_array": [ "200", "301" ]
+      "expected_http_code_array": [ 200, 301 ]
     },
     {
       "socket_name": "sc.cz HTTPS",
       "host_name": "https://sc.cz",
-      "port_tcp": "443",
+      "port_tcp": 443,
       "path_http": "/",
-      "expected_http_code_array": [ "200", "301", "401" ]
+      "expected_http_code_array": [ 200, 301, 401 ]
     },
     {
       "socket_name": "text.n0p.cz HTTPS",
       "host_name": "https://text.n0p.cz",
-      "port_tcp": "443",
+      "port_tcp": 443,
       "path_http": "/",
-      "expected_http_code_array": [ "200", "301" ]
+      "expected_http_code_array": [ 200, 301 ]
     },
     {
       "socket_name": "openttd TCP",
       "host_name": "ottd.savla.dev",
-      "port_tcp": "3979",
+      "port_tcp": 3979,
       "path_http": "",
       "expected_http_code_array": []
     }
