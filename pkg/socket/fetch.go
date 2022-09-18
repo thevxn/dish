@@ -2,9 +2,12 @@ package socket
 
 import (
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"regexp"
+	"savla-dish/pkg/config"
+	"strconv"
 )
 
 // fetchRemoteStream sends a GET HTTP request to remote RESTful API endpoint, returns response body
@@ -16,13 +19,25 @@ func fetchRemoteStream(url string) (io.ReadCloser, error) {
 		return nil, err
 	}
 
+	client := &http.Client{}
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := http.Get(url)
+
+	if config.HeaderName != "" && config.HeaderValue != "" {
+		req.Header.Set(config.HeaderName, config.HeaderValue)
+	}
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Body, nil
+	if resp.StatusCode != 200 {
+		log.Fatal("not a HTTP/200 status code on socket list fetch --- got " + strconv.Itoa(resp.StatusCode))
+	}
+
+	body := resp.Body
+
+	return body, nil
 }
 
 func fetchFileStream(input string) (io.ReadCloser, error) {

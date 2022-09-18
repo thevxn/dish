@@ -5,6 +5,9 @@ import (
 )
 
 var (
+	InstanceName     string
+	HeaderName       string
+	HeaderValue      string
 	Source           string
 	Verbose          bool
 	TargetURL        string
@@ -17,12 +20,16 @@ var (
 
 // Gets called before main()
 func init() {
+	instanceName := flag.String("name", "generic-dish", "a string, dish instance name")
+	timeoutFlag := flag.Int("timeout", 10, "an int, timeout in seconds for http and tcp calls")
+	verboseFlag := flag.Bool("verbose", true, "a bool, console stdout logging toggle")
 
 	sourceFlag := flag.String("source", "demo_sockets.json", "a string, path to/URL JSON socket list")
-	verboseFlag := flag.Bool("verbose", true, "a bool, console stdout logging toggle")
-	timeoutFlag := flag.Int("timeout", 10, "a int, timeout in seconds for http and tcp calls")
-	targetURLFlag := flag.String("target", "", "a string, result update path/URL, plaintext/byte output")
+	sourceHeaderName := flag.String("hname", "", "a string, custom additional header name")
+	sourceHeaderValue := flag.String("hvalue", "", "a string, custom additional header value")
+
 	usePushgatewayFlag := flag.Bool("pushgw", false, "a bool, enable reporter module to post dish results to pushgateway")
+	targetURLFlag := flag.String("target", "", "a string, result update path/URL, plaintext/byte output")
 
 	// telegram provider flags
 	useTelegramFlag := flag.Bool("telegram", false, "a bool, Telegram provider usage toggle")
@@ -31,13 +38,22 @@ func init() {
 
 	flag.Parse()
 
-	Source = *sourceFlag
+	// system vars
+	InstanceName = *instanceName
+	Timeout = *timeoutFlag
 	Verbose = *verboseFlag
-	TargetURL = *targetURLFlag
+
+	// source vars
+	Source = *sourceFlag
+	HeaderName = *sourceHeaderName
+	HeaderValue = *sourceHeaderValue
+
+	// target vars
 	UsePushgateway = *usePushgatewayFlag
+	TargetURL = *targetURLFlag
+
+	// telegram vars
 	UseTelegram = *useTelegramFlag
 	TelegramBotToken = *telegramBotTokenFlag
 	TelegramChatID = *telegramChatIDFlag
-	Timeout = *timeoutFlag
-
 }
