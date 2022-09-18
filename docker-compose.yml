@@ -10,13 +10,13 @@ services:
     build:
       context: .
       args: 
+        ALPINE_VERSION: ${ALPINE_VERSION}
         APP_NAME: ${APP_NAME}
         APP_FLAGS: ${APP_FLAGS}
         GOLANG_VERSION: ${GOLANG_VERSION}
     restart: "no"
     healthcheck:
       test: ["CMD", "./main", "${APP_FLAGS}"]
-      #test: ["CMD", "", "-f", "http://localhost/api/v2/TestServiceAll", "-H", "X-Api-Key: ${SUPERVISOR_APIKEY}"]
       interval: 3m
       timeout: 60s
       retries: 0

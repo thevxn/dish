@@ -5,7 +5,7 @@
 include .env.example
 -include .env
 
-PROJECT_NAME?=savla-dish
+PROJECT_NAME?=${APP_NAME}
 
 DOCKER_DEV_IMAGE?=${PROJECT_NAME}-image
 DOCKER_DEV_CONTAINER?=${PROJECT_NAME}
@@ -37,10 +37,9 @@ endif
 export
 
 
-.PHONY: all info build go src make doc
-
 all: info
 
+.PHONY: info
 info: 
 	@echo -e "\n${GREEN} ${PROJECT_NAME} / Makefile ${RESET}\n"
 
@@ -51,33 +50,33 @@ info:
 	@echo -e "${YELLOW} make logs    --- fetch container's logs ${RESET}"
 	@echo -e "${YELLOW} make stop    --- stop and purge project (only docker containers!) ${RESET}\n"
 
+.PHONY: build
 build:  
 	@echo -e "\n${YELLOW} Building project (docker-compose build)... ${RESET}\n"
 	@docker compose build 
 
+.PHONY: local_build
 local_build: 
 	@echo -e "\n${YELLOW} [local] Building project... ${RESET}\n"
 	@go mod init 2>/dev/null; \
 		go build -tags dev ${APP_NAME}
 
+.PHONY: run
 run:	build
 	@echo -e "\n${YELLOW} Starting project (docker-compose up)... ${RESET}\n"
 	@docker compose up --force-recreate --detach
 
-## THIS IS NOT STABLE!
-
-export: run
-	@echo -e "\n${YELLOW} Exporting built golang binary... ${RESET}\n"
-	@docker cp ${DOCKER_DEV_CONTAINER}:/go/bin/${APP_NAME} - > ${APP_NAME}_go${GOLANG_VERSION_MINOR}
-
+.PHONY: logs
 logs:
 	@echo -e "\n${YELLOW} Fetching container's logs (CTRL-C to exit)... ${RESET}\n"
 	@docker logs ${DOCKER_DEV_CONTAINER} -f
 
+.PHONY: stop
 stop:  
 	@echo -e "\n${YELLOW} Stopping and purging project (docker-compose down)... ${RESET}\n"
 	@docker compose down
 
+.PHONY: test
 test:
 	@echo -e "\n${YELLOW} [local] Running unit tests (go test)... ${RESET}\n"
 	@go test ${APP_NAME}
