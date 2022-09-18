@@ -12,6 +12,12 @@ $ go install github.com/savla-dev/savla-dish
 
 $ savla-dish -h
 Usage of ./savla-dish:
+  -hname string
+    	a string, custom additional header name
+  -hvalue string
+    	a string, custom additional header value
+  -name string
+    	a string, dish instance name (default "generic-dish")
   -pushgw
     	a bool, enable reporter module to post dish results to pushgateway
   -source string
@@ -24,10 +30,10 @@ Usage of ./savla-dish:
     	a string, Telegram bot private token
   -telegramChatID string
     	a string/signet int, Telegram chat/channel ID
+  -timeout int
+    	an int, timeout in seconds for http and tcp calls (default 10)
   -verbose
-    	a bool, console stdout logging toggle
-  -timeout
-      a int, timeout in seconds for http/s and tcp calls
+    	a bool, console stdout logging toggle (default true)
 ```
 
 ## use-cases
