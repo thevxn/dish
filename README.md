@@ -4,11 +4,11 @@
 [![Go Report Card](http://goreportcard.com/badge/github.com/savla-dev/savla-dish)](https://goreportcard.com/report/github.com/savla-dev/savla-dish)
 
   + __tiny__ monitoring one-shot service
-  + __clusterable__ (peer-to-peer idea **TBD**), remote configuration of independent 'dish network' (`-source=$REMOTE_JSON_API_URL`)
-  + __fast__ (quick load and exec time, 5s timeout per socket -- hardcoded), instant messaging connectors
+  + __remote__ configuration of independent 'dish network' (`-source=$REMOTE_JSON_API_URL`)
+  + __fast__ (quick load and exec time, 10 sec timeout per socket by default), instant messenger connectors
 
 ```shell
-$ go install github.com/savla-dev/savla-dish
+$ go install github.com/savla-dev/savla-dish@latest
 
 $ savla-dish -h
 Usage of ./savla-dish:
@@ -69,6 +69,7 @@ job name and instance name are hardcoded constants in the [reporter](/reporter/r
 ```shell
 # get the actual git version
 go get github.com/savla-dev/savla-dish
+go install github.com/savla-dev/savla-dish
 
 # load sockets from demo_sockets.json file (by default) and use telegram provider for alerting (hardcoded token and chatID -- messenger/messenger.go)
 savla-dish -source=demo_sockets.json -telegram
