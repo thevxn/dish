@@ -7,7 +7,7 @@ import (
 )
 
 type SocketList struct {
-	Sockets []Socket
+	Sockets map[string]Socket
 }
 
 type Socket struct {
@@ -31,7 +31,9 @@ type Socket struct {
 }
 
 // 'input' should be a string like '/path/filename.json', or a HTTP URL string
-func FetchSocketList(input string) (list SocketList) {
+func FetchSocketList(input string) SocketList {
+	var list = &SocketList{}
+
 	// fetch JSON byte reader from input URL/path
 	reader, err := getStreamFromPath(input)
 	if err != nil {
@@ -54,5 +56,5 @@ func FetchSocketList(input string) (list SocketList) {
 		}
 	}
 
-	return list
+	return *list
 }
