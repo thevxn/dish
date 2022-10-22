@@ -4,11 +4,11 @@
 [![Go Report Card](http://goreportcard.com/badge/github.com/savla-dev/savla-dish)](https://goreportcard.com/report/github.com/savla-dev/savla-dish)
 
   + __tiny__ monitoring one-shot service
-  + __clusterable__ (peer-to-peer idea **TBD**), remote configuration of independent 'dish network' (`-source=$REMOTE_JSON_API_URL`)
-  + __fast__ (quick load and exec time, 5s timeout per socket -- hardcoded), instant messaging connectors
+  + __remote__ configuration of independent 'dish network' (`-source=$REMOTE_JSON_API_URL`)
+  + __fast__ (quick load and exec time, 10 sec timeout per socket by default), instant messenger connectors
 
 ```shell
-$ go install github.com/savla-dev/savla-dish
+$ go install github.com/savla-dev/savla-dish@latest
 
 $ savla-dish -h
 Usage of ./savla-dish:
@@ -56,6 +56,8 @@ the list of sockets can be provided via a local JSON-formated file, or via remot
 
 as the alerting system (in case of socket test timeout threshold hit, or an unexpected HTTP response code) we provide a simple embedded `messenger` with Telegram IM implementation example (see `messenger/messenger.go`); since the Telegram bot token and the potential Telegram chat ID are considered as the **secrets**, we do recommend including these to the custom, local, binary executable instead of passing them into the CLI shell (security breach as secrets can then leak in process list --- to be reviewed)
 
+![telegram-alerting](/.github/savla-dish-telegram.png)
+
 ### pushgateway
 
 to keep dish simple and light, we decided not to import http server (even though net/http package is used) and use just its Client interface to push/post results to Pushgateway by Prometheus (TODO: insert pushgateway into docker-compose.yml config)
@@ -69,6 +71,7 @@ job name and instance name are hardcoded constants in the [reporter](/reporter/r
 ```shell
 # get the actual git version
 go get github.com/savla-dev/savla-dish
+go install github.com/savla-dev/savla-dish
 
 # load sockets from demo_sockets.json file (by default) and use telegram provider for alerting (hardcoded token and chatID -- messenger/messenger.go)
 savla-dish -source=demo_sockets.json -telegram
