@@ -1,25 +1,11 @@
 {
   "sockets": {
-    "eldenbling.net_https": {
-      "socket_name": "eldenbling.net HTTPS",
-      "host_name": "https://eldenbling.net",
-      "port_tcp": 443,
-      "path_http": "/",
-      "expected_http_code_array": [ 200, 301 ]
-    },
     "savla.dev_https": { 
       "socket_name": "savla.dev HTTPS",
       "host_name": "https://savla.dev",
       "port_tcp": 443,
       "path_http": "/",
       "expected_http_code_array": [ 200, 301 ]
-    },
-    "sc.cz_https": {
-      "socket_name": "sc.cz HTTPS",
-      "host_name": "https://sc.cz",
-      "port_tcp": 443,
-      "path_http": "/",
-      "expected_http_code_array": [ 200, 301, 401 ]
     },
     "text.n0p.cz_https": {
       "socket_name": "text.n0p.cz HTTPS",
@@ -35,5 +21,5 @@
       "path_http": "",
       "expected_http_code_array": []
     }
-  ]
+  }
 }
