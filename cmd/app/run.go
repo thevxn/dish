@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+
 	"savla-dish/pkg/alert"
 	"savla-dish/pkg/config"
 	"savla-dish/pkg/message"
@@ -30,15 +31,16 @@ func Run() {
 				messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, rawErr.Error())
 				failedCount++
 			}
-		} else {
-			ok, httpErr := netrunner.CheckSite(socket)
-			if !ok {
-				failedCount++
-				if httpErr != nil {
-					messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, socket.PathHTTP, "--", httpErr.Error())
-				}
-				messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, socket.PathHTTP, "--", "Did not match expected response codes")
+			continue;
+		}
+
+		ok, httpErr := netrunner.CheckSite(socket)
+		if !ok {
+			failedCount++
+			if httpErr != nil {
+				messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, socket.PathHTTP, "--", httpErr.Error())
 			}
+			messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, socket.PathHTTP, "--", "Did not match expected response codes")
 		}
 	}
 
