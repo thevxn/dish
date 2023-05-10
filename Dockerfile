@@ -6,7 +6,7 @@
 
 ARG ALPINE_VERSION
 ARG GOLANG_VERSION
-FROM golang:${GOLANG_VERSION}-alpine as dish-build
+FROM golang:${GOLANG_VERSION}-alpine AS dish-build
 
 LABEL maintainer="krusty@savla.dev, tack@savla.dev, krixlion@savla.dev"
 
@@ -19,7 +19,7 @@ COPY .docker/resolv.conf /etc/resolv.conf
 # build binary
 RUN go install cmd/main.go 
 
-FROM alpine:${ALPINE_VERSION} as dish-release
+FROM alpine:${ALPINE_VERSION} AS dish-release
 
 WORKDIR /usr/local/bin
 COPY --from=dish-build /go/bin/main .

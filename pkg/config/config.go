@@ -18,7 +18,6 @@ var (
 	Timeout          int // In seconds
 )
 
-// Gets called before main()
 func init() {
 	instanceName := flag.String("name", "generic-dish", "a string, dish instance name")
 	timeoutFlag := flag.Int("timeout", 10, "an int, timeout in seconds for http and tcp calls")

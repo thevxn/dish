@@ -11,7 +11,7 @@ import (
 	"savla-dish/pkg/socket"
 )
 
-// RawConnect function to direct host:port socket check
+// RawConnect function for direct host:port socket check
 func RawConnect(socket socket.Socket) error {
 	endpoint := net.JoinHostPort(socket.Host, strconv.Itoa(socket.Port))
 	timeout := time.Duration(time.Second * time.Duration(config.Timeout))
