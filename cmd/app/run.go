@@ -20,10 +20,15 @@ func Run() {
 	messengerText := "[ savla-dish run results (failed) ]\n"
 	failedCount := 0
 
+	regex, err := regexp.Compile("^(http|https)://")
+	if err != nil {
+		log.Println("Failed to create new regex object")
+	}
+
 	// iterate over given/loaded sockets
 	for _, socket := range list.Sockets {
 		// http/https app protocol patterns check
-		match, _ := regexp.MatchString("^(http|https)://", socket.Host)
+		match := regex.MatchString(socket.Host)
 		if !match {
 			// testing raw host and port (tcp), report only unsuccessful tests; exclusively non-HTTP/S sockets
 			rawErr := netrunner.RawConnect(socket)
@@ -31,7 +36,7 @@ func Run() {
 				messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, rawErr.Error())
 				failedCount++
 			}
-			continue;
+			continue
 		}
 
 		ok, httpErr := netrunner.CheckSite(socket)
