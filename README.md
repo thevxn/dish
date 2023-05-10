@@ -8,7 +8,7 @@
   + __fast__ (quick load and exec time, 10 sec timeout per socket by default), instant messenger connectors
 
 ```shell
-$ go install github.com/savla-dev/savla-dish@latest
+$ go install go.savla.dev/dish@1.2.0
 
 $ savla-dish -h
 Usage of ./savla-dish:
