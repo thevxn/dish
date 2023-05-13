@@ -23,6 +23,7 @@ func Run() {
 	regex, err := regexp.Compile("^(http|https)://")
 	if err != nil {
 		log.Println("Failed to create new regex object")
+		return
 	}
 
 	// iterate over given/loaded sockets
