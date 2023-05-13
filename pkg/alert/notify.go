@@ -9,7 +9,7 @@ import (
 	"savla-dish/pkg/config"
 )
 
-// returns an error if given message is a empty string or if a request cannot be sent
+// returns an error if given message is an empty string or if a request cannot be sent
 func SendTelegram(rawMessage string) error {
 	if rawMessage == "" {
 		return errors.New("empty message string given")
