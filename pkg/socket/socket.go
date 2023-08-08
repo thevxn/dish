@@ -7,7 +7,7 @@ import (
 )
 
 type SocketList struct {
-	Sockets map[string]Socket
+	Sockets map[string]Socket `json:"items"`
 }
 
 type Socket struct {
