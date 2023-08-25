@@ -1,4 +1,4 @@
-# savla-dish (golang1.19)
+# savla-dish (golang1.21)
 
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/savla-dev/savla-dish)](https://pkg.go.dev/github.com/savla-dev/savla-dish)
 [![Go Report Card](http://goreportcard.com/badge/github.com/savla-dev/savla-dish)](https://goreportcard.com/report/github.com/savla-dev/savla-dish)
