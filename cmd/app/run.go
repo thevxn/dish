@@ -40,13 +40,13 @@ func Run() {
 			continue
 		}
 
-		ok, httpErr := netrunner.CheckSite(socket)
+		ok, responseCode, httpErr := netrunner.CheckSite(socket)
 		if !ok {
 			failedCount++
 			if httpErr != nil {
 				messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, socket.PathHTTP, "--", httpErr.Error())
 			}
-			messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, socket.PathHTTP, "--", "Did not match expected response codes")
+			messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, socket.PathHTTP, "--", "Did not match expected response codes: got ", responseCode)
 		}
 	}
 

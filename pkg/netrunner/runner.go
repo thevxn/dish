@@ -42,7 +42,7 @@ func checkHTTPCode(responseCode int, expectedCodes []int) bool {
 }
 
 // CheckSite executes test over HTTP/S endpoints exclusively
-func CheckSite(socket socket.Socket) (bool, error) {
+func CheckSite(socket socket.Socket) (bool, int, error) {
 	// config http client
 	client := &http.Client{
 		Timeout: time.Duration(config.Timeout) * time.Second,
@@ -53,17 +53,24 @@ func CheckSite(socket socket.Socket) (bool, error) {
 		log.Println("runner: checksite:", url)
 	}
 
-	// open socket --- Head to url
-	resp, err := client.Head(url)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return false, err
+		return false, 0, err
+	}
+	req.Header.Set("User-Agent", "savla-dish/1.4.0")
+
+	// open socket --- Head to url
+	//resp, err := client.Head(url)
+	resp, err := client.Do(req)
+	if err != nil {
+		return false, 0, err
 	}
 
 	// fetch StatusCode for HTTP expected code comparison
 	if resp != nil {
 		defer resp.Body.Close()
-		return checkHTTPCode(resp.StatusCode, socket.ExpectedHTTPCodes), nil
+		return checkHTTPCode(resp.StatusCode, socket.ExpectedHTTPCodes), resp.StatusCode, nil
 	}
 
-	return true, nil
+	return true, resp.StatusCode, nil
 }
