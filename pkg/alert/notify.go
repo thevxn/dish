@@ -19,7 +19,7 @@ func SendTelegram(rawMessage string) error {
 	msg := url.QueryEscape(rawMessage)
 
 	// form the Telegram URL
-	telegramURL := "https://api.telegram.org/bot" + config.TelegramBotToken + "/sendMessage?chat_id=" + config.TelegramChatID + "&text="
+	telegramURL := "https://api.telegram.org/bot" + config.TelegramBotToken + "/sendMessage?chat_id=" + config.TelegramChatID + "&disable_web_page_preview=True&text="
 
 	req, err := http.NewRequest(http.MethodGet, telegramURL+msg, nil)
 	if err != nil {
