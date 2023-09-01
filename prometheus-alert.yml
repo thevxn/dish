@@ -1,6 +1,6 @@
 ---
 groups:
-  - name: savla-dish
+  - name: dish
     rules:
 
     # firing when dish instance isn't sending any new data

@@ -1,5 +1,5 @@
 #
-# savla-dish / Makefile
+# dish / Makefile
 #
 
 include .env.example
@@ -79,4 +79,4 @@ stop:
 .PHONY: test
 test:
 	@echo -e "\n${YELLOW} [local] Running unit tests (go test)... ${RESET}\n"
-	@go test ${APP_NAME}
+	@go test ./...

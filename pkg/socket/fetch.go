@@ -6,8 +6,9 @@ import (
 	"net/http"
 	"os"
 	"regexp"
-	"savla-dish/pkg/config"
 	"strconv"
+
+	"dish/pkg/config"
 )
 
 // fetchRemoteStream sends a GET HTTP request to remote RESTful API endpoint, returns response body

@@ -5,11 +5,11 @@ import (
 	"log"
 	"regexp"
 
-	"savla-dish/pkg/alert"
-	"savla-dish/pkg/config"
-	"savla-dish/pkg/message"
-	"savla-dish/pkg/netrunner"
-	"savla-dish/pkg/socket"
+	"dish/pkg/alert"
+	"dish/pkg/config"
+	"dish/pkg/message"
+	"dish/pkg/netrunner"
+	"dish/pkg/socket"
 )
 
 func Run() {
@@ -17,7 +17,7 @@ func Run() {
 	// load socket list to run tests on --- external file!
 	list := socket.FetchSocketList(config.Source)
 
-	messengerText := "[ savla-dish run results (failed) ]\n"
+	messengerText := "[ dish run results (failed) ]\n"
 	failedCount := 0
 
 	regex, err := regexp.Compile("^(http|https)://")

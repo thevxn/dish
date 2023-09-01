@@ -1,5 +1,5 @@
 #
-# savla-dish / Dockerfile
+# dish / Dockerfile
 #
 
 # https://hub.docker.com/_/golang

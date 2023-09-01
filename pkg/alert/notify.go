@@ -6,7 +6,8 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"savla-dish/pkg/config"
+
+	"dish/pkg/config"
 )
 
 // returns an error if given message is an empty string or if a request cannot be sent

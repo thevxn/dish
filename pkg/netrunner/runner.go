@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"time"
 
-	"savla-dish/pkg/config"
-	"savla-dish/pkg/socket"
+	"dish/pkg/config"
+	"dish/pkg/socket"
 )
 
 // RawConnect function for direct host:port socket check

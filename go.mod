@@ -1,3 +1,3 @@
-module go.savla.dev/dish
+module dish
 
 go 1.21

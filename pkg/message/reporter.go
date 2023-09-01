@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"savla-dish/pkg/config"
+	"dish/pkg/config"
 )
 
 const (

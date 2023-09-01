@@ -3,11 +3,15 @@ package socket
 import (
 	"encoding/json"
 	"log"
-	"savla-dish/pkg/config"
+
+	"dish/pkg/config"
+
+	//"go.savla.dev/swapi/dish"
 )
 
 type SocketList struct {
 	Sockets map[string]Socket `json:"items"`
+	//Sockets map[string]dish.Socket `json:"items"`
 }
 
 type Socket struct {

@@ -1,4 +1,4 @@
-# savla-dish / _EXAMPLE_ docker-compose.yml file
+# dish / _EXAMPLE_ docker-compose.yml file
 # mainly used for savla-dish binary building process, as the binary itself 
 # does not serve any HTTP
 
