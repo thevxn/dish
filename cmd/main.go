@@ -1,7 +1,7 @@
 package main
 
 import (
-	"savla-dish/cmd/app"
+	"dish/cmd/app"
 )
 
 func main() {
