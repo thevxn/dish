@@ -18,6 +18,7 @@ func Run() {
 	list := socket.FetchSocketList(config.Source)
 
 	messengerText := "[ dish run results (failed) ]\n"
+	results := message.Results{Map: make(map[string]bool)}
 	failedCount := 0
 
 	regex, err := regexp.Compile("^(http|https)://")
@@ -37,6 +38,7 @@ func Run() {
 				messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, rawErr.Error())
 				failedCount++
 			}
+			results.Map[socket.Name] = (rawErr == nil)
 			continue
 		}
 
@@ -47,6 +49,7 @@ func Run() {
 				messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, socket.PathHTTP, "--", httpErr.Error())
 			}
 			messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, socket.PathHTTP, "--", "Did not match expected response codes: got ", responseCode)
+			results.Map[socket.Name] = (httpErr == nil)
 		}
 	}
 
@@ -56,6 +59,13 @@ func Run() {
 		pushErr := msg.PushDishResults()
 		if pushErr != nil {
 			log.Println("Failed to push dish results, err: " + pushErr.Error())
+		}
+	}
+
+	if config.UpdateStates {
+		updateErr := message.UpdateSocketStates(results)
+		if updateErr != nil {
+			log.Println("Failed to update socket states, err: " + updateErr.Error())
 		}
 	}
 

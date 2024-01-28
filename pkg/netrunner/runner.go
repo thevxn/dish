@@ -57,7 +57,7 @@ func CheckSite(socket socket.Socket) (bool, int, error) {
 	if err != nil {
 		return false, 0, err
 	}
-	req.Header.Set("User-Agent", "savla-dish/1.4.0")
+	req.Header.Set("User-Agent", "savla-dish/1.5")
 
 	// open socket --- Head to url
 	//resp, err := client.Head(url)
