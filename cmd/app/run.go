@@ -38,7 +38,7 @@ func Run() {
 				messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, rawErr.Error())
 				failedCount++
 			}
-			results.Map[socket.Name] = (rawErr == nil)
+			results.Map[socket.ID] = (rawErr == nil)
 			continue
 		}
 
@@ -49,8 +49,8 @@ func Run() {
 				messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, socket.PathHTTP, "--", httpErr.Error())
 			}
 			messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, socket.PathHTTP, "--", "Did not match expected response codes: got ", responseCode)
-			results.Map[socket.Name] = (httpErr == nil)
 		}
+		results.Map[socket.ID] = ok
 	}
 
 	// report failedCount to pushgateway

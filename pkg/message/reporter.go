@@ -72,7 +72,8 @@ func UpdateSocketStates(results Results) error {
 	if err != nil {
 		return nil
 	}
-	bodyReader := bytes.NewReader([]byte(jsonData))
+	bodyReader := bytes.NewReader(jsonData)
+	log.Println(string(jsonData))
 
 	url := config.UpdateURL
 
@@ -88,7 +89,7 @@ func UpdateSocketStates(results Results) error {
 	if err != nil {
 		return err
 	}
-	req.Header.Set("Content-Type", "application/byte")
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set(config.HeaderName, config.HeaderValue)
 
 	client := http.Client{}
