@@ -38,7 +38,7 @@ Usage of ./dish:
 
 ## use-cases
 
-[savla-dish history article](https://krusty.savla.dev/projects/savla-dish/)
+[savla-dish history article](https://krusty.space/projects/savla-dish/)
 
 the idea of a tiny one-shot service comes with the need of a quick monitoring service implementation over HTTP/S and generic TCP endpoints (more like 'sockets' = hosts and their ports)
 
@@ -64,7 +64,7 @@ to keep dish simple and light, we decided not to import http server (even though
 
 job name and instance name are hardcoded constants in the [reporter](/reporter/reporter.go) module source
 
-[short article on motivation and history behind dish](https://krusty.savla.dev/projects/savla-dish/)
+[short article on motivation and history behind dish](https://krusty.space/projects/savla-dish/)
 
 ## examples
 
