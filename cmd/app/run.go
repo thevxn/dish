@@ -17,7 +17,8 @@ func Run() {
 	// load socket list to run tests on --- external file!
 	list := socket.FetchSocketList(config.Source)
 
-	messengerText := "[ dish run results (failed) ]\n"
+	//messengerText := "[ dish run results (failed) ]\n"
+	messengerText := ""
 	results := message.Results{Map: make(map[string]bool)}
 	failedCount := 0
 

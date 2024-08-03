@@ -16,11 +16,13 @@ func SendTelegram(rawMessage string) error {
 		return errors.New("empty message string given")
 	}
 
-	// escape dish report string for Telegram
-	msg := url.QueryEscape(rawMessage)
-
 	// form the Telegram URL
-	telegramURL := "https://api.telegram.org/bot" + config.TelegramBotToken + "/sendMessage?chat_id=" + config.TelegramChatID + "&disable_web_page_preview=True&text="
+	telegramURL := "https://api.telegram.org/bot" + config.TelegramBotToken + "/sendMessage?chat_id=" + config.TelegramChatID + "&disable_web_page_preview=True&parse_mode=HTML&text="
+
+	msg := "<b>dish run results</b>:\n\n"+rawMessage
+
+	// escape dish report string for Telegram
+	msg = url.QueryEscape(msg)
 
 	req, err := http.NewRequest(http.MethodGet, telegramURL+msg, nil)
 	if err != nil {
