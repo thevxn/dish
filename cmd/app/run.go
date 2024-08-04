@@ -3,7 +3,7 @@ package app
 import (
 	"fmt"
 	"log"
-	"regexp"
+	"sync"
 
 	"dish/pkg/alert"
 	"dish/pkg/config"
@@ -13,7 +13,6 @@ import (
 )
 
 func Run() {
-
 	// load socket list to run tests on --- external file!
 	list := socket.FetchSocketList(config.Source)
 
@@ -22,37 +21,34 @@ func Run() {
 	results := message.Results{Map: make(map[string]bool)}
 	failedCount := 0
 
-	regex, err := regexp.Compile("^(http|https)://")
-	if err != nil {
-		log.Println("Failed to create new regex object")
-		return
-	}
+	socketChan := make(chan socket.Result)
+	var wg sync.WaitGroup
 
-	// iterate over given/loaded sockets
+	// iterate over given/loaded sockets --> start goroutines
 	for _, socket := range list.Sockets {
-		// http/https app protocol patterns check
-		match := regex.MatchString(socket.Host)
-		if !match {
-			// testing raw host and port (tcp), report only unsuccessful tests; exclusively non-HTTP/S sockets
-			rawErr := netrunner.RawConnect(socket)
-			if rawErr != nil {
-				messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, rawErr.Error())
-				failedCount++
-			}
-			results.Map[socket.ID] = (rawErr == nil)
-			continue
-		}
-
-		ok, responseCode, httpErr := netrunner.CheckSite(socket)
-		if !ok {
-			failedCount++
-			if httpErr != nil {
-				messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, socket.PathHTTP, "--", httpErr.Error())
-			}
-			messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, socket.PathHTTP, "--", "Did not match expected response codes: got ", responseCode)
-		}
-		results.Map[socket.ID] = ok
+		wg.Add(1)
+		go netrunner.TestSocket(socket, socketChan, &wg)
 	}
+
+	// iterate again to fetch results from the channel
+	for _, _ = range list.Sockets {
+		result := <-socketChan
+
+		if !result.Passed || result.Error != nil {
+			failedCount++
+			if result.Error != nil {
+				if result.Socket.PathHTTP != "" {
+					messengerText += fmt.Sprintln(result.Socket.Host, ":", result.Socket.Port, result.Socket.PathHTTP, " (code ", result.ResponseCode, " )", "--", result.Error.Error())
+				} else {
+					messengerText += fmt.Sprintln(result.Socket.Host, ":", result.Socket.Port, result.Error.Error())
+				}
+			}
+		}
+		results.Map[result.Socket.ID] = (result.Error == nil)
+	}
+
+	wg.Wait()
+	close(socketChan)
 
 	// report failedCount to pushgateway
 	if config.UsePushgateway && config.TargetURL != "" {

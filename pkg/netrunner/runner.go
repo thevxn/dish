@@ -4,16 +4,51 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"regexp"
 	"strconv"
+	"sync"
 	"time"
 
 	"dish/pkg/config"
 	"dish/pkg/socket"
 )
 
+func TestSocket(sock socket.Socket, channel chan <- socket.Result, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	regex, err := regexp.Compile("^(http|https)://")
+	if err != nil {
+		log.Println("Failed to create new regex object")
+		return
+	}
+
+	result := socket.Result{
+		Socket: sock,
+		Error: nil,
+	}
+
+	match := regex.MatchString(sock.Host)
+	if !match {
+		// testing raw host and port (tcp), report only unsuccessful tests; exclusively non-HTTP/S sockets
+		result.Error = RawConnect(sock)
+		result.Passed = (result.Error == nil)
+		
+		if channel != nil {
+			channel <- result
+		}
+		return
+	}
+
+	result.Passed, result.ResponseCode, result.Error = CheckSite(sock)
+	if channel != nil {
+		channel <- result
+	}
+	
+}
+
 // RawConnect function for direct host:port socket check
-func RawConnect(socket socket.Socket) error {
-	endpoint := net.JoinHostPort(socket.Host, strconv.Itoa(socket.Port))
+func RawConnect(sock socket.Socket) error {
+	endpoint := net.JoinHostPort(sock.Host, strconv.Itoa(sock.Port))
 	timeout := time.Duration(time.Second * time.Duration(config.Timeout))
 
 	if config.Verbose {

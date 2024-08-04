@@ -16,8 +16,8 @@ var (
 	TelegramBotToken string
 	TelegramChatID   string
 	Timeout          int // In seconds
-	UpdateStates	 bool
-	UpdateURL	 string
+	UpdateStates     bool
+	UpdateURL        string
 )
 
 func init() {
@@ -39,7 +39,7 @@ func init() {
 
 	updateStateFlag := flag.Bool("update", false, "a bool, switch for socket's last state batch upload to the source swis-api instance")
 	updateURLFlag := flag.String("updateURL", "", "a string, URL of the source swis-api instance")
-	
+
 	flag.Parse()
 
 	// system vars

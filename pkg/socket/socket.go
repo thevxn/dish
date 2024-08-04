@@ -5,9 +5,14 @@ import (
 	"log"
 
 	"dish/pkg/config"
-
-	//"go.savla.dev/swapi/dish"
 )
+
+type Result struct {
+	Socket       Socket
+	Passed       bool
+	ResponseCode int
+	Error        error
+}
 
 type SocketList struct {
 	Sockets map[string]Socket `json:"items"`
