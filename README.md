@@ -1,104 +1,162 @@
-# dish (golang1.22)
+# dish
 
-[![PkgGoDev](https://pkg.go.dev/badge/github.com/savla-dev/savla-dish)](https://pkg.go.dev/github.com/savla-dev/savla-dish)
-[![Go Report Card](http://goreportcard.com/badge/github.com/savla-dev/savla-dish)](https://goreportcard.com/report/github.com/savla-dev/savla-dish)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/savla-dev/savla-dish)](https://pkg.go.dev/github.com/thevxn/dish)
+[![Go Report Card](http://goreportcard.com/badge/github.com/savla-dev/savla-dish)](https://goreportcard.com/report/github.com/thevxn/dish)
 
 + __tiny__ monitoring one-shot service
 + __remote__ configuration of independent 'dish network' (`-source=$REMOTE_JSON_API_URL`)
 + __fast__ (quick load and exec time, 10 sec timeout per socket by default), instant messenger connectors
 
 ```shell
-$ go install go.savla.dev/dish@1.3.0
+$ go install go.savla.dev/dish@1.6.0
 
 $ dish -h
 Usage of ./dish:
   -hname string
-     a string, custom additional header name
+    	a string, custom additional header name
   -hvalue string
-     a string, custom additional header value
+    	a string, custom additional header value
   -name string
-     a string, dish instance name (default "generic-dish")
+    	a string, dish instance name (default "generic-dish")
   -pushgw
-     a bool, enable reporter module to post dish results to pushgateway
+    	a bool, enable reporter module to post dish results to pushgateway
   -source string
-     a string, path to/URL JSON socket list (default "demo_sockets.json")
+    	a string, path to/URL JSON socket list (default "demo_sockets.json")
   -target string
-     a string, result update path/URL, plaintext/byte output
+    	a string, result update path/URL, plaintext/byte output
   -telegram
-     a bool, Telegram provider usage toggle
+    	a bool, Telegram provider usage toggle
   -telegramBotToken string
-     a string, Telegram bot private token
+    	a string, Telegram bot private token
   -telegramChatID string
-     a string/signet int, Telegram chat/channel ID
+    	a string/signet int, Telegram chat/channel ID
   -timeout int
-     an int, timeout in seconds for http and tcp calls (default 10)
+    	an int, timeout in seconds for http and tcp calls (default 10)
+  -update
+    	a bool, switch for socket's last state batch upload to the source swis-api instance
+  -updateURL string
+    	a string, URL of the source swis-api instance
   -verbose
-     a bool, console stdout logging toggle (default true)
+    	a bool, console stdout logging toggle (default true)
 ```
+
+[dish history article](https://krusty.space/projects/savla-dish/)
 
 ## use-cases
 
-[savla-dish history article](https://krusty.space/projects/savla-dish/)
-
-the idea of a tiny one-shot service comes with the need of a quick monitoring service implementation over HTTP/S and generic TCP endpoints (more like 'sockets' = hosts and their ports)
-
-it is not meant to be a competition with blackbox exporter, this is just another implementation approach
+The idea of a tiny one-shot service comes with the need for a quick monitoring service implementation to test HTTP/S and generic TCP endpoints (or just sockets in general = hosts and their ports).
 
 ### socket list
 
-the list of sockets can be provided via a local JSON-formated file, or via remote REST/RESTful JSON-returning API (JSON structure has to be of the same structure anyway; see `demo_sockets.json`)
+The list of sockets can be provided via a local JSON-formated file (e.g. `demo_sockets.json` file in the CWD), or via remote a REST/RESTful JSON API.
 
 ```bash
-./dish -source=http://restapi.example.com/dish/sockets/:instance
+# local JSON file
+dish -source=/opt/dish/sockets.json
+
+# remote JSON API source
+dish -source=http://restapi.example.com/dish/sockets/:instance
 ```
 
 ### alerting
 
-as the alerting system (in case of socket test timeout threshold hit, or an unexpected HTTP response code) we provide a simple embedded `messenger` with Telegram IM implementation example (see `messenger/messenger.go`); since the Telegram bot token and the potential Telegram chat ID are considered as the __secrets__, we do recommend including these to the custom, local, binary executable instead of passing them into the CLI shell (security breach as secrets can then leak in process list --- to be reviewed)
+When a socket test fails, it's always good to be notified. For this purpose, dish provides three different ways of doing so (can be combined):
+
++ test results upload to a remote JSON API (via `-updateURL` flag)
++ failed sockets list as the Telegram message body (via Telegram-related flags, see the help output above)
++ failed count and last test timestamp update to Pushgateway for Prometheus (via `-pushgw` and `-target` flags)
 
 ![telegram-alerting](/.github/savla-dish-telegram.png)
 
-### pushgateway
-
-to keep dish simple and light, we decided not to import http server (even though net/http package is used) and use just its Client interface to push/post results to Pushgateway by Prometheus (TODO: insert pushgateway into docker-compose.yml config)
-
-job name and instance name are hardcoded constants in the [reporter](/reporter/reporter.go) module source
-
-[short article on motivation and history behind dish](https://krusty.space/projects/savla-dish/)
+(The screenshot above shows the Telegram alerting as of `v1.5.0`.)
 
 ## examples
 
+One way to run dish is to build and install a binary executable.
+
 ```shell
-# get the actual git version
-go install go.savla.dev/dish@latest
+# Fetch and install the specific version
+go install go.savla.dev/dish@1.6.0
 
-# load sockets from demo_sockets.json file (by default) and use telegram provider for alerting (hardcoded token and chatID -- messenger/messenger.go)
-dish -source=demo_sockets.json -telegram
+# Load sockets from sockets.json file, and use Telegram 
+# provider for alerting
+dish -source sockets.json -telegram -telegramChatID "-123456789" \
+	-telegramBotToken "123:AAAbcD_ef"
 
-# use remote RESTful API service's socket list, use _explicit_ telegram bot and chat
-dish -source='https://api.example.com/dish/source' -telegram -telegramChatID=-123456789 -telegramBotToken='idk:00779988ddd'
+# Use remote JSON API service as socket source, and push
+# the results to Pushgateway
+dish -source https://api.example.com/dish/sockets -pushgw \
+	-target https://pushgw.example.com/
 ```
 
-### docker it
+### using Docker
 
-we use `.env` and `gnumake` (Makefile) to simplify/semiautomate our development procedures, feel free to give it a try
-
-```bash
-# copy, and/or edit dot-env file
+```shell
+# Copy, and/or edit dot-env file (optional)
 cp .env.example .env
-vim .env
+vi .env
 
-# build an image
+# Build a Docker image
 make build
 
-# run! (not the same as `make run`, but it should've been so)
-docker run --rm -i savla-dish:golang-1.19 -verbose -pushgw -source=http://[...] -target=http://pushgateway.example.com
+# Run
+docker run --rm \
+	dish:1.6.0-go1.22 \
+	-verbose \
+	-source https://api.example.com \
+	-pushgw \
+	-target https://pushgateway.example.com
 ```
 
-### cronjob example
+### bash script and cronjob
+
+Create a bash script to easily deploy dish and update its settings:
 
 ```shell
-# non-root user!
+vi tiny-dish-run.sh
+```
+
+```shell
+#!/bin/bash
+
+TELEGRAM_TOKEN="123:AAAbcD_ef"
+TELEGRAM_CHATID="-123456789"
+
+SOURCE_URL=https://api.example.com/dish/sockets
+UPDATE_URL=https://api.example.com/dish/sockets/results
+TARGET_URL=https://pushgw.example.com
+
+DISH_TAG=dish:1.6.0-go1.22
+INSTANCE_NAME=tiny-dish
+
+SWAPI_TOKEN=AbCd
+
+docker run --rm \
+        ${DISH_TAG} \
+        -name ${INSTANCE_NAME} \
+        -source ${SOURCE_URL} \
+        -hvalue ${SWAPI_TOKEN} \
+        -hname X-Auth-Token \
+        -pushgw \
+        -target ${TARGET_URL} \
+        -update \
+        -updateURL ${UPDATE_URL} \
+        -telegram \
+        -telegramBotToken ${TELEGRAM_TOKEN} \
+        -telegramChatID ${TELEGRAM_CHATID} \
+        -timeout 15 \
+        -verbose
+```
+
+Make it an executable:
+
+```shell
+chmod +x tiny-dish-run.sh
+```
+
+#### cronjob to run periodically
+
+```shell
 crontab -e
 ```
 
@@ -106,12 +164,6 @@ crontab -e
 # m h  dom mon dow   command
 MAILTO=monitoring@example.com
 
-TELEGRAM_TOKEN="000001:AFFDS45454d5ccfsadf34" 
-TELEGRAM_CHATID="-12345678900"
-DISH_EXECUTABLE_PATH=/home/dish/golang/bin/dish
-DISH_SOURCE=http://restapi.example.com/dish/sockets/${HOSTNAME}
-
-*/1 * * * * ${DISH_EXECUTABLE_PATH} -source=${DISH_SOURCE} -telegram -telegramBotToken=${TELEGRAM_TOKEN} -telegramChatID=${TELEGRAM_CHATID}
+*/2 * * * * /home/user/tiny-dish-run.sh
 ```
 
-Please note, that `dish` executable returns "dish run: all tests ok" and exit code `0`, as soon as the execution ends (and no problems are present to report).
