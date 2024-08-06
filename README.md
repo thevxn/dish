@@ -1,14 +1,14 @@
 # dish
 
-[![PkgGoDev](https://pkg.go.dev/badge/github.com/savla-dev/savla-dish)](https://pkg.go.dev/github.com/thevxn/dish)
-[![Go Report Card](http://goreportcard.com/badge/github.com/savla-dev/savla-dish)](https://goreportcard.com/report/github.com/thevxn/dish)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/thevxn/dish)](https://pkg.go.dev/github.com/thevxn/dish)
+[![Go Report Card](http://goreportcard.com/badge/github.com/thevxn/dish)](https://goreportcard.com/report/github.com/thevxn/dish)
 
 + __tiny__ one-shot monitoring service
 + __remote__ configuration of independent 'dish network' (via `-source ${REMOTE_JSON_API_URL}` flag)
 + __fast__ parallel testing, low overall execution time, 10-sec timeout per socket by default
 
 ```shell
-$ go install go.savla.dev/dish@1.6.0
+$ go install go.vxn.dev/dish@1.6.0
 
 $ dish -h
 Usage of ./dish:
@@ -76,7 +76,7 @@ One way to run dish is to build and install a binary executable.
 
 ```shell
 # Fetch and install the specific version
-go install go.savla.dev/dish@1.6.0
+go install go.vxn.dev/dish@1.6.0
 
 # Load sockets from sockets.json file, and use Telegram 
 # provider for alerting
