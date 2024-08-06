@@ -8,7 +8,7 @@
 + __fast__ parallel testing, low overall execution time, 10-sec timeout per socket by default
 
 ```shell
-$ go install go.vxn.dev/dish@1.6.0
+$ go install go.vxn.dev/dish@v1.6.0
 
 $ dish -h
 Usage of ./dish:
@@ -76,7 +76,7 @@ One way to run dish is to build and install a binary executable.
 
 ```shell
 # Fetch and install the specific version
-go install go.vxn.dev/dish@1.6.0
+go install go.vxn.dev/dish@v1.6.0
 
 # Load sockets from sockets.json file, and use Telegram 
 # provider for alerting
