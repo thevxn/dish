@@ -4,16 +4,44 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"regexp"
 	"strconv"
+	"sync"
 	"time"
 
 	"dish/pkg/config"
 	"dish/pkg/socket"
 )
 
-// RawConnect function for direct host:port socket check
-func RawConnect(socket socket.Socket) error {
-	endpoint := net.JoinHostPort(socket.Host, strconv.Itoa(socket.Port))
+func TestSocket(sock socket.Socket, channel chan<- socket.Result, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	regex, err := regexp.Compile("^(http|https)://")
+	if err != nil {
+		log.Println("Failed to create new regex object")
+		return
+	}
+
+	result := socket.Result{
+		Socket: sock,
+	}
+
+	if !regex.MatchString(sock.Host) {
+		// Testing raw host and port (tcp), report only unsuccessful tests; exclusively non-HTTP/S sockets
+		result.Error = rawConnect(sock)
+		result.Passed = result.Error == nil
+
+		sendResult(channel, result)
+		return
+	}
+
+	result.Passed, result.ResponseCode, result.Error = checkSite(sock)
+	sendResult(channel, result)
+}
+
+// rawConnect function for direct host:port socket check
+func rawConnect(sock socket.Socket) error {
+	endpoint := net.JoinHostPort(sock.Host, strconv.Itoa(sock.Port))
 	timeout := time.Duration(time.Second * time.Duration(config.Timeout))
 
 	if config.Verbose {
@@ -41,9 +69,9 @@ func checkHTTPCode(responseCode int, expectedCodes []int) bool {
 	return false
 }
 
-// CheckSite executes test over HTTP/S endpoints exclusively
-func CheckSite(socket socket.Socket) (bool, int, error) {
-	// config http client
+// checkSite executes test over HTTP/S endpoints exclusively
+func checkSite(socket socket.Socket) (bool, int, error) {
+	// Configure HTTP client
 	client := &http.Client{
 		Timeout: time.Duration(config.Timeout) * time.Second,
 	}
@@ -57,10 +85,9 @@ func CheckSite(socket socket.Socket) (bool, int, error) {
 	if err != nil {
 		return false, 0, err
 	}
-	req.Header.Set("User-Agent", "savla-dish/1.5")
+	req.Header.Set("User-Agent", "savla-dish/1.6")
 
 	// open socket --- Head to url
-	//resp, err := client.Head(url)
 	resp, err := client.Do(req)
 	if err != nil {
 		return false, 0, err
@@ -73,4 +100,11 @@ func CheckSite(socket socket.Socket) (bool, int, error) {
 	}
 
 	return true, resp.StatusCode, nil
+}
+
+func sendResult(channel chan<- socket.Result, result socket.Result) {
+	if channel != nil {
+		channel <- result
+		close(channel)
+	}
 }

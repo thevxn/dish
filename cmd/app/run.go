@@ -3,7 +3,7 @@ package app
 import (
 	"fmt"
 	"log"
-	"regexp"
+	"sync"
 
 	"dish/pkg/alert"
 	"dish/pkg/config"
@@ -13,73 +13,110 @@ import (
 )
 
 func Run() {
-
-	// load socket list to run tests on --- external file!
+	// Load socket list to run tests on --- external file!
 	list := socket.FetchSocketList(config.Source)
 
-	//messengerText := "[ dish run results (failed) ]\n"
-	messengerText := ""
-	results := message.Results{Map: make(map[string]bool)}
-	failedCount := 0
+	var (
+		messengerText string
+		resultsToPush = message.Results{Map: make(map[string]bool)}
+		failedCount   int
+		channels      = make([](chan socket.Result), len(list.Sockets))
+		wg            sync.WaitGroup
+		i             int
+	)
 
-	regex, err := regexp.Compile("^(http|https)://")
-	if err != nil {
-		log.Println("Failed to create new regex object")
-		return
+	// Start goroutines for each socket test
+	for _, sock := range list.Sockets {
+		wg.Add(1)
+		channels[i] = make(chan socket.Result)
+
+		go netrunner.TestSocket(sock, channels[i], &wg)
+		i++
 	}
 
-	// iterate over given/loaded sockets
-	for _, socket := range list.Sockets {
-		// http/https app protocol patterns check
-		match := regex.MatchString(socket.Host)
-		if !match {
-			// testing raw host and port (tcp), report only unsuccessful tests; exclusively non-HTTP/S sockets
-			rawErr := netrunner.RawConnect(socket)
-			if rawErr != nil {
-				messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, rawErr.Error())
-				failedCount++
-			}
-			results.Map[socket.ID] = (rawErr == nil)
-			continue
-		}
+	// Merge channels into one
+	results := fanInChannels(channels...)
+	wg.Wait()
 
-		ok, responseCode, httpErr := netrunner.CheckSite(socket)
-		if !ok {
+	// Collect results
+	for result := range results {
+		if !result.Passed || result.Error != nil {
 			failedCount++
-			if httpErr != nil {
-				messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, socket.PathHTTP, "--", httpErr.Error())
-			}
-			messengerText += fmt.Sprintln(socket.Host, ":", socket.Port, socket.PathHTTP, "--", "Did not match expected response codes: got ", responseCode)
+			messengerText += formatMessengerText(result)
 		}
-		results.Map[socket.ID] = ok
+		resultsToPush.Map[result.Socket.ID] = result.Passed
 	}
 
-	// report failedCount to pushgateway
-	if config.UsePushgateway && config.TargetURL != "" {
-		msg := message.Make(failedCount)
-		pushErr := msg.PushDishResults()
-		if pushErr != nil {
-			log.Println("Failed to push dish results, err: " + pushErr.Error())
-		}
-	}
-
-	if config.UpdateStates {
-		updateErr := message.UpdateSocketStates(results)
-		if updateErr != nil {
-			log.Println("Failed to update socket states, err: " + updateErr.Error())
-		}
-	}
+	handlePushgateway(failedCount)
+	handleStateUpdate(resultsToPush)
 
 	if failedCount > 0 {
-		// send alert message
-		if config.UseTelegram {
-			alert.SendTelegram(messengerText)
-		}
-
-		// final report output to stdout/console/docker logs
+		handleAlerts(messengerText)
 		log.Println(messengerText)
 		return
 	}
 
 	log.Println("dish run: all tests ok")
+}
+
+// Fan-in function that collects results from multiple workers
+func fanInChannels(channels ...chan socket.Result) <-chan socket.Result {
+	var wg sync.WaitGroup
+	out := make(chan socket.Result)
+
+	// Start a goroutine for each channel
+	for _, channel := range channels {
+		wg.Add(1)
+		go func(ch <-chan socket.Result) {
+			defer wg.Done()
+			for result := range ch {
+				// Forward the result to the output channel
+				out <- result
+			}
+		}(channel)
+	}
+
+	// Close the output channel once all workers are done
+	go func() {
+		wg.Wait()
+		close(out)
+	}()
+
+	return out
+}
+
+func formatMessengerText(result socket.Result) string {
+	// Hotfix unsupported <nil> tag by TG
+	if result.Error == nil {
+		result.Error = fmt.Errorf("")
+	}
+
+	if result.Socket.PathHTTP != "" {
+		return fmt.Sprintf("• %s:%d%s (code %d) -- %v\n",
+			result.Socket.Host, result.Socket.Port, result.Socket.PathHTTP, result.ResponseCode, result.Error)
+	}
+	return fmt.Sprintf("• %s:%d -- %v\n", result.Socket.Host, result.Socket.Port, result.Error)
+}
+
+func handlePushgateway(failedCount int) {
+	if config.UsePushgateway && config.TargetURL != "" {
+		msg := message.Make(failedCount)
+		if err := msg.PushDishResults(); err != nil {
+			log.Printf("Failed to push dish results: %v", err)
+		}
+	}
+}
+
+func handleStateUpdate(results message.Results) {
+	if config.UpdateStates {
+		if err := message.UpdateSocketStates(results); err != nil {
+			log.Printf("Failed to update socket states: %v", err)
+		}
+	}
+}
+
+func handleAlerts(messengerText string) {
+	if config.UseTelegram {
+		alert.SendTelegram(messengerText)
+	}
 }
