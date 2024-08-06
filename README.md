@@ -3,9 +3,9 @@
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/savla-dev/savla-dish)](https://pkg.go.dev/github.com/thevxn/dish)
 [![Go Report Card](http://goreportcard.com/badge/github.com/savla-dev/savla-dish)](https://goreportcard.com/report/github.com/thevxn/dish)
 
-+ __tiny__ monitoring one-shot service
-+ __remote__ configuration of independent 'dish network' (`-source=$REMOTE_JSON_API_URL`)
-+ __fast__ (quick load and exec time, 10 sec timeout per socket by default), instant messenger connectors
++ __tiny__ one-shot monitoring service
++ __remote__ configuration of independent 'dish network' (via `-source ${REMOTE_JSON_API_URL}` flag)
++ __fast__ parallel testing, low overall execution time, 10-sec timeout per socket by default
 
 ```shell
 $ go install go.savla.dev/dish@1.6.0
@@ -48,7 +48,7 @@ The idea of a tiny one-shot service comes with the need for a quick monitoring s
 
 ### socket list
 
-The list of sockets can be provided via a local JSON-formated file (e.g. `demo_sockets.json` file in the CWD), or via remote a REST/RESTful JSON API.
+The list of sockets can be provided via a local JSON-formated file (e.g. `demo_sockets.json` file in the CWD), or via a remote REST/RESTful JSON API.
 
 ```bash
 # local JSON file
