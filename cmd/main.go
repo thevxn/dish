@@ -1,7 +1,7 @@
 package main
 
 import (
-	"dish/cmd/app"
+	"go.vxn.dev/dish/cmd/app"
 )
 
 func main() {

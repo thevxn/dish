@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"log"
 
-	"dish/pkg/config"
+	"go.vxn.dev/dish/pkg/config"
 )
 
 type Result struct {
@@ -16,7 +16,6 @@ type Result struct {
 
 type SocketList struct {
 	Sockets map[string]Socket `json:"items"`
-	//Sockets map[string]dish.Socket `json:"items"`
 }
 
 type Socket struct {

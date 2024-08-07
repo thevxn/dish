@@ -9,8 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"dish/pkg/config"
-	"dish/pkg/socket"
+	"go.vxn.dev/dish/pkg/config"
+	"go.vxn.dev/dish/pkg/socket"
 )
 
 func TestSocket(sock socket.Socket, channel chan<- socket.Result, wg *sync.WaitGroup) {

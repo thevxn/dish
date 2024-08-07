@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"dish/pkg/config"
+	"go.vxn.dev/dish/pkg/config"
 )
 
 // returns an error if given message is an empty string or if a request cannot be sent

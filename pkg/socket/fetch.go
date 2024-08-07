@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"strconv"
 
-	"dish/pkg/config"
+	"go.vxn.dev/dish/pkg/config"
 )
 
 // fetchRemoteStream sends a GET HTTP request to remote RESTful API endpoint, returns response body

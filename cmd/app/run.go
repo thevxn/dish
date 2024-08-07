@@ -5,11 +5,11 @@ import (
 	"log"
 	"sync"
 
-	"dish/pkg/alert"
-	"dish/pkg/config"
-	"dish/pkg/message"
-	"dish/pkg/netrunner"
-	"dish/pkg/socket"
+	"go.vxn.dev/dish/pkg/alert"
+	"go.vxn.dev/dish/pkg/config"
+	"go.vxn.dev/dish/pkg/message"
+	"go.vxn.dev/dish/pkg/netrunner"
+	"go.vxn.dev/dish/pkg/socket"
 )
 
 func Run() {

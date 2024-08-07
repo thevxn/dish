@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"strconv"
 
-	"dish/pkg/config"
+	"go.vxn.dev/dish/pkg/config"
 )
 
 const (
