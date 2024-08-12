@@ -19,6 +19,10 @@ func TestSocket(sock socket.Socket, channel chan<- socket.Result, wg *sync.WaitG
 	regex, err := regexp.Compile("^(http|https)://")
 	if err != nil {
 		log.Println("Failed to create new regex object")
+
+		if channel != nil {
+			close(channel)
+		}
 		return
 	}
 
