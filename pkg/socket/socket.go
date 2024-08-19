@@ -20,7 +20,7 @@ type SocketList struct {
 
 type Socket struct {
 	// ID is an unique identifier of such socket.
-	ID string `json:"socket_id"`
+	ID string `json:"id"`
 
 	// Socket name, unique identificator, snake_cased.
 	Name string `json:"socket_name"`
