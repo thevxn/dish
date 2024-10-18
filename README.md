@@ -8,7 +8,7 @@
 + __fast__ parallel testing, low overall execution time, 10-sec timeout per socket by default
 
 ```shell
-$ go install go.vxn.dev/dish@v1.6.1
+$ go install go.vxn.dev/dish/cmd/dish@latest
 
 $ dish -h
 Usage of ./dish:
@@ -37,7 +37,7 @@ Usage of ./dish:
   -updateURL string
     	a string, URL of the source swis-api instance
   -verbose
-    	a bool, console stdout logging toggle (default true)
+    	a bool, console stdout logging toggle
 ```
 
 [dish history article](https://krusty.space/projects/savla-dish/)
@@ -52,10 +52,10 @@ The list of sockets can be provided via a local JSON-formated file (e.g. `demo_s
 
 ```bash
 # local JSON file
-dish -source=/opt/dish/sockets.json
+dish -source /opt/dish/sockets.json
 
 # remote JSON API source
-dish -source=http://restapi.example.com/dish/sockets/:instance
+dish -source http://restapi.example.com/dish/sockets/:instance
 ```
 
 ### alerting
@@ -76,7 +76,9 @@ One way to run dish is to build and install a binary executable.
 
 ```shell
 # Fetch and install the specific version
-go install go.vxn.dev/dish@v1.6.1
+go install go.vxn.dev/dish/cmd/dish@latest
+
+export PATH=$PATH:~/go/bin
 
 # Load sockets from sockets.json file, and use Telegram 
 # provider for alerting
@@ -99,9 +101,12 @@ vi .env
 # Build a Docker image
 make build
 
-# Run
+# Run using docker compose stack
+make run
+
+# Run using native docker run
 docker run --rm \
-	dish:1.6.0-go1.22 \
+	dish:1.7.1-go1.23 \
 	-verbose \
 	-source https://api.example.com \
 	-pushgw \

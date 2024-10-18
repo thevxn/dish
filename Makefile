@@ -2,13 +2,19 @@
 # dish / Makefile
 #
 
+#
+# vars
+#
+
 include .env.example
 -include .env
 
 PROJECT_NAME?=${APP_NAME}
 
 DOCKER_DEV_IMAGE?=${PROJECT_NAME}-image
-DOCKER_DEV_CONTAINER?=${PROJECT_NAME}
+DOCKER_DEV_CONTAINER?=${PROJECT_NAME}-run
+
+COMPOSE_FILE=deployments/docker-compose.yml
 
 # define standard colors
 # https://gist.github.com/rsperl/d2dfe88a520968fbc1f49db0a29345b9
@@ -36,6 +42,9 @@ endif
 
 export
 
+#
+# targets
+#
 
 all: info
 
@@ -53,18 +62,18 @@ info:
 .PHONY: build
 build:  
 	@echo -e "\n${YELLOW} Building project (docker-compose build)... ${RESET}\n"
-	@docker compose build 
+	@docker compose -f ${COMPOSE_FILE} build 
 
 .PHONY: local_build
 local_build: 
 	@echo -e "\n${YELLOW} [local] Building project... ${RESET}\n"
-	@go mod init 2>/dev/null; \
-		go build -tags dev ${APP_NAME}
+	@go mod tidy
+	@go build -tags dev -o dish cmd/dish/main.go
 
 .PHONY: run
 run:	build
 	@echo -e "\n${YELLOW} Starting project (docker-compose up)... ${RESET}\n"
-	@docker compose up --force-recreate --detach
+	@docker compose -f ${COMPOSE_FILE} up --force-recreate
 
 .PHONY: logs
 logs:
@@ -74,7 +83,7 @@ logs:
 .PHONY: stop
 stop:  
 	@echo -e "\n${YELLOW} Stopping and purging project (docker-compose down)... ${RESET}\n"
-	@docker compose down
+	@docker compose -f ${COMPOSE_FILE} down
 
 .PHONY: test
 test:

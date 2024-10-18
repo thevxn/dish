@@ -7,7 +7,7 @@ services:
     image: ${DOCKER_IMAGE_TAG}
     container_name: ${DOCKER_DEV_CONTAINER}
     restart: "no"
-    command: ["-verbose"]
+    command: "${APP_FLAGS}"
     build:
       context: ..
       dockerfile: build/Dockerfile

@@ -23,7 +23,7 @@ var (
 func init() {
 	instanceName := flag.String("name", "generic-dish", "a string, dish instance name")
 	timeoutFlag := flag.Int("timeout", 10, "an int, timeout in seconds for http and tcp calls")
-	verboseFlag := flag.Bool("verbose", true, "a bool, console stdout logging toggle")
+	verboseFlag := flag.Bool("verbose", false, "a bool, console stdout logging toggle")
 
 	sourceFlag := flag.String("source", "demo_sockets.json", "a string, path to/URL JSON socket list")
 	sourceHeaderName := flag.String("hname", "", "a string, custom additional header name")
