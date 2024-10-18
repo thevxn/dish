@@ -1,4 +1,4 @@
-package app
+package main
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ import (
 	"go.vxn.dev/dish/pkg/socket"
 )
 
-func Run() {
+func main() {
 	// Load socket list to run tests on --- external file!
 	list := socket.FetchSocketList(config.Source)
 
