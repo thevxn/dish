@@ -1,0 +1,19 @@
+# dish / _EXAMPLE_ docker-compose.yml file
+# mainly used for dish binary building process, as the binary itself does not serve any HTTP
+name: ${PROJECT_NAME}
+
+services:
+  dish:
+    image: ${DOCKER_IMAGE_TAG}
+    container_name: ${DOCKER_DEV_CONTAINER}
+    restart: "no"
+    command: ["-verbose"]
+    build:
+      context: ..
+      dockerfile: build/Dockerfile
+      args: 
+        ALPINE_VERSION: ${ALPINE_VERSION}
+        APP_NAME: ${APP_NAME}
+        APP_FLAGS: ${APP_FLAGS}
+        GOLANG_VERSION: ${GOLANG_VERSION}
+

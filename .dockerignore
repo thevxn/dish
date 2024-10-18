@@ -1,10 +1,16 @@
-!.docker/resolv.conf
-.git*
+.git/*
+.github/*
 *.example
 *.backup
 .gitignore
+.env
+.env.example
+
+build/*
+deployments/*
+
+dish
 main
+
 # README.md
-# Dockerfile
-# docker-compose.yml
 

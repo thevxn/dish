@@ -1,5 +1,7 @@
 .env
-savla-dish
-.vscode/
-vendor/
+.vscode/*
+vendor/*
+
+# binaries
+dish
 main
