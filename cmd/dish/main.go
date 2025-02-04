@@ -51,7 +51,7 @@ func main() {
 	handleStateUpdate(resultsToPush)
 
 	if failedCount > 0 {
-		handleAlerts(messengerText)
+		handleAlerts(messengerText, resultsToPush)
 		log.Println(messengerText)
 		return
 	}
@@ -115,8 +115,18 @@ func handleStateUpdate(results message.Results) {
 	}
 }
 
-func handleAlerts(messengerText string) {
+func handleAlerts(messengerText string, results message.Results) {
 	if config.UseTelegram {
-		alert.SendTelegram(messengerText)
+		err := alert.SendTelegram(messengerText)
+		if err != nil {
+			log.Printf("Error sending Telegram notification: %v", err)
+		}
+	}
+
+	if config.UseWebhooks {
+		err := alert.SendWebhooks(&results)
+		if err != nil {
+			log.Printf("Error sending webhook notification: %v", err)
+		}
 	}
 }
