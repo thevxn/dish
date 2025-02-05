@@ -21,46 +21,29 @@ var (
 )
 
 func init() {
-	instanceName := flag.String("name", "generic-dish", "a string, dish instance name")
-	timeoutFlag := flag.Int("timeout", 10, "an int, timeout in seconds for http and tcp calls")
-	verboseFlag := flag.Bool("verbose", false, "a bool, console stdout logging toggle")
+	// system vars
+	flag.StringVar(&InstanceName, "name", "generic-dish", "a string, dish instance name")
+	flag.IntVar(&Timeout, "timeout", 10, "an int, timeout in seconds for http and tcp calls")
+	flag.BoolVar(&Verbose, "verbose", false, "a bool, console stdout logging toggle")
 
-	sourceFlag := flag.String("source", "demo_sockets.json", "a string, path to/URL JSON socket list")
-	sourceHeaderName := flag.String("hname", "", "a string, custom additional header name")
-	sourceHeaderValue := flag.String("hvalue", "", "a string, custom additional header value")
+	// source vars
+	flag.StringVar(&Source, "source", "demo_sockets.json", "a string, path to/URL JSON socket list")
+	flag.StringVar(&HeaderName, "hname", "", "a string, custom additional header name")
+	flag.StringVar(&HeaderValue, "hvalue", "", "a string, custom additional header value")
 
-	usePushgatewayFlag := flag.Bool("pushgw", false, "a bool, enable reporter module to post dish results to pushgateway")
-	targetURLFlag := flag.String("target", "", "a string, result update path/URL, plaintext/byte output")
+	// target vars
+	flag.BoolVar(&UsePushgateway, "pushgw", false, "a bool, enable reporter module to post dish results to pushgateway")
+	flag.StringVar(&TargetURL, "target", "", "a string, result update path/URL, plaintext/byte output")
 
-	// telegram provider flags
-	useTelegramFlag := flag.Bool("telegram", false, "a bool, Telegram provider usage toggle")
-	telegramBotTokenFlag := flag.String("telegramBotToken", "", "a string, Telegram bot private token")
-	telegramChatIDFlag := flag.String("telegramChatID", "", "a string/signet int, Telegram chat/channel ID")
+	// telegram vars
+	flag.BoolVar(&UseTelegram, "telegram", false, "a bool, Telegram provider usage toggle")
+	flag.StringVar(&TelegramBotToken, "telegramBotToken", "", "a string, Telegram bot private token")
+	flag.StringVar(&TelegramChatID, "telegramChatID", "", "a string/signet int, Telegram chat/channel ID")
 
-	updateStateFlag := flag.Bool("update", false, "a bool, switch for socket's last state batch upload to the source swis-api instance")
-	updateURLFlag := flag.String("updateURL", "", "a string, URL of the source swis-api instance")
+	// remote source vars
+	flag.BoolVar(&UpdateStates, "update", false, "a bool, switch for socket's last state batch upload to the source swis-api instance")
+	flag.StringVar(&UpdateURL, "updateURL", "", "a string, URL of the source swis-api instance")
 
 	flag.Parse()
 
-	// system vars
-	InstanceName = *instanceName
-	Timeout = *timeoutFlag
-	Verbose = *verboseFlag
-
-	// source vars
-	Source = *sourceFlag
-	HeaderName = *sourceHeaderName
-	HeaderValue = *sourceHeaderValue
-
-	// target vars
-	UsePushgateway = *usePushgatewayFlag
-	TargetURL = *targetURLFlag
-
-	// telegram vars
-	UseTelegram = *useTelegramFlag
-	TelegramBotToken = *telegramBotTokenFlag
-	TelegramChatID = *telegramChatIDFlag
-
-	UpdateStates = *updateStateFlag
-	UpdateURL = *updateURLFlag
 }
