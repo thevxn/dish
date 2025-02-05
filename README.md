@@ -1,7 +1,11 @@
-# dish
+<h1 align="left">
+<img alt="dish_logo" src="https://vxn.dev/logos/dish.svg" width="90" height="90">
+dish
+</h1>
 
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/thevxn/dish)](https://pkg.go.dev/github.com/thevxn/dish)
 [![Go Report Card](http://goreportcard.com/badge/github.com/thevxn/dish)](https://goreportcard.com/report/github.com/thevxn/dish)
+
 
 + __tiny__ one-shot monitoring service
 + __remote__ configuration of independent 'dish network' (via `-source ${REMOTE_JSON_API_URL}` flag)
