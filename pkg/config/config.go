@@ -18,6 +18,8 @@ var (
 	Timeout          int // In seconds
 	UpdateStates     bool
 	UpdateURL        string
+	UseWebhooks      bool
+	WebhookURL       string
 )
 
 func init() {
@@ -27,7 +29,7 @@ func init() {
 	flag.BoolVar(&Verbose, "verbose", false, "a bool, console stdout logging toggle")
 
 	// source vars
-	flag.StringVar(&Source, "source", "demo_sockets.json", "a string, path to/URL JSON socket list")
+	flag.StringVar(&Source, "source", "./configs/demo_sockets.json", "a string, path to/URL JSON socket list")
 	flag.StringVar(&HeaderName, "hname", "", "a string, custom additional header name")
 	flag.StringVar(&HeaderValue, "hvalue", "", "a string, custom additional header value")
 
@@ -43,6 +45,10 @@ func init() {
 	// remote source vars
 	flag.BoolVar(&UpdateStates, "update", false, "a bool, switch for socket's last state batch upload to the source swis-api instance")
 	flag.StringVar(&UpdateURL, "updateURL", "", "a string, URL of the source swis-api instance")
+
+	// webhook vars
+	flag.BoolVar(&UseWebhooks, "webhooks", false, "a bool, Webhook usage toggle")
+	flag.StringVar(&WebhookURL, "webhookURL", "", "a string, URL of webhook endpoint")
 
 	flag.Parse()
 

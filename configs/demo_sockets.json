@@ -1,20 +1,23 @@
 {
   "items": {
-    "vxn_dev_https": { 
+    "vxn_dev_https": {
+      "id": "vxn_dev_https",
       "socket_name": "vxn-dev HTTPS",
       "host_name": "https://vxn.dev",
       "port_tcp": 443,
       "path_http": "/",
-      "expected_http_code_array": [ 200 ]
+      "expected_http_code_array": [200]
     },
     "text.n0p.cz_https": {
+      "id": "text.n0p.cz_https",
       "socket_name": "text-n0p-cz HTTPS",
       "host_name": "https://text.n0p.cz",
       "port_tcp": 443,
       "path_http": "/?",
-      "expected_http_code_array": [ 401 ]
+      "expected_http_code_array": [401]
     },
     "openttd TCP": {
+      "id": "openttd TCP",
       "socket_name": "openttd TCP",
       "host_name": "ottd.vxn.dev",
       "port_tcp": 3979,
