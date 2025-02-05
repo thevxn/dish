@@ -8,9 +8,11 @@
 + __fast__ parallel testing, low overall execution time, 10-sec timeout per socket by default
 
 ```shell
-$ go install go.vxn.dev/dish/cmd/dish@latest
+go install go.vxn.dev/dish/cmd/dish@latest
+```
 
-$ dish -h
+```shell
+dish -h
 Usage of ./dish:
   -hname string
     	a string, custom additional header name
