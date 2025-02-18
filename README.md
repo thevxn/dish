@@ -6,7 +6,6 @@ dish
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/thevxn/dish)](https://pkg.go.dev/github.com/thevxn/dish)
 [![Go Report Card](http://goreportcard.com/badge/github.com/thevxn/dish)](https://goreportcard.com/report/github.com/thevxn/dish)
 
-
 + __tiny__ one-shot monitoring service
 + __remote__ configuration of independent 'dish network' (via `-source ${REMOTE_JSON_API_URL}` flag)
 + __fast__ parallel testing, low overall execution time, 10-sec timeout per socket by default
@@ -15,35 +14,39 @@ dish
 go install go.vxn.dev/dish/cmd/dish@latest
 ```
 
-```shell
+```
 dish -h
 Usage of ./dish:
   -hname string
-    	a string, custom additional header name
+     a string, custom additional header name
   -hvalue string
-    	a string, custom additional header value
+     a string, custom additional header value
   -name string
-    	a string, dish instance name (default "generic-dish")
+     a string, dish instance name (default "generic-dish")
   -pushgw
-    	a bool, enable reporter module to post dish results to pushgateway
+     a bool, enable reporter module to post dish results to pushgateway
   -source string
-    	a string, path to/URL JSON socket list (default "demo_sockets.json")
+     a string, path to/URL JSON socket list (default "demo_sockets.json")
   -target string
-    	a string, result update path/URL, plaintext/byte output
+     a string, result update path/URL, plaintext/byte output
   -telegram
-    	a bool, Telegram provider usage toggle
+     a bool, Telegram provider usage toggle
   -telegramBotToken string
-    	a string, Telegram bot private token
+     a string, Telegram bot private token
   -telegramChatID string
-    	a string/signet int, Telegram chat/channel ID
+     a string/signet int, Telegram chat/channel ID
   -timeout int
-    	an int, timeout in seconds for http and tcp calls (default 10)
+     an int, timeout in seconds for http and tcp calls (default 10)
   -update
-    	a bool, switch for socket's last state batch upload to the source swis-api instance
+     a bool, switch for socket's last state batch upload to the source swis-api instance
   -updateURL string
-    	a string, URL of the source swis-api instance
+     a string, URL of the source swis-api instance
   -verbose
-    	a bool, console stdout logging toggle
+     a bool, console stdout logging toggle
+  -webhookURL string
+     a string, URL of webhook endpoint
+  -webhooks
+     a bool, Webhook usage toggle
 ```
 
 [dish history article](https://krusty.space/projects/savla-dish/)
@@ -66,11 +69,12 @@ dish -source http://restapi.example.com/dish/sockets/:instance
 
 ### alerting
 
-When a socket test fails, it's always good to be notified. For this purpose, dish provides three different ways of doing so (can be combined):
+When a socket test fails, it's always good to be notified. For this purpose, dish provides 4 different ways of doing so (can be combined):
 
 + test results upload to a remote JSON API (via `-updateURL` flag)
 + failed sockets list as the Telegram message body (via Telegram-related flags, see the help output above)
 + failed count and last test timestamp update to Pushgateway for Prometheus (via `-pushgw` and `-target` flags)
++ test results push to a webhook URL (via the `webhookURL` and `webhooks` flags)
 
 ![telegram-alerting](/.github/savla-dish-telegram.png)
 
@@ -89,12 +93,12 @@ export PATH=$PATH:~/go/bin
 # Load sockets from sockets.json file, and use Telegram 
 # provider for alerting
 dish -source sockets.json -telegram -telegramChatID "-123456789" \
-	-telegramBotToken "123:AAAbcD_ef"
+ -telegramBotToken "123:AAAbcD_ef"
 
 # Use remote JSON API service as socket source, and push
 # the results to Pushgateway
 dish -source https://api.example.com/dish/sockets -pushgw \
-	-target https://pushgw.example.com/
+ -target https://pushgw.example.com/
 ```
 
 ### using Docker
@@ -112,11 +116,11 @@ make run
 
 # Run using native docker run
 docker run --rm \
-	dish:1.7.1-go1.23 \
-	-verbose \
-	-source https://api.example.com \
-	-pushgw \
-	-target https://pushgateway.example.com
+ dish:1.7.1-go1.23 \
+ -verbose \
+ -source https://api.example.com \
+ -pushgw \
+ -target https://pushgateway.example.com
 ```
 
 ### bash script and cronjob
@@ -177,4 +181,3 @@ MAILTO=monitoring@example.com
 
 */2 * * * * /home/user/tiny-dish-run.sh
 ```
-
