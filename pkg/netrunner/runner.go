@@ -85,7 +85,7 @@ func checkSite(socket socket.Socket) (bool, int, error) {
 		log.Println("runner: checksite:", url)
 	}
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return false, 0, err
 	}
@@ -103,7 +103,7 @@ func checkSite(socket socket.Socket) (bool, int, error) {
 		return checkHTTPCode(resp.StatusCode, socket.ExpectedHTTPCodes), resp.StatusCode, nil
 	}
 
-	return true, resp.StatusCode, nil
+	return true, 0, nil
 }
 
 func sendResult(channel chan<- socket.Result, result socket.Result) {

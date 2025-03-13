@@ -20,9 +20,10 @@ func main() {
 		messengerText string
 		resultsToPush = message.Results{Map: make(map[string]bool)}
 		failedCount   int
-		channels      = make([](chan socket.Result), len(list.Sockets))
-		wg            sync.WaitGroup
-		i             int
+		// A slice of channels needs to be used here so that each goroutine has its own channel which it then closes upon performing the socket check. One shared channel for all goroutines would not work as it would not be clear which goroutine should close the channel.
+		channels = make([](chan socket.Result), len(list.Sockets))
+		wg       sync.WaitGroup
+		i        int
 	)
 
 	// Start goroutines for each socket test

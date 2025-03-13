@@ -50,13 +50,13 @@ func FetchSocketList(input string) SocketList {
 	if err != nil {
 		panic(err)
 	}
+	defer reader.Close()
 
 	// got data, load struct Sockets
 	err = json.NewDecoder(reader).Decode(&list)
 	if err != nil {
 		panic(err)
 	}
-	reader.Close()
 
 	// write JSON data to console
 	if config.Verbose {

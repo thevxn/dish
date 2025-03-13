@@ -50,8 +50,7 @@ func fetchFileStream(input string) (io.ReadCloser, error) {
 	return jsonFile, nil
 }
 
-// getStreamFromPath tries to load data from given input
-// It checks whether input is a file path or url
+// getStreamFromPath tries to load data from given input. It checks whether input is a file path or url
 func getStreamFromPath(input string) (io.ReadCloser, error) {
 	// Check if input is an url
 	match, err := regexp.MatchString("^(http|https)://", input)

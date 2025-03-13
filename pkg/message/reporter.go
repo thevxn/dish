@@ -32,7 +32,6 @@ func Make(count int) Message {
 	msg := Message{}
 	msg.FailedCount = count
 
-	// ensure HELP and TYPE fields are added too!
 	messageString := fmt.Sprintln(failedCountHelp)
 	messageString += fmt.Sprintln(failedCountType)
 	messageString += fmt.Sprintln(failedCountName, strconv.Itoa(msg.FailedCount))
@@ -47,8 +46,8 @@ func (msg Message) PushDishResults() error {
 
 	log.Println(formattedURL)
 
-	// push requests use PUT method
-	req, err := http.NewRequest("PUT", formattedURL, bodyReader)
+	// Push requests use PUT method
+	req, err := http.NewRequest(http.MethodPut, formattedURL, bodyReader)
 	if err != nil {
 		return err
 	}
@@ -60,9 +59,9 @@ func (msg Message) PushDishResults() error {
 	if err != nil {
 		return err
 	}
+	defer res.Body.Close()
 
 	log.Println("Results pushed to pushgateway")
-	defer res.Body.Close()
 
 	return nil
 }
@@ -87,7 +86,7 @@ func UpdateSocketStates(results Results) error {
 		return nil
 	}
 
-	// push requests use PUT method
+	// Push requests use PUT method
 	req, err := http.NewRequest(http.MethodPost, url, bodyReader)
 	if err != nil {
 		return err
@@ -101,9 +100,9 @@ func UpdateSocketStates(results Results) error {
 	if err != nil {
 		return err
 	}
+	defer res.Body.Close()
 
 	log.Println("Results pushed to swapi")
-	defer res.Body.Close()
 
 	return nil
 }
