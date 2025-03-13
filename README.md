@@ -49,7 +49,7 @@ Usage of ./dish:
      a bool, Webhook usage toggle
 ```
 
-[dish history article](https://krusty.space/projects/savla-dish/)
+[dish history article](https://krusty.space/projects/dish/)
 
 ## use-cases
 
@@ -76,7 +76,7 @@ When a socket test fails, it's always good to be notified. For this purpose, dis
 + failed count and last test timestamp update to Pushgateway for Prometheus (via `-pushgw` and `-target` flags)
 + test results push to a webhook URL (via the `webhookURL` and `webhooks` flags)
 
-![telegram-alerting](/.github/savla-dish-telegram.png)
+![telegram-alerting](/.github/dish-telegram.png)
 
 (The screenshot above shows the Telegram alerting as of `v1.5.0`.)
 

@@ -46,7 +46,7 @@ func TestSocket(sock socket.Socket, channel chan<- socket.Result, wg *sync.WaitG
 // rawConnect function for direct host:port socket check
 func rawConnect(sock socket.Socket) error {
 	endpoint := net.JoinHostPort(sock.Host, strconv.Itoa(sock.Port))
-	timeout := time.Duration(time.Second * time.Duration(config.Timeout))
+	timeout := time.Duration(time.Second * time.Duration(config.TimeoutSeconds))
 
 	if config.Verbose {
 		log.Println("runner: rawconnect: " + endpoint)
@@ -77,7 +77,7 @@ func checkHTTPCode(responseCode int, expectedCodes []int) bool {
 func checkSite(socket socket.Socket) (bool, int, error) {
 	// Configure HTTP client
 	client := &http.Client{
-		Timeout: time.Duration(config.Timeout) * time.Second,
+		Timeout: time.Duration(config.TimeoutSeconds) * time.Second,
 	}
 	url := socket.Host + ":" + strconv.Itoa(socket.Port) + socket.PathHTTP
 
@@ -89,7 +89,7 @@ func checkSite(socket socket.Socket) (bool, int, error) {
 	if err != nil {
 		return false, 0, err
 	}
-	req.Header.Set("User-Agent", "savla-dish/1.6")
+	req.Header.Set("User-Agent", "dish/1.8")
 
 	// open socket --- Head to url
 	resp, err := client.Do(req)

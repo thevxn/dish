@@ -15,7 +15,7 @@ var (
 	UseTelegram      bool
 	TelegramBotToken string
 	TelegramChatID   string
-	Timeout          int // In seconds
+	TimeoutSeconds   int
 	UpdateStates     bool
 	UpdateURL        string
 	UseWebhooks      bool
@@ -25,7 +25,7 @@ var (
 func init() {
 	// system vars
 	flag.StringVar(&InstanceName, "name", "generic-dish", "a string, dish instance name")
-	flag.IntVar(&Timeout, "timeout", 10, "an int, timeout in seconds for http and tcp calls")
+	flag.IntVar(&TimeoutSeconds, "timeout", 10, "an int, timeout in seconds for http and tcp calls")
 	flag.BoolVar(&Verbose, "verbose", false, "a bool, console stdout logging toggle")
 
 	// source vars

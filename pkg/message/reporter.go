@@ -15,7 +15,7 @@ import (
 const (
 	jobName         = "dish_results"
 	failedCountName = "dish_failed_count"
-	failedCountHelp = "#HELP failed sockets registered by savla-dish"
+	failedCountHelp = "#HELP failed sockets registered by dish"
 	failedCountType = "#TYPE dish_failed_count counter"
 )
 
@@ -78,6 +78,9 @@ func UpdateSocketStates(results Results) error {
 	url := config.UpdateURL
 
 	regex, err := regexp.Compile("^(http|https)://")
+	if err != nil {
+		return err
+	}
 	match := regex.MatchString(url)
 
 	if !match {
@@ -85,7 +88,7 @@ func UpdateSocketStates(results Results) error {
 	}
 
 	// push requests use PUT method
-	req, err := http.NewRequest("POST", url, bodyReader)
+	req, err := http.NewRequest(http.MethodPost, url, bodyReader)
 	if err != nil {
 		return err
 	}
