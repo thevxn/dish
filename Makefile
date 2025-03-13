@@ -1,9 +1,9 @@
 #
-# dish / Makefile
+#  dish / Makefile
 #
 
 #
-# vars
+#  VARS
 #
 
 include .env.example
@@ -43,12 +43,27 @@ endif
 export
 
 #
-# targets
+#  FUNCTIONS
+# 
+
+define print_info
+	@echo -e "\n>>> ${YELLOW}${1}${RESET}\n"
+endef
+
+define update_semver
+	$(call print_info, Incrementing semver to ${1}...)
+	@[ -f ".env" ] || cp .env.example .env
+	@sed -i 's|APP_VERSION=.*|APP_VERSION=${1}|' .env
+	@sed -i 's|APP_VERSION=.*|APP_VERSION=${1}|' .env.example
+endef
+
+#
+#  TARGETS
 #
 
 all: info
 
-.PHONY: info
+.PHONY: build local_build logs major minor patch push run stop test version
 info: 
 	@echo -e "\n${GREEN} ${PROJECT_NAME} / Makefile ${RESET}\n"
 
@@ -59,33 +74,52 @@ info:
 	@echo -e "${YELLOW} make logs    --- fetch container's logs ${RESET}"
 	@echo -e "${YELLOW} make stop    --- stop and purge project (only docker containers!) ${RESET}\n"
 
-.PHONY: build
 build:  
 	@echo -e "\n${YELLOW} Building project (docker-compose build)... ${RESET}\n"
 	@docker compose -f ${COMPOSE_FILE} build 
 
-.PHONY: local_build
 local_build: 
 	@echo -e "\n${YELLOW} [local] Building project... ${RESET}\n"
 	@go mod tidy
 	@go build -tags dev -o dish cmd/dish/main.go
 
-.PHONY: run
 run:	build
 	@echo -e "\n${YELLOW} Starting project (docker-compose up)... ${RESET}\n"
 	@docker compose -f ${COMPOSE_FILE} up --force-recreate
 
-.PHONY: logs
 logs:
 	@echo -e "\n${YELLOW} Fetching container's logs (CTRL-C to exit)... ${RESET}\n"
 	@docker logs ${DOCKER_DEV_CONTAINER} -f
 
-.PHONY: stop
 stop:  
 	@echo -e "\n${YELLOW} Stopping and purging project (docker-compose down)... ${RESET}\n"
 	@docker compose -f ${COMPOSE_FILE} down
 
-.PHONY: test
 test:
 	@echo -e "\n${YELLOW} [local] Running unit tests (go test)... ${RESET}\n"
 	@go test ./...
+
+push: 
+	@git tag -fa 'v${APP_VERSION}' -m 'v${APP_VERSION}'
+	@git push --follow-tags --set-upstream origin master
+
+
+MAJOR := $(shell echo ${APP_VERSION} | cut -d. -f1)
+MINOR := $(shell echo ${APP_VERSION} | cut -d. -f2)
+PATCH := $(shell echo ${APP_VERSION} | cut -d. -f3)
+
+major:
+	$(eval APP_VERSION := $(shell echo $$(( ${MAJOR} + 1 )).0.0))
+	$(call update_semver,${APP_VERSION})
+
+minor:
+	$(eval APP_VERSION := $(shell echo ${MAJOR}.$$(( ${MINOR} + 1 )).0))
+	$(call update_semver,${APP_VERSION})
+
+patch:
+	$(eval APP_VERSION := $(shell echo ${MAJOR}.${MINOR}.$$(( ${PATCH} + 1 ))))
+	$(call update_semver,${APP_VERSION})
+
+version:
+	$(call print_info, Current version: ${APP_VERSION}...)
+
