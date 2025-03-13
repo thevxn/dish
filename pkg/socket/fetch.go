@@ -15,7 +15,7 @@ import (
 // 'url' argument should be a full-quality URL to remote http server, e.g. http://api.example.com:5569/stream?query=variable
 func fetchRemoteStream(url string) (io.ReadCloser, error) {
 	// try URL
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
