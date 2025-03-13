@@ -15,7 +15,7 @@ type Result struct {
 }
 
 type SocketList struct {
-	Sockets map[string]Socket `json:"items"`
+	Sockets []Socket `json:"sockets"`
 }
 
 type Socket struct {
@@ -38,7 +38,7 @@ type Socket struct {
 	PathHTTP string `json:"path_http"`
 
 	// Can be blank, dish name here is meant as socket list owner/target from remote RESTful API server.
-	DishName string `json:"dish_list"`
+	DishName string `json:"dish_target"`
 }
 
 // 'input' should be a string like '/path/filename.json', or a HTTP URL string
