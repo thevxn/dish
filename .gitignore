@@ -3,5 +3,6 @@
 vendor/*
 
 # binaries
+/bin
 /dish
 main
