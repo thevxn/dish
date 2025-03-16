@@ -36,9 +36,6 @@ type Socket struct {
 
 	// HTTP Path to test on Host.
 	PathHTTP string `json:"path_http"`
-
-	// Can be blank, dish name here is meant as socket list owner/target from remote RESTful API server.
-	DishName string `json:"dish_list"`
 }
 
 // 'input' should be a string like '/path/filename.json', or a HTTP URL string
