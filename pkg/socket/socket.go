@@ -15,7 +15,7 @@ type Result struct {
 }
 
 type SocketList struct {
-	Sockets map[string]Socket `json:"items"`
+	Sockets []Socket `json:"sockets"`
 }
 
 type Socket struct {
