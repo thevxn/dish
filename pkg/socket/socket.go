@@ -3,8 +3,6 @@ package socket
 import (
 	"encoding/json"
 	"log"
-
-	"go.vxn.dev/dish/pkg/config"
 )
 
 type Result struct {
@@ -38,12 +36,12 @@ type Socket struct {
 	PathHTTP string `json:"path_http"`
 }
 
-// 'input' should be a string like '/path/filename.json', or a HTTP URL string
-func FetchSocketList(input string) SocketList {
+// FetchSocketList fetches the list of sockets to be checked. 'input' should be a string like '/path/filename.json', or an HTTP URL string
+func FetchSocketList(input string, apiHeaderName string, apiHeaderValue string, verbose bool) SocketList {
 	var list = &SocketList{}
 
 	// fetch JSON byte reader from input URL/path
-	reader, err := getStreamFromPath(input)
+	reader, err := getStreamFromPath(input, apiHeaderName, apiHeaderValue)
 	if err != nil {
 		panic(err)
 	}
@@ -56,7 +54,7 @@ func FetchSocketList(input string) SocketList {
 	}
 
 	// write JSON data to console
-	if config.Verbose {
+	if verbose {
 		for _, socket := range list.Sockets {
 			log.Println("socket: Host:", socket.Host)
 			log.Println("socket: Port:", socket.Port)

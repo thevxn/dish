@@ -2,54 +2,94 @@ package config
 
 import (
 	"flag"
+	"fmt"
 )
 
-var (
+type Config struct {
 	InstanceName     string
-	HeaderName       string
-	HeaderValue      string
+	ApiHeaderName    string
+	ApiHeaderValue   string
 	Source           string
 	Verbose          bool
-	TargetURL        string
-	UsePushgateway   bool
-	UseTelegram      bool
+	PushgatewayURL   string
 	TelegramBotToken string
 	TelegramChatID   string
-	TimeoutSeconds   int
-	UpdateStates     bool
-	UpdateURL        string
-	UseWebhooks      bool
+	TimeoutSeconds   uint
+	ApiURL           string
 	WebhookURL       string
+	FailedOnly       bool
+}
+
+const (
+	defaultInstanceName     string = "generic-dish"
+	defaultApiHeaderName    string = ""
+	defaultApiHeaderValue   string = ""
+	defaultSource           string = "./configs/demo_sockets.json"
+	defaultVerbose          bool   = false
+	defaultPushgatewayURL   string = ""
+	defaultTelegramBotToken string = ""
+	defaultTelegramChatID   string = ""
+	defaultTimeoutSeconds   uint   = 10
+	defaultApiURL           string = ""
+	defaultWebhookURL       string = ""
+	defaultFailedOnly       bool   = true
 )
 
-func init() {
-	// system vars
-	flag.StringVar(&InstanceName, "name", "generic-dish", "a string, dish instance name")
-	flag.IntVar(&TimeoutSeconds, "timeout", 10, "an int, timeout in seconds for http and tcp calls")
-	flag.BoolVar(&Verbose, "verbose", false, "a bool, console stdout logging toggle")
+// defineFlags defines flags on the provided FlagSet. The values of the flags are stored in the provided Config when parsed.
+func defineFlags(fs *flag.FlagSet, cfg *Config) {
+	// System flags
+	fs.StringVar(&cfg.InstanceName, "name", defaultInstanceName, "a string, dish instance name")
+	fs.UintVar(&cfg.TimeoutSeconds, "timeout", defaultTimeoutSeconds, "an int, timeout in seconds for http and tcp calls")
+	fs.BoolVar(&cfg.Verbose, "verbose", defaultVerbose, "a bool, console stdout logging toggle")
 
-	// source vars
-	flag.StringVar(&Source, "source", "./configs/demo_sockets.json", "a string, path to/URL JSON socket list")
-	flag.StringVar(&HeaderName, "hname", "", "a string, custom additional header name")
-	flag.StringVar(&HeaderValue, "hvalue", "", "a string, custom additional header value")
+	// Integration channels flags
+	//
+	// General:
+	fs.BoolVar(&cfg.FailedOnly, "failedOnly", defaultFailedOnly, "a bool, specifies whether only failed checks should be reported")
 
-	// target vars
-	flag.BoolVar(&UsePushgateway, "pushgw", false, "a bool, enable reporter module to post dish results to pushgateway")
-	flag.StringVar(&TargetURL, "target", "", "a string, result update path/URL, plaintext/byte output")
+	// API socket source:
+	fs.StringVar(&cfg.Source, "source", defaultSource, "a string, path to/URL JSON socket list")
+	fs.StringVar(&cfg.ApiHeaderName, "hname", defaultApiHeaderName, "a string, custom additional header name")
+	fs.StringVar(&cfg.ApiHeaderValue, "hvalue", defaultApiHeaderValue, "a string, custom additional header value")
 
-	// telegram vars
-	flag.BoolVar(&UseTelegram, "telegram", false, "a bool, Telegram provider usage toggle")
-	flag.StringVar(&TelegramBotToken, "telegramBotToken", "", "a string, Telegram bot private token")
-	flag.StringVar(&TelegramChatID, "telegramChatID", "", "a string/signet int, Telegram chat/channel ID")
+	// Pushgateway:
+	fs.StringVar(&cfg.PushgatewayURL, "target", defaultPushgatewayURL, "a string, result update path/URL to pushgateway, plaintext/byte output")
 
-	// remote source vars
-	flag.BoolVar(&UpdateStates, "update", false, "a bool, switch for socket's last state batch upload to the source swis-api instance")
-	flag.StringVar(&UpdateURL, "updateURL", "", "a string, URL of the source swis-api instance")
+	// Telegram:
+	fs.StringVar(&cfg.TelegramBotToken, "telegramBotToken", defaultTelegramBotToken, "a string, Telegram bot private token")
+	fs.StringVar(&cfg.TelegramChatID, "telegramChatID", defaultTelegramChatID, "a string, Telegram chat/channel ID")
 
-	// webhook vars
-	flag.BoolVar(&UseWebhooks, "webhooks", false, "a bool, Webhook usage toggle")
-	flag.StringVar(&WebhookURL, "webhookURL", "", "a string, URL of webhook endpoint")
+	// API for pushing results:
+	fs.StringVar(&cfg.ApiURL, "updateURL", defaultApiURL, "a string, URL of the source api instance")
 
-	flag.Parse()
+	// Webhooks:
+	fs.StringVar(&cfg.WebhookURL, "webhookURL", defaultWebhookURL, "a string, URL of webhook endpoint")
+}
 
+// NewConfig returns a new instance of Config.
+//
+// If a flag is used for a supported config parameter, the config parameter's value is set according to the provided flag. Otherwise, a default value is used for the given parameter.
+func NewConfig(fs *flag.FlagSet, args []string) (*Config, error) {
+	cfg := &Config{
+		InstanceName:     defaultInstanceName,
+		ApiHeaderName:    defaultApiHeaderName,
+		ApiHeaderValue:   defaultApiHeaderValue,
+		Source:           defaultSource,
+		Verbose:          defaultVerbose,
+		PushgatewayURL:   defaultPushgatewayURL,
+		TelegramBotToken: defaultTelegramBotToken,
+		TelegramChatID:   defaultTelegramChatID,
+		TimeoutSeconds:   defaultTimeoutSeconds,
+		ApiURL:           defaultApiURL,
+		WebhookURL:       defaultWebhookURL,
+	}
+
+	defineFlags(fs, cfg)
+
+	// Parse flags
+	if err := fs.Parse(args); err != nil {
+		return nil, fmt.Errorf("error parsing flags: %v", err)
+	}
+
+	return cfg, nil
 }

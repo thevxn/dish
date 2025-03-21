@@ -6,14 +6,19 @@ import (
 	"net/http"
 	"os"
 	"regexp"
-	"strconv"
-
-	"go.vxn.dev/dish/pkg/config"
 )
 
-// fetchRemoteStream sends a GET HTTP request to remote RESTful API endpoint, returns response body
-// 'url' argument should be a full-quality URL to remote http server, e.g. http://api.example.com:5569/stream?query=variable
-func fetchRemoteStream(url string) (io.ReadCloser, error) {
+// fetchRemoteStream loads the sockets to be monitored from a remote RESTful API endpoint. It returns the response body implementing [io.ReadCloser] for reading from and closing the stream.
+//
+// The url parameter must be a complete URL to a remote http/s server, including:
+//   - Scheme (http:// or https://)
+//   - Host (domain or IP)
+//   - Optional port
+//   - Optional path
+//   - Optional query parameters
+//
+// Example url: http://api.example.com:5569/stream?query=variable
+func fetchRemoteStream(url string, apiHeaderName string, apiHeaderValue string) (io.ReadCloser, error) {
 	// try URL
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
@@ -23,8 +28,8 @@ func fetchRemoteStream(url string) (io.ReadCloser, error) {
 	client := &http.Client{}
 	req.Header.Set("Content-Type", "application/json")
 
-	if config.HeaderName != "" && config.HeaderValue != "" {
-		req.Header.Set(config.HeaderName, config.HeaderValue)
+	if apiHeaderName != "" && apiHeaderValue != "" {
+		req.Header.Set(apiHeaderName, apiHeaderValue)
 	}
 
 	resp, err := client.Do(req)
@@ -32,8 +37,8 @@ func fetchRemoteStream(url string) (io.ReadCloser, error) {
 		return nil, err
 	}
 
-	if resp.StatusCode != 200 {
-		log.Fatal("not a HTTP/200 status code on socket list fetch --- got " + strconv.Itoa(resp.StatusCode))
+	if resp.StatusCode != http.StatusOK {
+		log.Fatalf("error fetching sockets from remote source --- got %d (%s)", resp.StatusCode, resp.Status)
 	}
 
 	body := resp.Body
@@ -41,6 +46,7 @@ func fetchRemoteStream(url string) (io.ReadCloser, error) {
 	return body, nil
 }
 
+// fetchFileStream opens a file and returns [io.ReadCloser] for reading from and closing the stream.
 func fetchFileStream(input string) (io.ReadCloser, error) {
 	jsonFile, err := os.Open(input)
 	if err != nil {
@@ -50,14 +56,15 @@ func fetchFileStream(input string) (io.ReadCloser, error) {
 	return jsonFile, nil
 }
 
-// getStreamFromPath tries to load data from given input. It checks whether input is a file path or url
-func getStreamFromPath(input string) (io.ReadCloser, error) {
-	// Check if input is an url
+// getStreamFromPath tries to open a stream to the socket source from the given input. It checks whether the input is a file path or url and then returns [io.ReadCloser] to read from and close the stream.
+func getStreamFromPath(input string, apiHeaderName string, apiHeaderValue string) (io.ReadCloser, error) {
+	// Check if input is a url
 	match, err := regexp.MatchString("^(http|https)://", input)
 	if err != nil {
 		return nil, err
 	}
 
+	// If not, fetch from a file
 	if !match {
 		reader, err := fetchFileStream(input)
 		if err != nil {
@@ -66,7 +73,8 @@ func getStreamFromPath(input string) (io.ReadCloser, error) {
 		return reader, nil
 	}
 
-	reader, err := fetchRemoteStream(input)
+	// Otherwise, fetch from the url
+	reader, err := fetchRemoteStream(input, apiHeaderName, apiHeaderValue)
 	if err != nil {
 		return nil, err
 	}

@@ -9,54 +9,47 @@ dish
 
 + __tiny__ one-shot monitoring service
 + __remote__ configuration of independent 'dish network' (via `-source ${REMOTE_JSON_API_URL}` flag)
-+ __fast__ parallel testing, low overall execution time, 10-sec timeout per socket by default
++ __fast__ concurrent testing, low overall execution time, 10-sec timeout per socket by default
++ __0__ dependencies
+
+## Install
 
 ```shell
 go install go.vxn.dev/dish/cmd/dish@latest
 ```
 
+## Usage
+
 ```
 dish -h
-Usage of ./dish:
+Usage of dish:
+  -failedOnly
+        a bool, specifies whether only failed checks should be reported (default true)
   -hname string
-     a string, custom additional header name
+        a string, custom additional header name
   -hvalue string
-     a string, custom additional header value
+        a string, custom additional header value
   -name string
-     a string, dish instance name (default "generic-dish")
-  -pushgw
-     a bool, enable reporter module to post dish results to pushgateway
+        a string, dish instance name (default "generic-dish")
   -source string
-     a string, path to/URL JSON socket list (default "demo_sockets.json")
+        a string, path to/URL JSON socket list (default "./configs/demo_sockets.json")
   -target string
-     a string, result update path/URL, plaintext/byte output
-  -telegram
-     a bool, Telegram provider usage toggle
+        a string, result update path/URL to pushgateway, plaintext/byte output
   -telegramBotToken string
-     a string, Telegram bot private token
+        a string, Telegram bot private token
   -telegramChatID string
-     a string/signet int, Telegram chat/channel ID
-  -timeout int
-     an int, timeout in seconds for http and tcp calls (default 10)
-  -update
-     a bool, switch for socket's last state batch upload to the source swis-api instance
+        a string, Telegram chat/channel ID
+  -timeout uint
+        an int, timeout in seconds for http and tcp calls (default 10)
   -updateURL string
-     a string, URL of the source swis-api instance
+        a string, URL of the source api instance
   -verbose
-     a bool, console stdout logging toggle
+        a bool, console stdout logging toggle
   -webhookURL string
-     a string, URL of webhook endpoint
-  -webhooks
-     a bool, Webhook usage toggle
+        a string, URL of webhook endpoint
 ```
 
-[dish history article](https://krusty.space/projects/dish/)
-
-## use-cases
-
-The idea of a tiny one-shot service comes with the need for a quick monitoring service implementation to test HTTP/S and generic TCP endpoints (or just sockets in general = hosts and their ports).
-
-### socket list
+### Socket List
 
 The list of sockets can be provided via a local JSON-formated file (e.g. `demo_sockets.json` file in the CWD), or via a remote REST/RESTful JSON API.
 
@@ -68,7 +61,7 @@ dish -source /opt/dish/sockets.json
 dish -source http://restapi.example.com/dish/sockets/:instance
 ```
 
-### alerting
+### Alerting
 
 When a socket test fails, it's always good to be notified. For this purpose, dish provides 4 different ways of doing so (can be combined):
 
@@ -81,7 +74,7 @@ When a socket test fails, it's always good to be notified. For this purpose, dis
 
 (The screenshot above shows the Telegram alerting as of `v1.5.0`.)
 
-## examples
+### Examples
 
 One way to run dish is to build and install a binary executable.
 
@@ -102,7 +95,7 @@ dish -source https://api.example.com/dish/sockets -pushgw \
  -target https://pushgw.example.com/
 ```
 
-### using Docker
+#### Using Docker
 
 ```shell
 # Copy, and/or edit dot-env file (optional)
@@ -124,7 +117,7 @@ docker run --rm \
  -target https://pushgateway.example.com
 ```
 
-### bash script and cronjob
+#### Bash script and cronjob
 
 Create a bash script to easily deploy dish and update its settings:
 
@@ -170,7 +163,7 @@ Make it an executable:
 chmod +x tiny-dish-run.sh
 ```
 
-#### cronjob to run periodically
+##### Cronjob to run periodically
 
 ```shell
 crontab -e
@@ -182,3 +175,11 @@ MAILTO=monitoring@example.com
 
 */2 * * * * /home/user/tiny-dish-run.sh
 ```
+
+## History
+
+[dish history article](https://krusty.space/projects/dish/)
+
+## Use Cases
+
+The idea of a tiny one-shot service comes with the need for a quick monitoring service implementation to test HTTP/S and generic TCP endpoints (or just sockets in general = hosts and their ports).
