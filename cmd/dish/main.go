@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"sync"
 
 	"go.vxn.dev/dish/pkg/alert"
@@ -103,7 +104,7 @@ func handlePushgateway(failedCount int) {
 	if config.UsePushgateway && config.TargetURL != "" {
 		msg := message.Make(failedCount)
 		if err := msg.PushDishResults(); err != nil {
-			log.Printf("Failed to push dish results: %v", err)
+			log.Printf("failed to push dish results: %v", err)
 		}
 	}
 }
@@ -111,23 +112,17 @@ func handlePushgateway(failedCount int) {
 func handleStateUpdate(results message.Results) {
 	if config.UpdateStates {
 		if err := message.UpdateSocketStates(results); err != nil {
-			log.Printf("Failed to update socket states: %v", err)
+			log.Printf("failed to update socket states: %v", err)
 		}
 	}
 }
 
 func handleAlerts(messengerText string, results message.Results) {
-	if config.UseTelegram {
-		err := alert.SendTelegram(messengerText)
-		if err != nil {
-			log.Printf("Error sending Telegram notification: %v", err)
-		}
+	notifier := alert.NewNotifier(http.DefaultClient)
+	if err := notifier.SendChatNotifications(messengerText); err != nil {
+		log.Printf("error sending chat notifications: %v", err)
 	}
-
-	if config.UseWebhooks {
-		err := alert.SendWebhooks(&results)
-		if err != nil {
-			log.Printf("Error sending webhook notification: %v", err)
-		}
+	if err := notifier.SendMachineNotifications(results); err != nil {
+		log.Printf("error sending machine notifications: %v", err)
 	}
 }
