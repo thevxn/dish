@@ -2,11 +2,9 @@ package message
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"regexp"
 	"strconv"
 
 	"go.vxn.dev/dish/pkg/config"
@@ -62,47 +60,6 @@ func (msg Message) PushDishResults() error {
 	defer res.Body.Close()
 
 	log.Println("Results pushed to pushgateway")
-
-	return nil
-}
-
-func UpdateSocketStates(results Results) error {
-	jsonData, err := json.Marshal(results)
-	if err != nil {
-		return nil
-	}
-	bodyReader := bytes.NewReader(jsonData)
-	log.Println(string(jsonData))
-
-	url := config.UpdateURL
-
-	regex, err := regexp.Compile("^(http|https)://")
-	if err != nil {
-		return err
-	}
-	match := regex.MatchString(url)
-
-	if !match {
-		return nil
-	}
-
-	// Push requests use PUT method
-	req, err := http.NewRequest(http.MethodPost, url, bodyReader)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set(config.HeaderName, config.HeaderValue)
-
-	client := http.Client{}
-
-	res, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-
-	log.Println("Results pushed to swapi")
 
 	return nil
 }

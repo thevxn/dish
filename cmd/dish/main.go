@@ -50,10 +50,9 @@ func main() {
 	}
 
 	handlePushgateway(failedCount)
-	handleStateUpdate(resultsToPush)
+	handleAlerts(messengerText, resultsToPush, failedCount)
 
 	if failedCount > 0 {
-		handleAlerts(messengerText, resultsToPush)
 		log.Println(messengerText)
 		return
 	}
@@ -109,20 +108,12 @@ func handlePushgateway(failedCount int) {
 	}
 }
 
-func handleStateUpdate(results message.Results) {
-	if config.UpdateStates {
-		if err := message.UpdateSocketStates(results); err != nil {
-			log.Printf("failed to update socket states: %v", err)
-		}
-	}
-}
-
-func handleAlerts(messengerText string, results message.Results) {
+func handleAlerts(messengerText string, results message.Results, failedCount int) {
 	notifier := alert.NewNotifier(http.DefaultClient)
-	if err := notifier.SendChatNotifications(messengerText); err != nil {
+	if err := notifier.SendChatNotifications(messengerText, failedCount); err != nil {
 		log.Printf("error sending chat notifications: %v", err)
 	}
-	if err := notifier.SendMachineNotifications(results); err != nil {
+	if err := notifier.SendMachineNotifications(results, failedCount); err != nil {
 		log.Printf("error sending machine notifications: %v", err)
 	}
 }
