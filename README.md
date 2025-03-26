@@ -5,6 +5,7 @@ dish
 
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/thevxn/dish)](https://pkg.go.dev/github.com/thevxn/dish)
 [![Go Report Card](http://goreportcard.com/badge/github.com/thevxn/dish)](https://goreportcard.com/report/github.com/thevxn/dish)
+[![libs.tech recommends](https://libs.tech/project/468033120/badge.svg)](https://libs.tech/project/468033120/dish)
 
 + __tiny__ one-shot monitoring service
 + __remote__ configuration of independent 'dish network' (via `-source ${REMOTE_JSON_API_URL}` flag)
