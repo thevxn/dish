@@ -79,7 +79,7 @@ func checkSite(socket socket.Socket, timeoutSeconds uint, verbose bool) (bool, i
 	if err != nil {
 		return false, 0, err
 	}
-	req.Header.Set("User-Agent", "dish/1.8")
+	req.Header.Set("User-Agent", "dish/1.9")
 
 	// open socket --- Head to url
 	resp, err := client.Do(req)
