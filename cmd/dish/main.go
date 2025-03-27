@@ -41,11 +41,16 @@ func fanInChannels(channels ...chan socket.Result) <-chan socket.Result {
 func main() {
 	config, err := config.NewConfig(flag.CommandLine, os.Args[1:])
 	if err != nil {
-		log.Fatal("error loading config: ", err)
+		log.Print("error loading config: ", err)
+		return
 	}
 
 	// Load socket list to run tests on --- external file!
-	list := socket.FetchSocketList(config.Source, config.ApiHeaderName, config.ApiHeaderValue, config.Verbose)
+	list, err := socket.FetchSocketList(config.Source, config.ApiHeaderName, config.ApiHeaderValue, config.Verbose)
+	if err != nil {
+		log.Print("error loading socket list: ", err)
+		return
+	}
 
 	var (
 		messengerText string

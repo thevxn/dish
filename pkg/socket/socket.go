@@ -2,6 +2,7 @@ package socket
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 )
 
@@ -37,20 +38,20 @@ type Socket struct {
 }
 
 // FetchSocketList fetches the list of sockets to be checked. 'input' should be a string like '/path/filename.json', or an HTTP URL string
-func FetchSocketList(input string, apiHeaderName string, apiHeaderValue string, verbose bool) SocketList {
+func FetchSocketList(input string, apiHeaderName string, apiHeaderValue string, verbose bool) (*SocketList, error) {
 	var list = &SocketList{}
 
 	// fetch JSON byte reader from input URL/path
 	reader, err := getStreamFromPath(input, apiHeaderName, apiHeaderValue)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("error loading sockets from the provided input path (%s): %w", input, err)
 	}
 	defer reader.Close()
 
 	// got data, load struct Sockets
 	err = json.NewDecoder(reader).Decode(&list)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("error decoding sockets json: %w", err)
 	}
 
 	// write JSON data to console
@@ -62,5 +63,5 @@ func FetchSocketList(input string, apiHeaderName string, apiHeaderValue string, 
 		}
 	}
 
-	return *list
+	return list, nil
 }
