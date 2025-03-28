@@ -1,18 +1,20 @@
 package netrunner
 
 import (
+	"fmt"
 	"log"
 	"net"
 	"net/http"
 	"regexp"
+	"slices"
 	"strconv"
 	"sync"
 	"time"
 
-	"slices"
-
 	"go.vxn.dev/dish/pkg/socket"
 )
+
+const agentVersion = "1.9"
 
 func TestSocket(sock socket.Socket, channel chan<- socket.Result, wg *sync.WaitGroup, timeoutSeconds uint, verbose bool) {
 	defer wg.Done()
@@ -79,7 +81,7 @@ func checkSite(socket socket.Socket, timeoutSeconds uint, verbose bool) (bool, i
 	if err != nil {
 		return false, 0, err
 	}
-	req.Header.Set("User-Agent", "dish/1.9")
+	req.Header.Set("User-Agent", fmt.Sprintf("dish/%s", agentVersion))
 
 	// open socket --- Head to url
 	resp, err := client.Do(req)
