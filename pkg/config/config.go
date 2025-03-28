@@ -21,18 +21,18 @@ type Config struct {
 }
 
 const (
-	defaultInstanceName     string = "generic-dish"
-	defaultApiHeaderName    string = ""
-	defaultApiHeaderValue   string = ""
-	defaultSource           string = "./configs/demo_sockets.json"
-	defaultVerbose          bool   = false
-	defaultPushgatewayURL   string = ""
-	defaultTelegramBotToken string = ""
-	defaultTelegramChatID   string = ""
-	defaultTimeoutSeconds   uint   = 10
-	defaultApiURL           string = ""
-	defaultWebhookURL       string = ""
-	defaultFailedOnly       bool   = true
+	defaultInstanceName     = "generic-dish"
+	defaultApiHeaderName    = ""
+	defaultApiHeaderValue   = ""
+	defaultSource           = "./configs/demo_sockets.json"
+	defaultVerbose          = false
+	defaultPushgatewayURL   = ""
+	defaultTelegramBotToken = ""
+	defaultTelegramChatID   = ""
+	defaultTimeoutSeconds   = 10
+	defaultApiURL           = ""
+	defaultWebhookURL       = ""
+	defaultFailedOnly       = true
 )
 
 // defineFlags defines flags on the provided FlagSet. The values of the flags are stored in the provided Config when parsed.
