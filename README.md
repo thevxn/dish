@@ -48,7 +48,7 @@ Usage of dish:
   -timeout uint
         an int, timeout in seconds for http and tcp calls (default 10)
   -updateURL string
-        a string, URL of the source api instance
+        a string, API endpoint URL for pushing results
   -verbose
         a bool, console stdout logging toggle
   -webhookURL string

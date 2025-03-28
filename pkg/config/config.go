@@ -60,7 +60,7 @@ func defineFlags(fs *flag.FlagSet, cfg *Config) {
 	fs.StringVar(&cfg.TelegramChatID, "telegramChatID", defaultTelegramChatID, "a string, Telegram chat/channel ID")
 
 	// API for pushing results:
-	fs.StringVar(&cfg.ApiURL, "updateURL", defaultApiURL, "a string, URL of the source api instance")
+	fs.StringVar(&cfg.ApiURL, "updateURL", defaultApiURL, "a string, API endpoint URL for pushing results")
 
 	// Webhooks:
 	fs.StringVar(&cfg.WebhookURL, "webhookURL", defaultWebhookURL, "a string, URL of webhook endpoint")
