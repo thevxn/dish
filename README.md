@@ -3,7 +3,7 @@
 dish
 </h1>
 
-[![PkgGoDev](https://pkg.go.dev/badge/go.vxn.dev/dish)](https://pkg.go.dev/go.vxn.dev/dish) 
+[![PkgGoDev](https://pkg.go.dev/badge/go.vxn.dev/dish)](https://pkg.go.dev/go.vxn.dev/dish)
 [![Go Report Card](https://goreportcard.com/badge/go.vxn.dev/dish)](https://goreportcard.com/report/go.vxn.dev/dish)
 [![libs.tech recommends](https://libs.tech/project/468033120/badge.svg)](https://libs.tech/project/468033120/dish)
 
@@ -67,8 +67,8 @@ When a socket test fails, it's always good to be notified. For this purpose, dis
 
 + test results upload to a remote JSON API (via `-updateURL` flag)
 + failed sockets list as the Telegram message body (via Telegram-related flags, see the help output above)
-+ failed count and last test timestamp update to Pushgateway for Prometheus (via `-pushgw` and `-target` flags)
-+ test results push to a webhook URL (via the `webhookURL` and `webhooks` flags)
++ failed count and last test timestamp update to Pushgateway for Prometheus (via the `-target` flag)
++ test results push to a webhook URL (via the `webhookURL` flag)
 
 ![telegram-alerting](/.github/dish-telegram.png)
 
@@ -146,11 +146,8 @@ docker run --rm \
         -source ${SOURCE_URL} \
         -hvalue ${SWAPI_TOKEN} \
         -hname X-Auth-Token \
-        -pushgw \
         -target ${TARGET_URL} \
-        -update \
         -updateURL ${UPDATE_URL} \
-        -telegram \
         -telegramBotToken ${TELEGRAM_TOKEN} \
         -telegramChatID ${TELEGRAM_CHATID} \
         -timeout 15 \
