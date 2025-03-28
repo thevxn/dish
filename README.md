@@ -3,7 +3,7 @@
 dish
 </h1>
 
-[![PkgGoDev](https://pkg.go.dev/badge/github.com/thevxn/dish)](https://pkg.go.dev/github.com/thevxn/dish)
+[![PkgGoDev](https://pkg.go.dev/badge/go.vxn.dev/dish)](https://pkg.go.dev/go.vxn.dev/dish) 
 [![Go Report Card](https://goreportcard.com/badge/go.vxn.dev/dish)](https://goreportcard.com/report/go.vxn.dev/dish)
 [![libs.tech recommends](https://libs.tech/project/468033120/badge.svg)](https://libs.tech/project/468033120/dish)
 
