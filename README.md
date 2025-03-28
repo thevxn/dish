@@ -7,10 +7,16 @@ dish
 [![Go Report Card](https://goreportcard.com/badge/go.vxn.dev/dish)](https://goreportcard.com/report/go.vxn.dev/dish)
 [![libs.tech recommends](https://libs.tech/project/468033120/badge.svg)](https://libs.tech/project/468033120/dish)
 
-+ __tiny__ one-shot monitoring service
-+ __remote__ configuration of independent 'dish network' (via `-source ${REMOTE_JSON_API_URL}` flag)
-+ __fast__ concurrent testing, low overall execution time, 10-sec timeout per socket by default
++ __Tiny__ one-shot monitoring service
++ __Remote__ configuration of independent 'dish network' (via `-source ${REMOTE_JSON_API_URL}` flag)
++ __Fast__ concurrent testing, low overall execution time, 10-sec timeout per socket by default
 + __0__ dependencies
+
+## Use Cases
+
++ Lightweight health checks of HTTP and/or TCP sockets
++ Decentralized monitoring with standalone dish instances deployed on different hosts that pull configuration from a common API
++ Cron-driven one-shot checks without the need for any long-running agents
 
 ## Install
 
@@ -65,10 +71,10 @@ dish -source http://restapi.example.com/dish/sockets/:instance
 
 When a socket test fails, it's always good to be notified. For this purpose, dish provides 4 different ways of doing so (can be combined):
 
-+ test results upload to a remote JSON API (via `-updateURL` flag)
-+ failed sockets list as the Telegram message body (via Telegram-related flags, see the help output above)
-+ failed count and last test timestamp update to Pushgateway for Prometheus (via the `-target` flag)
-+ test results push to a webhook URL (via the `webhookURL` flag)
++ Test results upload to a remote JSON API (via `-updateURL` flag)
++ Failed sockets list as the Telegram message body (via Telegram-related flags, see the help output above)
++ Failed count and last test timestamp update to Pushgateway for Prometheus (via the `-target` flag)
++ Test results push to a webhook URL (via the `webhookURL` flag)
 
 ![telegram-alerting](/.github/dish-telegram.png)
 
@@ -176,7 +182,3 @@ MAILTO=monitoring@example.com
 ## History
 
 [dish history article](https://krusty.space/projects/dish/)
-
-## Use Cases
-
-The idea of a tiny one-shot service comes with the need for a quick monitoring service implementation to test HTTP/S and generic TCP endpoints (or just sockets in general = hosts and their ports).
