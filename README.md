@@ -57,7 +57,7 @@ Usage of dish:
 
 ### Socket List
 
-The list of sockets can be provided via a local JSON-formated file (e.g. `demo_sockets.json` file in the CWD), or via a remote REST/RESTful JSON API.
+The list of sockets can be provided via a local JSON file (e.g. the `./configs/demo_sockets.json` file in the CWD), or via a remote RESTful JSON API.
 
 ```bash
 # local JSON file
