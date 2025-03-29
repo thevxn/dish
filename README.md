@@ -155,7 +155,6 @@ API_TOKEN=AbCd
 docker run --rm \
         ${DISH_TAG} \
         -name ${INSTANCE_NAME} \
-        -source ${SOURCE_URL} \
         -hvalue ${API_TOKEN} \
         -hname X-Auth-Token \
         -target ${TARGET_URL} \
@@ -163,7 +162,8 @@ docker run --rm \
         -telegramBotToken ${TELEGRAM_TOKEN} \
         -telegramChatID ${TELEGRAM_CHATID} \
         -timeout 15 \
-        -verbose
+        -verbose \
+        ${SOURCE_URL}
 ```
 
 Make it an executable:
