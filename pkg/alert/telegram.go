@@ -10,6 +10,7 @@ import (
 )
 
 const baseURL = "https://api.telegram.org"
+const messageTitle = "<b>dish run results</b>:"
 
 type telegramSender struct {
 	httpClient *http.Client
@@ -47,7 +48,7 @@ func (s *telegramSender) send(rawMessage string, failedCount int) error {
 	params.Set("chat_id", s.chatID)
 	params.Set("disable_web_page_preview", "true")
 	params.Set("parse_mode", "HTML")
-	params.Set("text", "<b>dish run results</b>:\n\n"+rawMessage)
+	params.Set("text", messageTitle+"\n\n"+rawMessage)
 
 	fullURL := telegramURL + "?" + params.Encode()
 
