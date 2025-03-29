@@ -56,7 +56,7 @@ func (n *notifier) SendChatNotifications(m string, failedCount int) error {
 	var errs []error
 
 	if len(n.chatNotifiers) == 0 {
-		log.Println("no chat notification receivers configured, no notifications will be sent.")
+		log.Println("no chat notification receivers configured, no notifications will be sent")
 
 		return nil
 	}
@@ -79,7 +79,7 @@ func (n *notifier) SendMachineNotifications(m Results, failedCount int) error {
 	var errs []error
 
 	if len(n.machineNotifiers) == 0 {
-		log.Println("no machine interface payload receivers configured, no notifications will be sent.")
+		log.Println("no machine interface payload receivers configured, no notifications will be sent")
 
 		return nil
 	}
