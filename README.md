@@ -27,6 +27,26 @@ go install go.vxn.dev/dish/cmd/dish@latest
 ## Usage
 
 ```
+dish [FLAGS] SOURCE
+```
+
+### Source
+
+The list of sockets to be checked can be provided via a local JSON file (e.g. the `./configs/demo_sockets.json` file included in this repository as an example), or via a remote RESTful JSON API.
+
+For the expected JSON schema of the list of sockets to be checked, see `./configs/demo_sockets.json`.
+
+```bash
+# local JSON file
+dish /opt/dish/sockets.json
+
+# remote JSON API source
+dish http://restapi.example.com/dish/sockets/:instance
+```
+
+### Flags
+
+```
 dish -h
 Usage of dish:
   -failedOnly
@@ -55,26 +75,14 @@ Usage of dish:
         a string, URL of webhook endpoint
 ```
 
-### Socket List
-
-The list of sockets can be provided via a local JSON file (e.g. the `./configs/demo_sockets.json` file in the CWD), or via a remote RESTful JSON API.
-
-```bash
-# local JSON file
-dish -source /opt/dish/sockets.json
-
-# remote JSON API source
-dish -source http://restapi.example.com/dish/sockets/:instance
-```
-
 ### Alerting
 
 When a socket test fails, it's always good to be notified. For this purpose, dish provides 4 different ways of doing so (can be combined):
 
-+ Test results upload to a remote JSON API (via `-updateURL` flag)
-+ Failed sockets list as the Telegram message body (via Telegram-related flags, see the help output above)
-+ Failed count and last test timestamp update to Pushgateway for Prometheus (via the `-target` flag)
-+ Test results push to a webhook URL (via the `webhookURL` flag)
++ Test results upload to a remote JSON API (using the `-updateURL` flag)
++ Failed sockets list as the Telegram message body (via the `-telegramBotToken` and `-telegramChatID` flags)
++ Failed count and last test timestamp update to Pushgateway for Prometheus (using the `-target` flag)
++ Test results push to a webhook URL (using the `webhookURL` flag)
 
 ![telegram-alerting](/.github/dish-telegram.png)
 
@@ -92,13 +100,14 @@ export PATH=$PATH:~/go/bin
 
 # Load sockets from sockets.json file, and use Telegram 
 # provider for alerting
-dish -source sockets.json -telegram -telegramChatID "-123456789" \
- -telegramBotToken "123:AAAbcD_ef"
+dish -telegramChatID "-123456789" \
+ -telegramBotToken "123:AAAbcD_ef" \
+ sockets.json
 
 # Use remote JSON API service as socket source, and push
 # the results to Pushgateway
-dish -source https://api.example.com/dish/sockets -pushgw \
- -target https://pushgw.example.com/
+dish -target https://pushgw.example.com/ \
+ https://api.example.com/dish/sockets
 ```
 
 #### Using Docker
@@ -116,11 +125,10 @@ make run
 
 # Run using native docker run
 docker run --rm \
- dish:1.7.1-go1.23 \
+ dish:1.9.1-go1.24 \
  -verbose \
- -source https://api.example.com \
- -pushgw \
- -target https://pushgateway.example.com
+ -target https://pushgateway.example.com \
+ https://api.example.com
 ```
 
 #### Bash script and cronjob
@@ -141,16 +149,16 @@ SOURCE_URL=https://api.example.com/dish/sockets
 UPDATE_URL=https://api.example.com/dish/sockets/results
 TARGET_URL=https://pushgw.example.com
 
-DISH_TAG=dish:1.6.0-go1.22
+DISH_TAG=dish:1.9.1-go1.24
 INSTANCE_NAME=tiny-dish
 
-SWAPI_TOKEN=AbCd
+API_TOKEN=AbCd
 
 docker run --rm \
         ${DISH_TAG} \
         -name ${INSTANCE_NAME} \
         -source ${SOURCE_URL} \
-        -hvalue ${SWAPI_TOKEN} \
+        -hvalue ${API_TOKEN} \
         -hname X-Auth-Token \
         -target ${TARGET_URL} \
         -updateURL ${UPDATE_URL} \
