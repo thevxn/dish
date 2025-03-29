@@ -60,7 +60,7 @@ func (s *apiSender) send(m Results, failedCount int) error {
 	}
 	defer res.Body.Close()
 
-	log.Println("Results pushed to swapi")
+	log.Println("Results pushed to remote api")
 
 	return nil
 }
