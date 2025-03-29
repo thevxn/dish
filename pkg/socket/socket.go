@@ -56,10 +56,9 @@ func FetchSocketList(input string, apiHeaderName string, apiHeaderValue string, 
 
 	// write JSON data to console
 	if verbose {
+		log.Println("loaded sockets:")
 		for _, socket := range list.Sockets {
-			log.Println("socket: Host:", socket.Host)
-			log.Println("socket: Port:", socket.Port)
-			log.Println("socket: ExpectedHTTPCodes:", socket.ExpectedHTTPCodes)
+			log.Printf("Host: %s, Port: %d, ExpectedHTTPCodes: %v", socket.Host, socket.Port, socket.ExpectedHTTPCodes)
 		}
 	}
 
