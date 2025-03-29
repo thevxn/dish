@@ -9,6 +9,8 @@ import (
 	"net/url"
 )
 
+const baseURL = "https://api.telegram.org"
+
 type telegramSender struct {
 	httpClient *http.Client
 	chatID     string
@@ -38,31 +40,35 @@ func (s *telegramSender) send(rawMessage string, failedCount int) error {
 		return nil
 	}
 
-	// form the Telegram URL
-	telegramURL := "https://api.telegram.org/bot" + s.token + "/sendMessage?chat_id=" + s.chatID + "&disable_web_page_preview=True&parse_mode=HTML&text="
+	// Construct the Telegram URL with params and the message
+	telegramURL := fmt.Sprintf("%s/bot%s/sendMessage", baseURL, s.token)
 
-	msg := "<b>dish run results</b>:\n\n" + rawMessage
+	params := url.Values{}
+	params.Set("chat_id", s.chatID)
+	params.Set("disable_web_page_preview", "true")
+	params.Set("parse_mode", "HTML")
+	params.Set("text", "<b>dish run results</b>:\n\n"+rawMessage)
 
-	// escape dish report string for Telegram
-	msg = url.QueryEscape(msg)
+	fullURL := telegramURL + "?" + params.Encode()
 
-	resp, err := s.httpClient.Get(telegramURL + msg)
+	// Send the message
+	resp, err := s.httpClient.Get(fullURL)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		log.Printf("unexpected response code received from Telegram (expected: %d, got: %d)", http.StatusOK, resp.StatusCode)
+		return fmt.Errorf("unexpected response code received from Telegram (expected: %d, got: %d)", http.StatusOK, resp.StatusCode)
 	}
 
-	// read the response body
+	// Read the response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return fmt.Errorf(("error reading response body: %w"), err)
+		return fmt.Errorf("error reading response body: %w", err)
 	}
 
-	// write to console log if verbose flag set
+	// Writethe body to console if verbose flag set
 	if s.verbose {
 		log.Println("telegram response:", string(body))
 	}
