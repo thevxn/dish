@@ -59,6 +59,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	log.Println("dish run: started")
+
 	// Load socket list to run tests on
 	list, err := socket.FetchSocketList(config.Source, config.ApiHeaderName, config.ApiHeaderValue, config.Verbose)
 	if err != nil {
@@ -101,7 +103,8 @@ func main() {
 	alert.HandleAlerts(messengerText, resultsToPush, failedCount, config)
 
 	if failedCount > 0 {
-		log.Println(messengerText)
+		log.Println("dish run: some tests failed")
+		log.Print("\n", messengerText)
 		return
 	}
 

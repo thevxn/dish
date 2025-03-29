@@ -19,9 +19,10 @@ const agentVersion = "1.9"
 func TestSocket(sock socket.Socket, channel chan<- socket.Result, wg *sync.WaitGroup, timeoutSeconds uint, verbose bool) {
 	defer wg.Done()
 
+	// TODO: move out?
 	regex, err := regexp.Compile("^(http|https)://")
 	if err != nil {
-		log.Println("Failed to create new regex object")
+		log.Printf("regex compilation failed: %v", err)
 
 		if channel != nil {
 			close(channel)
@@ -92,7 +93,12 @@ func checkSite(socket socket.Socket, timeoutSeconds uint, verbose bool) (bool, i
 	// fetch StatusCode for HTTP expected code comparison
 	if resp != nil {
 		defer resp.Body.Close()
-		return slices.Contains(socket.ExpectedHTTPCodes, resp.StatusCode), resp.StatusCode, nil
+
+		if !slices.Contains(socket.ExpectedHTTPCodes, resp.StatusCode) {
+			err = fmt.Errorf("expected codes: %v, got %d", socket.ExpectedHTTPCodes, resp.StatusCode)
+		}
+
+		return slices.Contains(socket.ExpectedHTTPCodes, resp.StatusCode), resp.StatusCode, err
 	}
 
 	return true, 0, nil
