@@ -67,5 +67,7 @@ func (s *telegramSender) send(rawMessage string, failedCount int) error {
 		log.Println("telegram response:", string(body))
 	}
 
+	log.Println("telegram alert sent")
+
 	return nil
 }
