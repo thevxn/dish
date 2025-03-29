@@ -2,6 +2,7 @@ package alert
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -51,16 +52,19 @@ func (s *telegramSender) send(rawMessage string, failedCount int) error {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		log.Printf("unexpected response code received from Telegram (expected: %d, got: %d)", http.StatusOK, resp.StatusCode)
+	}
+
 	// read the response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return fmt.Errorf(("error reading response body: %w"), err)
 	}
 
 	// write to console log if verbose flag set
 	if s.verbose {
-		log.Println(telegramURL)
-		log.Println(string(body))
+		log.Println("telegram response:", string(body))
 	}
 
 	return nil
