@@ -11,6 +11,11 @@ include .env.example
 
 PROJECT_NAME?=${APP_NAME}
 
+# release binaries build vars
+MAIN_PATH?=./cmd/dish/main.go
+LATEST_TAG?=$(shell git describe --tags --abbrev=0 | sed 's/^v//')
+
+
 DOCKER_DEV_IMAGE?=${PROJECT_NAME}-image
 DOCKER_DEV_CONTAINER?=${PROJECT_NAME}-run
 
@@ -123,3 +128,10 @@ patch:
 version:
 	$(call print_info, Current version: ${APP_VERSION}...)
 
+binaries: 
+	@GOARCH=arm64 GOOS=linux go build -o dish-${LATEST_TAG}.linux-arm64 ${MAIN_PATH}
+	@gzip dish-${LATEST_TAG}.linux-arm64
+	@GOARCH=amd64 GOOS=linux go build -o dish-${LATEST_TAG}.linux-x86_64 ${MAIN_PATH}
+	@gzip dish-${LATEST_TAG}.linux-x86_64
+	@GOARCH=amd64 GOOS=windows go build -o dish-${LATEST_TAG}.windows-x86_64.exe ${MAIN_PATH}
+	@gzip dish-${LATEST_TAG}.windows-x86_64.exe
