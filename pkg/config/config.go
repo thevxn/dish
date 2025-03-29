@@ -24,7 +24,7 @@ const (
 	defaultInstanceName     = "generic-dish"
 	defaultApiHeaderName    = ""
 	defaultApiHeaderValue   = ""
-	defaultSource           = "./configs/demo_sockets.json"
+	defaultSource           = ""
 	defaultVerbose          = false
 	defaultPushgatewayURL   = ""
 	defaultTelegramBotToken = ""
@@ -48,7 +48,6 @@ func defineFlags(fs *flag.FlagSet, cfg *Config) {
 	fs.BoolVar(&cfg.FailedOnly, "failedOnly", defaultFailedOnly, "a bool, specifies whether only failed checks should be reported")
 
 	// API socket source:
-	fs.StringVar(&cfg.Source, "source", defaultSource, "a string, path to/URL JSON socket list")
 	fs.StringVar(&cfg.ApiHeaderName, "hname", defaultApiHeaderName, "a string, custom additional header name")
 	fs.StringVar(&cfg.ApiHeaderValue, "hvalue", defaultApiHeaderValue, "a string, custom additional header value")
 
@@ -89,6 +88,15 @@ func NewConfig(fs *flag.FlagSet, args []string) (*Config, error) {
 	// Parse flags
 	if err := fs.Parse(args); err != nil {
 		return nil, fmt.Errorf("error parsing flags: %v", err)
+	}
+
+	// Parse args
+	parsedArgs := flag.CommandLine.Args()
+
+	// If source is provided, set it on the Config
+	// If it is not provided, it needs to be handled in the caller
+	if len(parsedArgs) > 0 {
+		cfg.Source = parsedArgs[0]
 	}
 
 	return cfg, nil

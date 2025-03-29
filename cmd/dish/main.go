@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"sync"
@@ -11,6 +12,13 @@ import (
 	"go.vxn.dev/dish/pkg/netrunner"
 	"go.vxn.dev/dish/pkg/socket"
 )
+
+func printHelp() {
+	fmt.Print("Usage: dish [FLAGS] SOURCE\n\n")
+	fmt.Print("A lightweight, one-shot socket checker\n\n")
+	fmt.Println("SOURCE must be a file path leading to a JSON file with a list of sockets to be checked or a URL leading to a remote JSON API from which the list of sockets can be retrieved")
+	fmt.Println("Use `dish -h` for a list of flags")
+}
 
 // fanInChannels collects results from multiple goroutines
 func fanInChannels(channels ...chan socket.Result) <-chan socket.Result {
@@ -45,7 +53,13 @@ func main() {
 		return
 	}
 
-	// Load socket list to run tests on --- external file!
+	// If no socket source arg is provided, print help and exit
+	if config.Source == "" {
+		printHelp()
+		os.Exit(1)
+	}
+
+	// Load socket list to run tests on
 	list, err := socket.FetchSocketList(config.Source, config.ApiHeaderName, config.ApiHeaderValue, config.Verbose)
 	if err != nil {
 		log.Print("error loading socket list: ", err)
