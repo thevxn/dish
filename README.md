@@ -8,7 +8,7 @@ dish
 [![libs.tech recommends](https://libs.tech/project/468033120/badge.svg)](https://libs.tech/project/468033120/dish)
 
 + __Tiny__ one-shot monitoring service
-+ __Remote__ configuration of independent 'dish network' (via `-source ${REMOTE_JSON_API_URL}` flag)
++ __Remote__ configuration of independent 'dish network' (via loading the socket list to be checked from a remote API)
 + __Fast__ concurrent testing, low overall execution time, 10-sec timeout per socket by default
 + __0__ dependencies
 
@@ -57,8 +57,6 @@ Usage of dish:
         a string, custom additional header value
   -name string
         a string, dish instance name (default "generic-dish")
-  -source string
-        a string, path to/URL JSON socket list (default "./configs/demo_sockets.json")
   -target string
         a string, result update path/URL to pushgateway, plaintext/byte output
   -telegramBotToken string
