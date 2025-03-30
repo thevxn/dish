@@ -80,7 +80,7 @@ When a socket test fails, it's always good to be notified. For this purpose, dis
 + Test results upload to a remote JSON API (using the `-updateURL` flag)
 + Failed sockets list as the Telegram message body (via the `-telegramBotToken` and `-telegramChatID` flags)
 + Failed count and last test timestamp update to Pushgateway for Prometheus (using the `-target` flag)
-+ Test results push to a webhook URL (using the `webhookURL` flag)
++ Test results push to a webhook URL (using the `-webhookURL` flag)
 
 ![telegram-alerting](/.github/dish-telegram.png)
 
