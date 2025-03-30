@@ -6,10 +6,10 @@
       "host_name": "https://vxn.dev",
       "port_tcp": 443,
       "path_http": "/",
-      "expected_http_code_array": [200]
+      "expected_http_code_array": [204, 201]
     },
     {
-      "id": "text.n0p.cz_https",
+      "id": "text_n0p_cz_https",
       "socket_name": "text-n0p-cz HTTPS",
       "host_name": "https://text.n0p.cz",
       "port_tcp": 443,
@@ -17,7 +17,7 @@
       "expected_http_code_array": [401]
     },
     {
-      "id": "openttd TCP",
+      "id": "openttd_TCP",
       "socket_name": "openttd TCP",
       "host_name": "ottd.vxn.dev",
       "port_tcp": 3979,
