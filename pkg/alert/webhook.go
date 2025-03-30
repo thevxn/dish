@@ -3,6 +3,7 @@ package alert
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -37,24 +38,29 @@ func (s *webhookSender) send(m Results, failedCount int) error {
 	}
 
 	if s.verbose {
-		log.Printf("Prepared webhook data: %v", string(jsonData))
+		log.Printf("prepared webhook data: %v", string(jsonData))
 	}
 
-	resp, err := s.httpClient.Post(s.url, "application/json", bytes.NewBuffer(jsonData))
+	res, err := s.httpClient.Post(s.url, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer res.Body.Close()
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return err
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected response code received from webhook (expected: %d, got: %d)", http.StatusOK, res.StatusCode)
 	}
 
+	// Write the body to console if verbose flag set
 	if s.verbose {
-		log.Printf("Webhook notification sent. Webhook URL: %s", s.url)
-		log.Printf("Received response from webhook URL. Status: %s. Body: %s", resp.Status, string(body))
+		body, err := io.ReadAll(res.Body)
+		if err != nil {
+			return fmt.Errorf("error reading response body: %w", err)
+		}
+		log.Println("webhook response:", string(body))
 	}
+
+	log.Println("results pushed to webhook")
 
 	return nil
 }

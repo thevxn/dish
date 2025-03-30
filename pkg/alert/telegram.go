@@ -53,24 +53,22 @@ func (s *telegramSender) send(rawMessage string, failedCount int) error {
 	fullURL := telegramURL + "?" + params.Encode()
 
 	// Send the message
-	resp, err := s.httpClient.Get(fullURL)
+	res, err := s.httpClient.Get(fullURL)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer res.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected response code received from Telegram (expected: %d, got: %d)", http.StatusOK, resp.StatusCode)
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected response code received from Telegram (expected: %d, got: %d)", http.StatusOK, res.StatusCode)
 	}
 
-	// Read the response body
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return fmt.Errorf("error reading response body: %w", err)
-	}
-
-	// Writethe body to console if verbose flag set
+	// Write the body to console if verbose flag set
 	if s.verbose {
+		body, err := io.ReadAll(res.Body)
+		if err != nil {
+			return fmt.Errorf("error reading response body: %w", err)
+		}
 		log.Println("telegram response:", string(body))
 	}
 

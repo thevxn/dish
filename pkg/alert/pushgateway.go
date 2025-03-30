@@ -3,6 +3,7 @@ package alert
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -19,13 +20,15 @@ type pushgatewaySender struct {
 	httpClient   *http.Client
 	url          string
 	instanceName string
+	verbose      bool
 }
 
-func NewPushgatewaySender(httpClient *http.Client, url string, instanceName string) *pushgatewaySender {
+func NewPushgatewaySender(httpClient *http.Client, url string, instanceName string, verbose bool) *pushgatewaySender {
 	return &pushgatewaySender{
 		httpClient,
 		url,
 		instanceName,
+		verbose,
 	}
 }
 
@@ -56,15 +59,26 @@ func (s *pushgatewaySender) send(_ Results, failedCount int) error {
 
 	req.Header.Set("Content-Type", "application/byte")
 
-	client := http.Client{}
-
-	res, err := client.Do(req)
+	res, err := s.httpClient.Do(req)
 	if err != nil {
 		return err
 	}
 	defer res.Body.Close()
 
-	log.Println("Results pushed to pushgateway")
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected response code received from Pushgateway (expected: %d, got: %d)", http.StatusOK, res.StatusCode)
+	}
+
+	// Write the body to console if verbose flag set
+	if s.verbose {
+		body, err := io.ReadAll(res.Body)
+		if err != nil {
+			return fmt.Errorf("error reading response body: %w", err)
+		}
+		log.Println("pushgateway response:", string(body))
+	}
+
+	log.Println("results pushed to Pushgateway")
 
 	return nil
 }

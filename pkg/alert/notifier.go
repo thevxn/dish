@@ -2,7 +2,6 @@ package alert
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -36,13 +35,13 @@ func NewNotifier(httpClient *http.Client, config *config.Config) *notifier {
 	// Set machine interface integrations to be notified (e.g. Webhooks)
 	payloadSenders := make([]MachineNotifier, 0)
 	if config.ApiURL != "" {
-		payloadSenders = append(payloadSenders, NewApiSender(httpClient, config.ApiURL, config.ApiHeaderName, config.ApiHeaderValue))
+		payloadSenders = append(payloadSenders, NewApiSender(httpClient, config.ApiURL, config.ApiHeaderName, config.ApiHeaderValue, config.Verbose))
 	}
 	if config.WebhookURL != "" {
 		payloadSenders = append(payloadSenders, NewWebhookSender(httpClient, config.WebhookURL, config.Verbose, config.FailedOnly))
 	}
 	if config.PushgatewayURL != "" {
-		payloadSenders = append(payloadSenders, NewPushgatewaySender(httpClient, config.PushgatewayURL, config.InstanceName))
+		payloadSenders = append(payloadSenders, NewPushgatewaySender(httpClient, config.PushgatewayURL, config.InstanceName, config.Verbose))
 	}
 
 	return &notifier{
@@ -69,7 +68,7 @@ func (n *notifier) SendChatNotifications(m string, failedCount int) error {
 	}
 
 	if len(errs) > 0 {
-		return fmt.Errorf("failed to send chat notifications: %w", errors.Join(errs...))
+		return errors.Join(errs...)
 	}
 
 	return nil
@@ -91,7 +90,7 @@ func (n *notifier) SendMachineNotifications(m Results, failedCount int) error {
 	}
 
 	if len(errs) > 0 {
-		return fmt.Errorf("failed to send machine notifications: %w", errors.Join(errs...))
+		return errors.Join(errs...)
 	}
 
 	return nil
