@@ -87,7 +87,7 @@ When a socket test fails, it's always good to be notified. For this purpose, dis
 Whether successful runs with no failed checks should be reported can also be configured using flags:
 
 + `-textNotifySuccess` for text channels (e.g. Telegram)
-+ `-machineNotifySuccess` for text channels (e.g. webhooks, remote API or Pushgateway)
++ `-machineNotifySuccess` for machine channels (e.g. webhooks, remote API or Pushgateway)
 
 ![telegram-alerting](/.github/dish_telegram.png)
 
