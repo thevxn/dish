@@ -89,7 +89,7 @@ Whether successful runs with no failed checks should be reported can also be con
 + `-textNotifySuccess` for text channels (e.g. Telegram)
 + `-machineNotifySuccess` for text channels (e.g. webhooks, remote API or Pushgateway)
 
-![telegram-alerting](/.github/dish-telegram.png)
+![telegram-alerting](/.github/dish_telegram.png)
 
 (The screenshot above shows Telegram alerting as of `v1.10.0`. The screenshot shows the result of using the `-textNotifySuccess` flag to include successful checks in the alert as well.)
 
