@@ -6,7 +6,7 @@
       "host_name": "https://vxn.dev",
       "port_tcp": 443,
       "path_http": "/",
-      "expected_http_code_array": [204, 201]
+      "expected_http_code_array": [200]
     },
     {
       "id": "text_n0p_cz_https",

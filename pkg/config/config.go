@@ -6,33 +6,35 @@ import (
 )
 
 type Config struct {
-	InstanceName     string
-	ApiHeaderName    string
-	ApiHeaderValue   string
-	Source           string
-	Verbose          bool
-	PushgatewayURL   string
-	TelegramBotToken string
-	TelegramChatID   string
-	TimeoutSeconds   uint
-	ApiURL           string
-	WebhookURL       string
-	FailedOnly       bool
+	InstanceName         string
+	ApiHeaderName        string
+	ApiHeaderValue       string
+	Source               string
+	Verbose              bool
+	PushgatewayURL       string
+	TelegramBotToken     string
+	TelegramChatID       string
+	TimeoutSeconds       uint
+	ApiURL               string
+	WebhookURL           string
+	TextNotifySuccess    bool
+	MachineNotifySuccess bool
 }
 
 const (
-	defaultInstanceName     = "generic-dish"
-	defaultApiHeaderName    = ""
-	defaultApiHeaderValue   = ""
-	defaultSource           = ""
-	defaultVerbose          = false
-	defaultPushgatewayURL   = ""
-	defaultTelegramBotToken = ""
-	defaultTelegramChatID   = ""
-	defaultTimeoutSeconds   = 10
-	defaultApiURL           = ""
-	defaultWebhookURL       = ""
-	defaultFailedOnly       = true
+	defaultInstanceName         = "generic-dish"
+	defaultApiHeaderName        = ""
+	defaultApiHeaderValue       = ""
+	defaultSource               = ""
+	defaultVerbose              = false
+	defaultPushgatewayURL       = ""
+	defaultTelegramBotToken     = ""
+	defaultTelegramChatID       = ""
+	defaultTimeoutSeconds       = 10
+	defaultApiURL               = ""
+	defaultWebhookURL           = ""
+	defaultTextNotifySuccess    = false
+	defaultMachineNotifySuccess = false
 )
 
 // defineFlags defines flags on the provided FlagSet. The values of the flags are stored in the provided Config when parsed.
@@ -45,7 +47,8 @@ func defineFlags(fs *flag.FlagSet, cfg *Config) {
 	// Integration channels flags
 	//
 	// General:
-	fs.BoolVar(&cfg.FailedOnly, "failedOnly", defaultFailedOnly, "a bool, specifies whether only failed checks should be reported")
+	fs.BoolVar(&cfg.TextNotifySuccess, "textNotifySuccess", defaultTextNotifySuccess, "a bool, specifies whether successful checks with no failures should be reported to text channels")
+	fs.BoolVar(&cfg.MachineNotifySuccess, "machineNotifySuccess", defaultMachineNotifySuccess, "a bool, specifies whether successful checks with no failures should be reported to machine channels")
 
 	// API socket source:
 	fs.StringVar(&cfg.ApiHeaderName, "hname", defaultApiHeaderName, "a string, custom additional header name")

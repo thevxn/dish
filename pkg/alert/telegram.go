@@ -1,7 +1,7 @@
+// TODO: Add comments (everywhere)
 package alert
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -13,31 +13,29 @@ const baseURL = "https://api.telegram.org"
 const messageTitle = "<b>dish run results</b>:"
 
 type telegramSender struct {
-	httpClient *http.Client
-	chatID     string
-	token      string
-	verbose    bool
-	failedOnly bool
+	httpClient    *http.Client
+	chatID        string
+	token         string
+	verbose       bool
+	notifySuccess bool
 }
 
-func NewTelegramSender(httpClient *http.Client, chatID string, token string, verbose bool, failedOnly bool) *telegramSender {
+func NewTelegramSender(httpClient *http.Client, chatID string, token string, verbose bool, notifySuccess bool) *telegramSender {
 	return &telegramSender{
 		httpClient,
 		chatID,
 		token,
 		verbose,
-		failedOnly,
+		notifySuccess,
 	}
 }
 
 func (s *telegramSender) send(rawMessage string, failedCount int) error {
-	if rawMessage == "" {
-		return errors.New("empty message string given")
-	}
-
-	// If there are no failed sockets and we only wish to be notified when they fail, there is nothing to do
-	if failedCount == 0 && s.failedOnly {
-		log.Printf("%T: no failed sockets and failedOnly == true, nothing will be sent", s)
+	// If no checks failed and failedOnly is set to true, there is nothing to send
+	if failedCount == 0 && !s.notifySuccess {
+		if s.verbose {
+			log.Printf("no sockets failed and notifySuccess == false, nothing will be sent to Telegram")
+		}
 		return nil
 	}
 

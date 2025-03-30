@@ -7,14 +7,26 @@ import (
 )
 
 func FormatMessengerText(result socket.Result) string {
-	// Hotfix unsupported <nil> tag by TG
-	if result.Error == nil {
-		result.Error = fmt.Errorf("")
+
+	status := "failed"
+	if result.Passed {
+		status = "success"
 	}
 
+	text := fmt.Sprintf("• %s:%d", result.Socket.Host, result.Socket.Port)
+
 	if result.Socket.PathHTTP != "" {
-		return fmt.Sprintf("• %s:%d%s -- %v\n",
-			result.Socket.Host, result.Socket.Port, result.Socket.PathHTTP, result.Error)
+		text += result.Socket.PathHTTP
 	}
-	return fmt.Sprintf("• %s:%d -- %v\n", result.Socket.Host, result.Socket.Port, result.Error)
+
+	text += " -- " + status
+
+	if status == "failed" {
+		text += " -- "
+		text += result.Error.Error()
+	}
+
+	text += "\n"
+
+	return text
 }

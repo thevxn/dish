@@ -72,10 +72,12 @@ func main() {
 		messengerText string
 		resultsToPush = alert.Results{Map: make(map[string]bool)}
 		failedCount   int
+
 		// A slice of channels needs to be used here so that each goroutine has its own channel which it then closes upon performing the socket check. One shared channel for all goroutines would not work as it would not be clear which goroutine should close the channel.
 		channels = make([](chan socket.Result), len(list.Sockets))
-		wg       sync.WaitGroup
-		i        int
+
+		wg sync.WaitGroup
+		i  int
 	)
 
 	// Start goroutines for each socket test
@@ -91,10 +93,14 @@ func main() {
 	results := fanInChannels(channels...)
 	wg.Wait()
 
+	// TODO: add unicode chars for success & failure
+
 	// Collect results
 	for result := range results {
 		if !result.Passed || result.Error != nil {
 			failedCount++
+		}
+		if !result.Passed || config.TextNotifySuccess {
 			messengerText += alert.FormatMessengerText(result)
 		}
 		resultsToPush.Map[result.Socket.ID] = result.Passed

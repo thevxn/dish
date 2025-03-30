@@ -49,12 +49,12 @@ dish http://restapi.example.com/dish/sockets/:instance
 ```
 dish -h
 Usage of dish:
-  -failedOnly
-        a bool, specifies whether only failed checks should be reported (default true)
   -hname string
         a string, custom additional header name
   -hvalue string
         a string, custom additional header value
+  -machineNotifySuccess
+        a bool, specifies whether successful checks with no failures should be reported to machine channels
   -name string
         a string, dish instance name (default "generic-dish")
   -target string
@@ -63,6 +63,8 @@ Usage of dish:
         a string, Telegram bot private token
   -telegramChatID string
         a string, Telegram chat/channel ID
+  -textNotifySuccess
+        a bool, specifies whether successful checks with no failures should be reported to text channels
   -timeout uint
         an int, timeout in seconds for http and tcp calls (default 10)
   -updateURL string
@@ -78,13 +80,18 @@ Usage of dish:
 When a socket test fails, it's always good to be notified. For this purpose, dish provides 4 different ways of doing so (can be combined):
 
 + Test results upload to a remote JSON API (using the `-updateURL` flag)
-+ Failed sockets list as the Telegram message body (via the `-telegramBotToken` and `-telegramChatID` flags)
++ Check results as the Telegram message body (via the `-telegramBotToken` and `-telegramChatID` flags)
 + Failed count and last test timestamp update to Pushgateway for Prometheus (using the `-target` flag)
 + Test results push to a webhook URL (using the `-webhookURL` flag)
 
+Whether successful runs with no failed checks should be reported can also be configured using flags:
+
++ `-textNotifySuccess` for text channels (e.g. Telegram)
++ `-machineNotifySuccess` for text channels (e.g. webhooks, remote API or Pushgateway)
+
 ![telegram-alerting](/.github/dish-telegram.png)
 
-(The screenshot above shows the Telegram alerting as of `v1.5.0`.)
+(The screenshot above shows Telegram alerting as of `v1.10.0`. The screenshot shows the result of using the `-textNotifySuccess` flag to include successful checks in the alert as well.)
 
 ### Examples
 
@@ -107,6 +114,9 @@ dish -telegramChatID "-123456789" \
 dish -target https://pushgw.example.com/ \
  https://api.example.com/dish/sockets
 ```
+
+Example run:
+![dish run](.github/dish_run.png)
 
 #### Using Docker
 

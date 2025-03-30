@@ -17,18 +17,20 @@ const (
 )
 
 type pushgatewaySender struct {
-	httpClient   *http.Client
-	url          string
-	instanceName string
-	verbose      bool
+	httpClient    *http.Client
+	url           string
+	instanceName  string
+	verbose       bool
+	notifySuccess bool
 }
 
-func NewPushgatewaySender(httpClient *http.Client, url string, instanceName string, verbose bool) *pushgatewaySender {
+func NewPushgatewaySender(httpClient *http.Client, url string, instanceName string, verbose bool, notifySuccess bool) *pushgatewaySender {
 	return &pushgatewaySender{
 		httpClient,
 		url,
 		instanceName,
 		verbose,
+		notifySuccess,
 	}
 }
 
@@ -45,6 +47,13 @@ func (s *pushgatewaySender) createMessage(failedCount int) string {
 //
 // The first argument is needed to implement the MachineNotifier interface, however, it is ignored in favor of a custom message implementation via the createMessage method.
 func (s *pushgatewaySender) send(_ Results, failedCount int) error {
+	// If no checks failed and failedOnly is set to true, there is nothing to send
+	if failedCount == 0 && !s.notifySuccess {
+		if s.verbose {
+			log.Println("no sockets failed and notifySuccess == false, nothing will be sent to Pushgateway")
+		}
+		return nil
+	}
 
 	msg := s.createMessage(failedCount)
 

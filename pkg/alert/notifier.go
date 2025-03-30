@@ -29,19 +29,19 @@ func NewNotifier(httpClient *http.Client, config *config.Config) *notifier {
 	// Set chat integrations to be notified (e.g. Telegram)
 	notificationSenders := make([]ChatNotifier, 0)
 	if config.TelegramBotToken != "" && config.TelegramChatID != "" {
-		notificationSenders = append(notificationSenders, NewTelegramSender(httpClient, config.TelegramChatID, config.TelegramBotToken, config.Verbose, config.FailedOnly))
+		notificationSenders = append(notificationSenders, NewTelegramSender(httpClient, config.TelegramChatID, config.TelegramBotToken, config.Verbose, config.TextNotifySuccess))
 	}
 
 	// Set machine interface integrations to be notified (e.g. Webhooks)
 	payloadSenders := make([]MachineNotifier, 0)
 	if config.ApiURL != "" {
-		payloadSenders = append(payloadSenders, NewApiSender(httpClient, config.ApiURL, config.ApiHeaderName, config.ApiHeaderValue, config.Verbose))
+		payloadSenders = append(payloadSenders, NewApiSender(httpClient, config.ApiURL, config.ApiHeaderName, config.ApiHeaderValue, config.Verbose, config.MachineNotifySuccess))
 	}
 	if config.WebhookURL != "" {
-		payloadSenders = append(payloadSenders, NewWebhookSender(httpClient, config.WebhookURL, config.Verbose, config.FailedOnly))
+		payloadSenders = append(payloadSenders, NewWebhookSender(httpClient, config.WebhookURL, config.Verbose, config.MachineNotifySuccess))
 	}
 	if config.PushgatewayURL != "" {
-		payloadSenders = append(payloadSenders, NewPushgatewaySender(httpClient, config.PushgatewayURL, config.InstanceName, config.Verbose))
+		payloadSenders = append(payloadSenders, NewPushgatewaySender(httpClient, config.PushgatewayURL, config.InstanceName, config.Verbose, config.MachineNotifySuccess))
 	}
 
 	return &notifier{

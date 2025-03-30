@@ -11,24 +11,34 @@ import (
 )
 
 type apiSender struct {
-	httpClient  *http.Client
-	url         string
-	headerName  string
-	headerValue string
-	verbose     bool
+	httpClient    *http.Client
+	url           string
+	headerName    string
+	headerValue   string
+	verbose       bool
+	notifySuccess bool
 }
 
-func NewApiSender(httpClient *http.Client, url string, headerName string, headerValue string, verbose bool) *apiSender {
+func NewApiSender(httpClient *http.Client, url string, headerName string, headerValue string, verbose bool, notifySuccess bool) *apiSender {
 	return &apiSender{
 		httpClient,
 		url,
 		headerName,
 		headerValue,
 		verbose,
+		notifySuccess,
 	}
 }
 
+// TODO: Fix invalid header field name err when headers are not filled in but API used
 func (s *apiSender) send(m Results, failedCount int) error {
+	// If no checks failed and failedOnly is set to true, there is nothing to send
+	if failedCount == 0 && !s.notifySuccess {
+		if s.verbose {
+			log.Println("no sockets failed and notifySuccess == false, nothing will be sent to remote API")
+		}
+		return nil
+	}
 
 	jsonData, err := json.Marshal(m)
 	if err != nil {

@@ -10,25 +10,27 @@ import (
 )
 
 type webhookSender struct {
-	httpClient *http.Client
-	url        string
-	verbose    bool
-	failedOnly bool
+	httpClient    *http.Client
+	url           string
+	verbose       bool
+	notifySuccess bool
 }
 
-func NewWebhookSender(httpClient *http.Client, url string, verbose bool, failedOnly bool) *webhookSender {
+func NewWebhookSender(httpClient *http.Client, url string, verbose bool, notifySuccess bool) *webhookSender {
 	return &webhookSender{
 		httpClient,
 		url,
 		verbose,
-		failedOnly,
+		notifySuccess,
 	}
 }
 
 func (s *webhookSender) send(m Results, failedCount int) error {
-	// If there are no failed sockets and we only wish to be notified when they fail, there is nothing to do
-	if failedCount == 0 && s.failedOnly {
-		log.Printf("%T: no failed sockets and failedOnly == true, nothing will be sent", s)
+	// If no checks failed and failedOnly is set to true, there is nothing to send
+	if failedCount == 0 && !s.notifySuccess {
+		if s.verbose {
+			log.Printf("no sockets failed and notifySuccess == false, nothing will be sent to webhook")
+		}
 		return nil
 	}
 
