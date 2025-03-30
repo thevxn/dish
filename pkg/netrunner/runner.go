@@ -14,7 +14,7 @@ import (
 	"go.vxn.dev/dish/pkg/socket"
 )
 
-const agentVersion = "1.9"
+const agentVersion = "1.10"
 
 func TestSocket(sock socket.Socket, channel chan<- socket.Result, wg *sync.WaitGroup, timeoutSeconds uint, verbose bool) {
 	defer wg.Done()
