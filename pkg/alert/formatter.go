@@ -22,8 +22,11 @@ func FormatMessengerText(result socket.Result) string {
 	text += " -- " + status
 
 	if status == "failed" {
+		text += " \u274C" // ❌
 		text += " -- "
 		text += result.Error.Error()
+	} else {
+		text += " \u2705" // ✅
 	}
 
 	text += "\n"

@@ -19,7 +19,6 @@ const agentVersion = "1.9"
 func TestSocket(sock socket.Socket, channel chan<- socket.Result, wg *sync.WaitGroup, timeoutSeconds uint, verbose bool) {
 	defer wg.Done()
 
-	// TODO: move out?
 	regex, err := regexp.Compile("^(http|https)://")
 	if err != nil {
 		log.Printf("regex compilation failed: %v", err)

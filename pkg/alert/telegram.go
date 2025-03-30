@@ -1,4 +1,3 @@
-// TODO: Add comments (everywhere)
 package alert
 
 import (
@@ -10,7 +9,7 @@ import (
 )
 
 const baseURL = "https://api.telegram.org"
-const messageTitle = "<b>dish run results</b>:"
+const messageTitle = "\U0001F4E1 <b>dish run results</b>:"
 
 type telegramSender struct {
 	httpClient    *http.Client

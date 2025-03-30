@@ -93,8 +93,6 @@ func main() {
 	results := fanInChannels(channels...)
 	wg.Wait()
 
-	// TODO: add unicode chars for success & failure
-
 	// Collect results
 	for result := range results {
 		if !result.Passed || result.Error != nil {

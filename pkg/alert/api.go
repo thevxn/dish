@@ -30,7 +30,6 @@ func NewApiSender(httpClient *http.Client, url string, headerName string, header
 	}
 }
 
-// TODO: Fix invalid header field name err when headers are not filled in but API used
 func (s *apiSender) send(m Results, failedCount int) error {
 	// If no checks failed and failedOnly is set to true, there is nothing to send
 	if failedCount == 0 && !s.notifySuccess {
@@ -52,8 +51,6 @@ func (s *apiSender) send(m Results, failedCount int) error {
 
 	url := s.url
 
-	// TODO: move?
-	// TODO: also add to PGW, TG and webhooks?
 	regex, err := regexp.Compile("^(http|https)://")
 	if err != nil {
 		return err
@@ -61,7 +58,6 @@ func (s *apiSender) send(m Results, failedCount int) error {
 
 	match := regex.MatchString(url)
 	if !match {
-		// TODO: mention the protocol must be included?
 		return fmt.Errorf("invalid remote API URL, results have not been pushed")
 	}
 
