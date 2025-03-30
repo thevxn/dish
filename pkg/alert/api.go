@@ -36,8 +36,9 @@ func (s *apiSender) send(m Results, failedCount int) error {
 	}
 	bodyReader := bytes.NewReader(jsonData)
 
-	// TODO: remove or move to verbose or refactor?
-	log.Println(string(jsonData))
+	if s.verbose {
+		log.Printf("prepared remote API data: %v", string(jsonData))
+	}
 
 	url := s.url
 
