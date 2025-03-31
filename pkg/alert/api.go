@@ -68,7 +68,11 @@ func (s *apiSender) send(m Results, failedCount int) error {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set(s.headerName, s.headerValue)
+
+	// If custom header & value is provided (mostly used for auth purposes), include it in the request
+	if s.headerName != "" && s.headerValue != "" {
+		req.Header.Set(s.headerName, s.headerValue)
+	}
 
 	res, err := s.httpClient.Do(req)
 	if err != nil {
