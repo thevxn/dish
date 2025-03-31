@@ -29,6 +29,7 @@ go install go.vxn.dev/dish/cmd/dish@latest
 ```
 dish [FLAGS] SOURCE
 ```
+![dish run](.github/dish_run.png)
 
 ### Source
 
@@ -114,9 +115,6 @@ dish -telegramChatID "-123456789" \
 dish -target https://pushgw.example.com/ \
  https://api.example.com/dish/sockets
 ```
-
-Example run:
-![dish run](.github/dish_run.png)
 
 #### Using Docker
 
