@@ -7,7 +7,7 @@ services:
     image: ${DOCKER_IMAGE_TAG}
     container_name: ${DOCKER_DEV_CONTAINER}
     restart: "no"
-    command: "${APP_FLAGS}"
+    command: "${APP_FLAGS} ${SOURCE}"
     build:
       context: ..
       dockerfile: build/Dockerfile
@@ -15,5 +15,6 @@ services:
         ALPINE_VERSION: ${ALPINE_VERSION}
         APP_NAME: ${APP_NAME}
         APP_FLAGS: ${APP_FLAGS}
+        SOURCE: ${SOURCE}
         GOLANG_VERSION: ${GOLANG_VERSION}
 
