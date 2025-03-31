@@ -7,7 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"regexp"
+	"net/url"
 )
 
 type apiSender struct {
@@ -41,28 +41,30 @@ func (s *apiSender) send(m Results, failedCount int) error {
 
 	jsonData, err := json.Marshal(m)
 	if err != nil {
-		return nil
+		return fmt.Errorf("failed to marshal JSON: %w", err)
 	}
+
 	bodyReader := bytes.NewReader(jsonData)
 
 	if s.verbose {
 		log.Printf("prepared remote API data: %v", string(jsonData))
 	}
 
-	url := s.url
-
-	regex, err := regexp.Compile("^(http|https)://")
+	// Parse and validate the provided remote API url
+	parsedURL, err := url.Parse(s.url)
 	if err != nil {
-		return err
+		return fmt.Errorf("error parsing remote API url: %w", err)
 	}
 
-	match := regex.MatchString(url)
-	if !match {
-		return fmt.Errorf("invalid remote API URL, results have not been pushed")
+	if parsedURL.Scheme == "" {
+		return fmt.Errorf("the protocol must be specified in the remote API url (e.g. https://...)")
+	}
+	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
+		return fmt.Errorf("unsupported protocol for remote API provided: %s", parsedURL.Scheme)
 	}
 
 	// Push results
-	req, err := http.NewRequest(http.MethodPost, url, bodyReader)
+	req, err := http.NewRequest(http.MethodPost, parsedURL.String(), bodyReader)
 	if err != nil {
 		return err
 	}
