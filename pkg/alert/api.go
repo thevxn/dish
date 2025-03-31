@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"net/url"
 )
 
 type apiSender struct {
@@ -19,15 +18,20 @@ type apiSender struct {
 	notifySuccess bool
 }
 
-func NewApiSender(httpClient *http.Client, url string, headerName string, headerValue string, verbose bool, notifySuccess bool) *apiSender {
-	return &apiSender{
-		httpClient,
-		url,
-		headerName,
-		headerValue,
-		verbose,
-		notifySuccess,
+func NewApiSender(httpClient *http.Client, url string, headerName string, headerValue string, verbose bool, notifySuccess bool) (*apiSender, error) {
+	parsedURL, err := parseAndValidateURL(url, nil)
+	if err != nil {
+		return nil, err
 	}
+
+	return &apiSender{
+		httpClient:    httpClient,
+		url:           parsedURL.String(),
+		headerName:    headerName,
+		headerValue:   headerValue,
+		verbose:       verbose,
+		notifySuccess: notifySuccess,
+	}, nil
 }
 
 func (s *apiSender) send(m Results, failedCount int) error {
@@ -50,21 +54,8 @@ func (s *apiSender) send(m Results, failedCount int) error {
 		log.Printf("prepared remote API data: %v", string(jsonData))
 	}
 
-	// Parse and validate the provided remote API url
-	parsedURL, err := url.Parse(s.url)
-	if err != nil {
-		return fmt.Errorf("error parsing remote API url: %w", err)
-	}
-
-	if parsedURL.Scheme == "" {
-		return fmt.Errorf("the protocol must be specified in the remote API url (e.g. https://...)")
-	}
-	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
-		return fmt.Errorf("unsupported protocol for remote API provided: %s", parsedURL.Scheme)
-	}
-
 	// Push results
-	req, err := http.NewRequest(http.MethodPost, parsedURL.String(), bodyReader)
+	req, err := http.NewRequest(http.MethodPost, s.url, bodyReader)
 	if err != nil {
 		return err
 	}

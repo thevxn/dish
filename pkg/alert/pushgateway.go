@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 )
 
@@ -24,14 +25,19 @@ type pushgatewaySender struct {
 	notifySuccess bool
 }
 
-func NewPushgatewaySender(httpClient *http.Client, url string, instanceName string, verbose bool, notifySuccess bool) *pushgatewaySender {
-	return &pushgatewaySender{
-		httpClient,
-		url,
-		instanceName,
-		verbose,
-		notifySuccess,
+func NewPushgatewaySender(httpClient *http.Client, url string, instanceName string, verbose bool, notifySuccess bool) (*pushgatewaySender, error) {
+	parsedURL, err := parseAndValidateURL(url, nil)
+	if err != nil {
+		return nil, err
 	}
+
+	return &pushgatewaySender{
+		httpClient:    httpClient,
+		url:           parsedURL.String(),
+		instanceName:  instanceName,
+		verbose:       verbose,
+		notifySuccess: notifySuccess,
+	}, nil
 }
 
 // createMessage returns a string containing the message text in Pushgateway-specific format.
@@ -58,6 +64,20 @@ func (s *pushgatewaySender) send(_ Results, failedCount int) error {
 	msg := s.createMessage(failedCount)
 
 	bodyReader := bytes.NewReader([]byte(msg))
+
+	// Parse and validate the provided remote API url
+	parsedURL, err := url.Parse(s.url)
+	if err != nil {
+		return fmt.Errorf("error parsing remote API url: %w", err)
+	}
+
+	// Validate the parsed remote API url
+	if parsedURL.Scheme == "" {
+		return fmt.Errorf("the protocol must be specified in the remote API url (e.g. https://...)")
+	}
+	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
+		return fmt.Errorf("unsupported protocol for remote API provided: %s", parsedURL.Scheme)
+	}
 
 	formattedURL := s.url + "/metrics/job/" + jobName + "/instance/" + s.instanceName
 

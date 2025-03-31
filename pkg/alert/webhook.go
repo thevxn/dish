@@ -16,13 +16,18 @@ type webhookSender struct {
 	notifySuccess bool
 }
 
-func NewWebhookSender(httpClient *http.Client, url string, verbose bool, notifySuccess bool) *webhookSender {
-	return &webhookSender{
-		httpClient,
-		url,
-		verbose,
-		notifySuccess,
+func NewWebhookSender(httpClient *http.Client, url string, verbose bool, notifySuccess bool) (*webhookSender, error) {
+	parsedURL, err := parseAndValidateURL(url, nil)
+	if err != nil {
+		return nil, err
 	}
+
+	return &webhookSender{
+		httpClient:    httpClient,
+		url:           parsedURL.String(),
+		verbose:       verbose,
+		notifySuccess: notifySuccess,
+	}, nil
 }
 
 func (s *webhookSender) send(m Results, failedCount int) error {
