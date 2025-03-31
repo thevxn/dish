@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -47,22 +48,22 @@ func fanInChannels(channels ...chan socket.Result) <-chan socket.Result {
 }
 
 func main() {
-	config, err := config.NewConfig(flag.CommandLine, os.Args[1:])
+	cfg, err := config.NewConfig(flag.CommandLine, os.Args[1:])
 	if err != nil {
+		// If the error is caused due to no source being provided, print help
+		if errors.Is(err, config.ErrNoSourceProvided) {
+			printHelp()
+			os.Exit(1)
+		}
+		// Otherwise, print the errror
 		log.Print("error loading config: ", err)
 		return
-	}
-
-	// If no socket source arg is provided, print help and exit
-	if config.Source == "" {
-		printHelp()
-		os.Exit(1)
 	}
 
 	log.Println("dish run: started")
 
 	// Load socket list to run tests on
-	list, err := socket.FetchSocketList(config.Source, config.ApiHeaderName, config.ApiHeaderValue, config.Verbose)
+	list, err := socket.FetchSocketList(cfg.Source, cfg.ApiHeaderName, cfg.ApiHeaderValue, cfg.Verbose)
 	if err != nil {
 		log.Print("error loading socket list: ", err)
 		return
@@ -85,7 +86,7 @@ func main() {
 		wg.Add(1)
 		channels[i] = make(chan socket.Result)
 
-		go netrunner.TestSocket(sock, channels[i], &wg, config.TimeoutSeconds, config.Verbose)
+		go netrunner.TestSocket(sock, channels[i], &wg, cfg.TimeoutSeconds, cfg.Verbose)
 		i++
 	}
 
@@ -98,13 +99,13 @@ func main() {
 		if !result.Passed || result.Error != nil {
 			failedCount++
 		}
-		if !result.Passed || config.TextNotifySuccess {
+		if !result.Passed || cfg.TextNotifySuccess {
 			messengerText += alert.FormatMessengerText(result)
 		}
 		resultsToPush.Map[result.Socket.ID] = result.Passed
 	}
 
-	alert.HandleAlerts(messengerText, resultsToPush, failedCount, config)
+	alert.HandleAlerts(messengerText, resultsToPush, failedCount, cfg)
 
 	if failedCount > 0 {
 		log.Println("dish run: some tests failed")

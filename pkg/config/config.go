@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 )
@@ -36,6 +37,8 @@ const (
 	defaultTextNotifySuccess    = false
 	defaultMachineNotifySuccess = false
 )
+
+var ErrNoSourceProvided = errors.New("no source provided")
 
 // defineFlags defines flags on the provided FlagSet. The values of the flags are stored in the provided Config when parsed.
 func defineFlags(fs *flag.FlagSet, cfg *Config) {
@@ -96,11 +99,12 @@ func NewConfig(fs *flag.FlagSet, args []string) (*Config, error) {
 	// Parse args
 	parsedArgs := flag.CommandLine.Args()
 
-	// If source is provided, set it on the Config
-	// If it is not provided, it needs to be handled in the caller
-	if len(parsedArgs) > 0 {
-		cfg.Source = parsedArgs[0]
+	// If no source is provided, return an error
+	if len(parsedArgs) == 0 {
+		return nil, ErrNoSourceProvided
 	}
+	// Otherwise, store the source in the config
+	cfg.Source = parsedArgs[0]
 
 	return cfg, nil
 }
