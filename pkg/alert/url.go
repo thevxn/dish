@@ -20,13 +20,13 @@ func parseAndValidateURL(rawURL string, supportedSchemes []string) (*url.URL, er
 		supportedSchemes = defaultSchemes
 	}
 
-	// Parse the remote API url
+	// Parse the provided URL
 	parsedURL, err := url.ParseRequestURI(rawURL)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing URL: %w", err)
 	}
 
-	// Validate the parsed url
+	// Validate the parsed URL
 	switch {
 	case parsedURL.Scheme == "":
 		return nil, fmt.Errorf("protocol must be specified in the provided URL (e.g. https://...)")
