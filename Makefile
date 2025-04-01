@@ -101,8 +101,9 @@ stop:
 	@docker compose -f ${COMPOSE_FILE} down
 
 test:
-	@echo -e "\n${YELLOW} [local] Running unit tests (go test)... ${RESET}\n"
-	@go test ./...
+	@go test -v -coverprofile cover.out ./...
+	@go tool cover -html cover.out -o cover.html
+	@open cover.html
 
 push: 
 	@git tag -fa 'v${APP_VERSION}' -m 'v${APP_VERSION}'
