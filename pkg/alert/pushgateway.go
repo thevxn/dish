@@ -6,7 +6,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"net/url"
 	"strconv"
 )
 
@@ -53,10 +52,10 @@ func (s *pushgatewaySender) createMessage(failedCount int) string {
 //
 // The first argument is needed to implement the MachineNotifier interface, however, it is ignored in favor of a custom message implementation via the createMessage method.
 func (s *pushgatewaySender) send(_ Results, failedCount int) error {
-	// If no checks failed and failedOnly is set to true, there is nothing to send
+	// If no checks failed and success should not be notified, there is nothing to send
 	if failedCount == 0 && !s.notifySuccess {
 		if s.verbose {
-			log.Println("no sockets failed and notifySuccess == false, nothing will be sent to Pushgateway")
+			log.Println("no sockets failed, nothing will be sent to Pushgateway")
 		}
 		return nil
 	}
@@ -64,20 +63,6 @@ func (s *pushgatewaySender) send(_ Results, failedCount int) error {
 	msg := s.createMessage(failedCount)
 
 	bodyReader := bytes.NewReader([]byte(msg))
-
-	// Parse and validate the provided remote API url
-	parsedURL, err := url.Parse(s.url)
-	if err != nil {
-		return fmt.Errorf("error parsing remote API url: %w", err)
-	}
-
-	// Validate the parsed remote API url
-	if parsedURL.Scheme == "" {
-		return fmt.Errorf("the protocol must be specified in the remote API url (e.g. https://...)")
-	}
-	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
-		return fmt.Errorf("unsupported protocol for remote API provided: %s", parsedURL.Scheme)
-	}
 
 	formattedURL := s.url + "/metrics/job/" + jobName + "/instance/" + s.instanceName
 
