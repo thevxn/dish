@@ -1,8 +1,8 @@
 package socket
 
 import (
+	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"regexp"
@@ -38,12 +38,10 @@ func fetchRemoteStream(url string, apiHeaderName string, apiHeaderValue string) 
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		log.Fatalf("error fetching sockets from remote source --- got %d (%s)", resp.StatusCode, resp.Status)
+		return nil, fmt.Errorf("error fetching sockets from remote source --- got %d (%s)", resp.StatusCode, resp.Status)
 	}
 
-	body := resp.Body
-
-	return body, nil
+	return resp.Body, nil
 }
 
 // fetchFileStream opens a file and returns [io.ReadCloser] for reading from and closing the stream.
