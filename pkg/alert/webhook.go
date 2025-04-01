@@ -31,10 +31,10 @@ func NewWebhookSender(httpClient *http.Client, url string, verbose bool, notifyS
 }
 
 func (s *webhookSender) send(m Results, failedCount int) error {
-	// If no checks failed and failedOnly is set to true, there is nothing to send
+	// If no checks failed and success should not be notified, there is nothing to send
 	if failedCount == 0 && !s.notifySuccess {
 		if s.verbose {
-			log.Printf("no sockets failed and notifySuccess == false, nothing will be sent to webhook")
+			log.Printf("no sockets failed, nothing will be sent to webhook")
 		}
 		return nil
 	}
@@ -45,7 +45,7 @@ func (s *webhookSender) send(m Results, failedCount int) error {
 	}
 
 	if s.verbose {
-		log.Printf("prepared webhook data: %v", string(jsonData))
+		log.Printf("prepared webhook data: %s", string(jsonData))
 	}
 
 	res, err := s.httpClient.Post(s.url, "application/json", bytes.NewBuffer(jsonData))

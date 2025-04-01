@@ -30,10 +30,10 @@ func NewTelegramSender(httpClient *http.Client, chatID string, token string, ver
 }
 
 func (s *telegramSender) send(rawMessage string, failedCount int) error {
-	// If no checks failed and failedOnly is set to true, there is nothing to send
+	// If no checks failed and success should not be notified, there is nothing to send
 	if failedCount == 0 && !s.notifySuccess {
 		if s.verbose {
-			log.Printf("no sockets failed and notifySuccess == false, nothing will be sent to Telegram")
+			log.Printf("no sockets failed, nothing will be sent to Telegram")
 		}
 		return nil
 	}

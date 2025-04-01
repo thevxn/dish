@@ -35,10 +35,10 @@ func NewApiSender(httpClient *http.Client, url string, headerName string, header
 }
 
 func (s *apiSender) send(m Results, failedCount int) error {
-	// If no checks failed and failedOnly is set to true, there is nothing to send
+	// If no checks failed and success should not be notified, there is nothing to send
 	if failedCount == 0 && !s.notifySuccess {
 		if s.verbose {
-			log.Println("no sockets failed and notifySuccess == false, nothing will be sent to remote API")
+			log.Println("no sockets failed, nothing will be sent to remote API")
 		}
 		return nil
 	}
@@ -51,7 +51,7 @@ func (s *apiSender) send(m Results, failedCount int) error {
 	bodyReader := bytes.NewReader(jsonData)
 
 	if s.verbose {
-		log.Printf("prepared remote API data: %v", string(jsonData))
+		log.Printf("prepared remote API data: %s", string(jsonData))
 	}
 
 	// Push results
