@@ -72,17 +72,17 @@ func TestFetchSocketList(t *testing.T) {
 
 			if tt.wantErr {
 				if err == nil {
-					t.Fatalf("expected error but got none")
+					t.Error("expected error but got none")
 				}
 				return
 			}
 
 			if err != nil {
-				t.Fatalf("unexpected error: %v", err)
+				t.Errorf("unexpected error: %v", err)
 			}
 
 			if len(list.Sockets) != tt.expectLen {
-				t.Fatalf("expected %d sockets, got %d", tt.expectLen, len(list.Sockets))
+				t.Errorf("expected %d sockets, got %d", tt.expectLen, len(list.Sockets))
 			}
 		})
 	}

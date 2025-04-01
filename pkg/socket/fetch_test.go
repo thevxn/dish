@@ -29,7 +29,7 @@ func TestFetchRemoteStream(t *testing.T) {
 	expectedHeaderName := "Authorization"
 	expectedHeaderValue := "Bearer [JWT TOKEN]"
 
-	// simulate valid response
+	// Simulate valid response
 	testServerValid := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		gotHeaderValue := r.Header.Get(expectedHeaderName)
 		if gotHeaderValue != expectedHeaderValue {
@@ -41,7 +41,7 @@ func TestFetchRemoteStream(t *testing.T) {
 	}))
 	defer testServerValid.Close()
 
-	// simulate invalid response
+	// Simulate invalid response
 	testServerInvalid := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid request", http.StatusBadRequest)
 	}))
@@ -55,21 +55,21 @@ func TestFetchRemoteStream(t *testing.T) {
 		wantErr     bool
 	}{
 		{
-			name:        "successful request",
+			name:        "Successful Request",
 			url:         testServerValid.URL,
 			headerName:  "Authorization",
 			headerValue: "Bearer [JWT TOKEN]",
 			wantErr:     false,
 		},
 		{
-			name:        "missing auth header",
+			name:        "Missing Auth Header",
 			url:         testServerValid.URL,
 			headerName:  "",
 			headerValue: "",
 			wantErr:     true,
 		},
 		{
-			name:        "invalid request",
+			name:        "Invalid Request",
 			url:         testServerInvalid.URL,
 			headerName:  "",
 			headerValue: "",
@@ -82,9 +82,9 @@ func TestFetchRemoteStream(t *testing.T) {
 			_, err := fetchRemoteStream(tt.url, tt.headerName, tt.headerValue)
 
 			if tt.wantErr && err == nil {
-				t.Fatalf("expected an error but got none")
+				t.Error("expected an error but got none")
 			} else if !tt.wantErr && err != nil {
-				t.Fatalf("unexpected error: %v", err)
+				t.Errorf("unexpected error: %v", err)
 			}
 		})
 	}
@@ -101,12 +101,12 @@ func TestFetchFileStream(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:    "valid file path",
+			name:    "Valid File Path",
 			path:    testFile,
 			wantErr: false,
 		},
 		{
-			name:    "invalid file path",
+			name:    "Invalid File Path",
 			path:    "non_existent.json",
 			wantErr: true,
 		},
@@ -118,7 +118,7 @@ func TestFetchFileStream(t *testing.T) {
 
 			if tt.wantErr {
 				if err == nil {
-					t.Fatalf("expected an error but got none")
+					t.Error("expected an error but got none")
 				}
 				return
 			}
@@ -130,14 +130,14 @@ func TestFetchFileStream(t *testing.T) {
 			defer reader.Close()
 			body, _ := io.ReadAll(reader)
 			if string(body) != testContent {
-				t.Fatalf("expected %s but got %s", testContent, body)
+				t.Errorf("expected %s but got %s", testContent, body)
 			}
 		})
 	}
 }
 
 func TestGetStreamFromPath(t *testing.T) {
-	// this tests only valid sources
+	// This tests only valid sources
 	testContent := "testdata"
 	testFile := CreateTempFile(t, testContent)
 	defer os.Remove(testFile)
@@ -157,13 +157,13 @@ func TestGetStreamFromPath(t *testing.T) {
 		wantErr     bool
 	}{
 		{
-			name:     "path is filepath",
+			name:     "Path is Filepath",
 			input:    testFile,
 			expected: testContent,
 			wantErr:  false,
 		},
 		{
-			name:     "path is url",
+			name:     "Path is URL",
 			input:    testServer.URL,
 			expected: testContent,
 			wantErr:  false,
@@ -176,7 +176,7 @@ func TestGetStreamFromPath(t *testing.T) {
 
 			if tt.wantErr {
 				if err == nil {
-					t.Fatalf("expected an error but got none")
+					t.Error("expected an error but got none")
 				}
 				return
 			}
@@ -188,7 +188,7 @@ func TestGetStreamFromPath(t *testing.T) {
 			defer reader.Close()
 			body, _ := io.ReadAll(reader)
 			if string(body) != tt.expected {
-				t.Fatalf("expected %s but got %s", tt.expected, body)
+				t.Errorf("expected %s but got %s", tt.expected, body)
 			}
 		})
 	}
