@@ -26,7 +26,6 @@ const (
 	defaultInstanceName         = "generic-dish"
 	defaultApiHeaderName        = ""
 	defaultApiHeaderValue       = ""
-	defaultSource               = ""
 	defaultVerbose              = false
 	defaultPushgatewayURL       = ""
 	defaultTelegramBotToken     = ""
@@ -79,7 +78,6 @@ func NewConfig(fs *flag.FlagSet, args []string) (*Config, error) {
 		InstanceName:     defaultInstanceName,
 		ApiHeaderName:    defaultApiHeaderName,
 		ApiHeaderValue:   defaultApiHeaderValue,
-		Source:           defaultSource,
 		Verbose:          defaultVerbose,
 		PushgatewayURL:   defaultPushgatewayURL,
 		TelegramBotToken: defaultTelegramBotToken,
