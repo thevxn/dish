@@ -29,6 +29,7 @@ go install go.vxn.dev/dish/cmd/dish@latest
 ```
 dish [FLAGS] SOURCE
 ```
+
 ![dish run](.github/dish_run.png)
 
 ### Source
@@ -131,7 +132,7 @@ make run
 
 # Run using native docker run
 docker run --rm \
- dish:1.10.1-go1.24 \
+ dish:1.10.2-go1.24 \
  -verbose \
  -target https://pushgateway.example.com \
  https://api.example.com
@@ -155,7 +156,7 @@ SOURCE_URL=https://api.example.com/dish/sockets
 UPDATE_URL=https://api.example.com/dish/sockets/results
 TARGET_URL=https://pushgw.example.com
 
-DISH_TAG=dish:1.10.1-go1.24
+DISH_TAG=dish:1.10.2-go1.24
 INSTANCE_NAME=tiny-dish
 
 API_TOKEN=AbCd
