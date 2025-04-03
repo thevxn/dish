@@ -63,10 +63,15 @@ func main() {
 	log.Println("dish run: started")
 
 	// Load socket list to run tests on
-	list, err := socket.FetchSocketList(cfg.Source, cfg.ApiHeaderName, cfg.ApiHeaderValue, cfg.Verbose)
+	list, err := socket.FetchSocketList(cfg.Source, cfg.ApiCacheSockets, cfg.ApiCacheDirectory, cfg.ApiCacheTTLHours, cfg.ApiHeaderName, cfg.ApiHeaderValue)
 	if err != nil {
 		log.Print("error loading socket list: ", err)
 		return
+	}
+
+	// Print loaded sockets if flag is set in cfg
+	if cfg.Verbose {
+		socket.PrintSockets(list)
 	}
 
 	var (

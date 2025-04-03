@@ -1,6 +1,7 @@
 .env
 .vscode/*
 vendor/*
+cache/
 
 # binaries
 /bin
@@ -8,3 +9,4 @@ vendor/*
 main
 *.exe
 cover*
+

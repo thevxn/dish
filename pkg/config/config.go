@@ -10,6 +10,9 @@ type Config struct {
 	InstanceName         string
 	ApiHeaderName        string
 	ApiHeaderValue       string
+	ApiCacheSockets      bool
+	ApiCacheDirectory    string
+	ApiCacheTTLHours     uint
 	Source               string
 	Verbose              bool
 	PushgatewayURL       string
@@ -26,6 +29,9 @@ const (
 	defaultInstanceName         = "generic-dish"
 	defaultApiHeaderName        = ""
 	defaultApiHeaderValue       = ""
+	defaultApiCacheSockets      = false
+	defaultApiCacheDir          = "cache"
+	defaultApiCacheTTLHours     = 24
 	defaultVerbose              = false
 	defaultPushgatewayURL       = ""
 	defaultTelegramBotToken     = ""
@@ -55,6 +61,9 @@ func defineFlags(fs *flag.FlagSet, cfg *Config) {
 	// API socket source:
 	fs.StringVar(&cfg.ApiHeaderName, "hname", defaultApiHeaderName, "a string, custom additional header name")
 	fs.StringVar(&cfg.ApiHeaderValue, "hvalue", defaultApiHeaderValue, "a string, custom additional header value")
+	fs.BoolVar(&cfg.ApiCacheSockets, "cache", defaultApiCacheSockets, "a bool, specifies whether to cache fetched socket list from API")
+	fs.StringVar(&cfg.ApiCacheDirectory, "cacheDir", defaultApiCacheDir, "a string, specifies cache directory for API socket lists")
+	fs.UintVar(&cfg.ApiCacheTTLHours, "cacheTTL", defaultApiCacheTTLHours, "an int, time duration (in hours) for which the cached file is valid")
 
 	// Pushgateway:
 	fs.StringVar(&cfg.PushgatewayURL, "target", defaultPushgatewayURL, "a string, result update path/URL to pushgateway, plaintext/byte output")
@@ -75,16 +84,18 @@ func defineFlags(fs *flag.FlagSet, cfg *Config) {
 // If a flag is used for a supported config parameter, the config parameter's value is set according to the provided flag. Otherwise, a default value is used for the given parameter.
 func NewConfig(fs *flag.FlagSet, args []string) (*Config, error) {
 	cfg := &Config{
-		InstanceName:     defaultInstanceName,
-		ApiHeaderName:    defaultApiHeaderName,
-		ApiHeaderValue:   defaultApiHeaderValue,
-		Verbose:          defaultVerbose,
-		PushgatewayURL:   defaultPushgatewayURL,
-		TelegramBotToken: defaultTelegramBotToken,
-		TelegramChatID:   defaultTelegramChatID,
-		TimeoutSeconds:   defaultTimeoutSeconds,
-		ApiURL:           defaultApiURL,
-		WebhookURL:       defaultWebhookURL,
+		InstanceName:      defaultInstanceName,
+		ApiHeaderName:     defaultApiHeaderName,
+		ApiHeaderValue:    defaultApiHeaderValue,
+		ApiCacheSockets:   defaultApiCacheSockets,
+		ApiCacheDirectory: defaultApiCacheDir,
+		Verbose:           defaultVerbose,
+		PushgatewayURL:    defaultPushgatewayURL,
+		TelegramBotToken:  defaultTelegramBotToken,
+		TelegramChatID:    defaultTelegramChatID,
+		TimeoutSeconds:    defaultTimeoutSeconds,
+		ApiURL:            defaultApiURL,
+		WebhookURL:        defaultWebhookURL,
 	}
 
 	defineFlags(fs, cfg)
