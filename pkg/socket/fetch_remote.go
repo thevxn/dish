@@ -18,8 +18,17 @@ import (
 // Example url: http://api.example.com:5569/stream?query=variable
 func fetchSocketsFromRemote(url string, cacheSockets bool, cacheDir string, cacheTTL uint, apiHeaderName string, apiHeaderValue string) (io.ReadCloser, error) {
 	cacheFilePath := hashUrlToFilePath(url, cacheDir)
+
+	// TODO:
+	//  We should first try to check if we already have a cache file for the provided url:
+	// 	- If we do and the TTL is not expired, use sockets from the cache.
+	// 	- If we do and the TTL is expired, attempt to fetch fresh ones from network and refresh the cache with them.
+	// 	  - If the fetch from network fails, use the cached sockets even though their TTL is expired (log a warning).
+	//  - If we do not, attempt to fetch from network. If it fails, there is nothing we can do, return an error.
+
 	respBody, err := attemptFetchFromNetwork(url, apiHeaderName, apiHeaderValue)
 	if err != nil {
+		// TODO: Even if cacheSockets is false, they are loaded from cache here. If cacheSockets is false, it should behave as before (return the error from attemptFetchFromNetwork).
 		return loadSocketsFromCache(cacheFilePath, cacheTTL)
 	}
 
@@ -30,10 +39,11 @@ func fetchSocketsFromRemote(url string, cacheSockets bool, cacheDir string, cach
 			return nil, err
 		}
 
+		// TODO: I do not think it is needed to load sockets from the cache because we still have the respBody at our disposal. Loading them from the cache is an unneccessary operation here and it would be more efficient to just return the respBody (line 38). Therefore this line can probably be deleted?
 		return loadSocketsFromCache(cacheFilePath, cacheTTL)
 	}
 
-	// If we don't want to cache sockets to the file, return response body
+	// If we do not want to cache sockets to the file, return response body
 	return respBody, nil
 }
 

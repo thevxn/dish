@@ -42,6 +42,7 @@ func loadSocketsFromCache(filePath string, cacheTTL uint) (io.ReadCloser, error)
 	if err != nil {
 		return nil, err
 	} else if time.Since(info.ModTime()) > time.Duration(cacheTTL)*time.Hour {
+		// TODO: Maybe return a sentinel error (something like ErrOutdatedCache) so that it can be caught upstream and only logged as a warning or decided whether to use outdated cache anyway (if there is an error fetching fresh sockets from the remote)
 		return nil, fmt.Errorf("cache for this source is outdated (%s)", filePath)
 	}
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 )
 
+// TODO: Please change ApiCacheTTLHours from hours to minutes. If we for example add a new socket to be monitored to our remote API endpoint, we do not want to wait up to 24 hours for it to be monitored or have to clear the cache manually.
 type Config struct {
 	InstanceName         string
 	ApiHeaderName        string
