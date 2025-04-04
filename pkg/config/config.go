@@ -6,14 +6,13 @@ import (
 	"fmt"
 )
 
-// TODO: Please change ApiCacheTTLHours from hours to minutes. If we for example add a new socket to be monitored to our remote API endpoint, we do not want to wait up to 24 hours for it to be monitored or have to clear the cache manually.
 type Config struct {
 	InstanceName         string
 	ApiHeaderName        string
 	ApiHeaderValue       string
 	ApiCacheSockets      bool
 	ApiCacheDirectory    string
-	ApiCacheTTLHours     uint
+	ApiCacheTTLMinutes   uint
 	Source               string
 	Verbose              bool
 	PushgatewayURL       string
@@ -32,7 +31,7 @@ const (
 	defaultApiHeaderValue       = ""
 	defaultApiCacheSockets      = false
 	defaultApiCacheDir          = "cache"
-	defaultApiCacheTTLHours     = 24
+	defaultApiCacheTTLMinutes   = 10
 	defaultVerbose              = false
 	defaultPushgatewayURL       = ""
 	defaultTelegramBotToken     = ""
@@ -64,7 +63,7 @@ func defineFlags(fs *flag.FlagSet, cfg *Config) {
 	fs.StringVar(&cfg.ApiHeaderValue, "hvalue", defaultApiHeaderValue, "a string, custom additional header value")
 	fs.BoolVar(&cfg.ApiCacheSockets, "cache", defaultApiCacheSockets, "a bool, specifies whether to cache fetched socket list from API")
 	fs.StringVar(&cfg.ApiCacheDirectory, "cacheDir", defaultApiCacheDir, "a string, specifies cache directory for API socket lists")
-	fs.UintVar(&cfg.ApiCacheTTLHours, "cacheTTL", defaultApiCacheTTLHours, "an int, time duration (in hours) for which the cached file is valid")
+	fs.UintVar(&cfg.ApiCacheTTLMinutes, "cacheTTL", defaultApiCacheTTLMinutes, "an int, time duration (in minutes) for which the cached file is valid")
 
 	// Pushgateway:
 	fs.StringVar(&cfg.PushgatewayURL, "target", defaultPushgatewayURL, "a string, result update path/URL to pushgateway, plaintext/byte output")
@@ -85,25 +84,26 @@ func defineFlags(fs *flag.FlagSet, cfg *Config) {
 // If a flag is used for a supported config parameter, the config parameter's value is set according to the provided flag. Otherwise, a default value is used for the given parameter.
 func NewConfig(fs *flag.FlagSet, args []string) (*Config, error) {
 	cfg := &Config{
-		InstanceName:      defaultInstanceName,
-		ApiHeaderName:     defaultApiHeaderName,
-		ApiHeaderValue:    defaultApiHeaderValue,
-		ApiCacheSockets:   defaultApiCacheSockets,
-		ApiCacheDirectory: defaultApiCacheDir,
-		Verbose:           defaultVerbose,
-		PushgatewayURL:    defaultPushgatewayURL,
-		TelegramBotToken:  defaultTelegramBotToken,
-		TelegramChatID:    defaultTelegramChatID,
-		TimeoutSeconds:    defaultTimeoutSeconds,
-		ApiURL:            defaultApiURL,
-		WebhookURL:        defaultWebhookURL,
+		InstanceName:       defaultInstanceName,
+		ApiHeaderName:      defaultApiHeaderName,
+		ApiHeaderValue:     defaultApiHeaderValue,
+		ApiCacheSockets:    defaultApiCacheSockets,
+		ApiCacheDirectory:  defaultApiCacheDir,
+		ApiCacheTTLMinutes: defaultApiCacheTTLMinutes,
+		Verbose:            defaultVerbose,
+		PushgatewayURL:     defaultPushgatewayURL,
+		TelegramBotToken:   defaultTelegramBotToken,
+		TelegramChatID:     defaultTelegramChatID,
+		TimeoutSeconds:     defaultTimeoutSeconds,
+		ApiURL:             defaultApiURL,
+		WebhookURL:         defaultWebhookURL,
 	}
 
 	defineFlags(fs, cfg)
 
 	// Parse flags
 	if err := fs.Parse(args); err != nil {
-		return nil, fmt.Errorf("error parsing flags: %v", err)
+		return nil, fmt.Errorf("error parsing flags: %w", err)
 	}
 
 	// Parse args

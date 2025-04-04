@@ -3,12 +3,14 @@ package socket
 import (
 	"crypto/sha1"
 	"encoding/hex"
-	"fmt"
+	"errors"
 	"io"
 	"os"
 	"path/filepath"
 	"time"
 )
+
+var ErrExpiredCache error = errors.New("cache file for this source is outdated")
 
 // hashUrlToFilePath hashes given URL to create cache file path.
 func hashUrlToFilePath(url string, cacheDir string) string {
@@ -36,15 +38,21 @@ func saveSocketsToCache(filePath string, cacheDir string, reader io.ReadCloser) 
 	return err
 }
 
-// loadSocketsFromCache checks if cache is valid (TTL left) and returns data stream.
+// loadSocketsFromCache checks if cache is not expired and returns data stream.
 func loadSocketsFromCache(filePath string, cacheTTL uint) (io.ReadCloser, error) {
 	info, err := os.Stat(filePath)
 	if err != nil {
 		return nil, err
-	} else if time.Since(info.ModTime()) > time.Duration(cacheTTL)*time.Hour {
-		// TODO: Maybe return a sentinel error (something like ErrOutdatedCache) so that it can be caught upstream and only logged as a warning or decided whether to use outdated cache anyway (if there is an error fetching fresh sockets from the remote)
-		return nil, fmt.Errorf("cache for this source is outdated (%s)", filePath)
 	}
 
-	return os.Open(filePath)
+	reader, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	if time.Since(info.ModTime()) > time.Duration(cacheTTL)*time.Minute {
+		return reader, ErrExpiredCache
+	}
+
+	return reader, nil
 }

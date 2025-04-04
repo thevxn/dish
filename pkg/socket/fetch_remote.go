@@ -1,8 +1,10 @@
 package socket
 
 import (
+	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 )
 
@@ -19,39 +21,52 @@ import (
 func fetchSocketsFromRemote(url string, cacheSockets bool, cacheDir string, cacheTTL uint, apiHeaderName string, apiHeaderValue string) (io.ReadCloser, error) {
 	cacheFilePath := hashUrlToFilePath(url, cacheDir)
 
-	// TODO:
-	//  We should first try to check if we already have a cache file for the provided url:
-	// 	- If we do and the TTL is not expired, use sockets from the cache.
-	// 	- If we do and the TTL is expired, attempt to fetch fresh ones from network and refresh the cache with them.
-	// 	  - If the fetch from network fails, use the cached sockets even though their TTL is expired (log a warning).
-	//  - If we do not, attempt to fetch from network. If it fails, there is nothing we can do, return an error.
-
-	respBody, err := attemptFetchFromNetwork(url, apiHeaderName, apiHeaderValue)
-	if err != nil {
-		// TODO: Even if cacheSockets is false, they are loaded from cache here. If cacheSockets is false, it should behave as before (return the error from attemptFetchFromNetwork).
-		return loadSocketsFromCache(cacheFilePath, cacheTTL)
-	}
-
-	// Caches response to the file
+	// Cache feature
 	if cacheSockets {
-		err := saveSocketsToCache(cacheFilePath, cacheDir, respBody)
+		reader, err := loadSocketsFromCache(cacheFilePath, cacheTTL)
+		// Attempt to fetch fresh sockets if cache is expired
 		if err != nil {
-			return nil, err
+			if err == ErrExpiredCache {
+				log.Printf("Cache expired for URL: %s. Attempting network fetch.\n", url)
+			} else {
+				log.Printf("Failed to load cache for URL: %s. Attempting network fetch.\n", url)
+			}
+
+			// Fetch fresh sockets from network (returns expired cache on fail)
+			respBody, err := attemptFetchFromNetwork(url, apiHeaderName, apiHeaderValue)
+			if err != nil {
+				log.Printf("Network fetch failed for URL: %s. Using expired cache. Error: %v\n", url, err)
+				return reader, nil
+			}
+
+			// Use io.TeeReader to save to cache and return reader from function
+			var buffer bytes.Buffer
+			teeReader := io.TeeReader(respBody, &buffer)
+
+			// Save the response body to cache
+			if err := saveSocketsToCache(cacheFilePath, cacheDir, io.NopCloser(teeReader)); err != nil {
+				return nil, fmt.Errorf("failed to save fetched sockets to cache: %w", err)
+			}
+
+			log.Println("Successfully cached sockets from", url)
+
+			// Return respBody as buffer from teeReader
+			return io.NopCloser(&buffer), nil
 		}
 
-		// TODO: I do not think it is needed to load sockets from the cache because we still have the respBody at our disposal. Loading them from the cache is an unneccessary operation here and it would be more efficient to just return the respBody (line 38). Therefore this line can probably be deleted?
-		return loadSocketsFromCache(cacheFilePath, cacheTTL)
+		// Cache is valid (not expired, no error from file read)
+		return reader, err
 	}
 
-	// If we do not want to cache sockets to the file, return response body
-	return respBody, nil
+	// If we do not want to cache sockets to the file, fetch from network
+	return attemptFetchFromNetwork(url, apiHeaderName, apiHeaderValue)
 }
 
 // attemptFetchFromNetwork tries to fetch sockets from the remote source.
 func attemptFetchFromNetwork(url string, apiHeaderName string, apiHeaderValue string) (io.ReadCloser, error) {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
 	}
 
 	client := &http.Client{}
@@ -63,11 +78,11 @@ func attemptFetchFromNetwork(url string, apiHeaderName string, apiHeaderValue st
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("network request failed: %w", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("error fetching sockets from remote source --- got %d (%s)", resp.StatusCode, resp.Status)
+		return nil, fmt.Errorf("failed to fetch sockets from remote source --- got %d (%s)", resp.StatusCode, resp.Status)
 	}
 
 	return resp.Body, nil

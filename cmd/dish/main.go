@@ -63,7 +63,7 @@ func main() {
 	log.Println("dish run: started")
 
 	// Load socket list to run tests on
-	list, err := socket.FetchSocketList(cfg.Source, cfg.ApiCacheSockets, cfg.ApiCacheDirectory, cfg.ApiCacheTTLHours, cfg.ApiHeaderName, cfg.ApiHeaderValue)
+	list, err := socket.FetchSocketList(cfg.Source, cfg.ApiCacheSockets, cfg.ApiCacheDirectory, cfg.ApiCacheTTLMinutes, cfg.ApiHeaderName, cfg.ApiHeaderValue)
 	if err != nil {
 		log.Print("error loading socket list: ", err)
 		return
