@@ -10,7 +10,7 @@ import (
 )
 
 type apiSender struct {
-	httpClient    *http.Client
+	httpClient    HTTPClient
 	url           string
 	headerName    string
 	headerValue   string
@@ -18,7 +18,7 @@ type apiSender struct {
 	notifySuccess bool
 }
 
-func NewApiSender(httpClient *http.Client, url string, headerName string, headerValue string, verbose bool, notifySuccess bool) (*apiSender, error) {
+func NewApiSender(httpClient HTTPClient, url string, headerName string, headerValue string, verbose bool, notifySuccess bool) (*apiSender, error) {
 	parsedURL, err := parseAndValidateURL(url, nil)
 	if err != nil {
 		return nil, err

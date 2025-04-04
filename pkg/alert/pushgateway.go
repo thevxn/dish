@@ -17,14 +17,14 @@ const (
 )
 
 type pushgatewaySender struct {
-	httpClient    *http.Client
+	httpClient    HTTPClient
 	url           string
 	instanceName  string
 	verbose       bool
 	notifySuccess bool
 }
 
-func NewPushgatewaySender(httpClient *http.Client, url string, instanceName string, verbose bool, notifySuccess bool) (*pushgatewaySender, error) {
+func NewPushgatewaySender(httpClient HTTPClient, url string, instanceName string, verbose bool, notifySuccess bool) (*pushgatewaySender, error) {
 	parsedURL, err := parseAndValidateURL(url, nil)
 	if err != nil {
 		return nil, err

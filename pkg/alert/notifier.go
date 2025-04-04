@@ -2,6 +2,7 @@ package alert
 
 import (
 	"errors"
+	"io"
 	"log"
 	"net/http"
 
@@ -25,8 +26,14 @@ type notifier struct {
 	machineNotifiers []MachineNotifier
 }
 
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
+	Get(url string) (*http.Response, error)
+	Post(url string, contentType string, body io.Reader) (*http.Response, error)
+}
+
 // NewNotifier creates a new instance of notifier. Based on the flags used, it spawns new instances of ChatNotifiers (e.g. Telegram) and MachineNotifiers (e.g. Webhooks) and stores them on the notifier struct to be used for alert notifications.
-func NewNotifier(httpClient *http.Client, config *config.Config) *notifier {
+func NewNotifier(httpClient HTTPClient, config *config.Config) *notifier {
 	// Set chat integrations to be notified (e.g. Telegram)
 	notificationSenders := make([]ChatNotifier, 0)
 

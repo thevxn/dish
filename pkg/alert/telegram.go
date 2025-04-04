@@ -12,14 +12,14 @@ const baseURL = "https://api.telegram.org"
 const messageTitle = "\U0001F4E1 <b>dish run results</b>:" // 📡
 
 type telegramSender struct {
-	httpClient    *http.Client
+	httpClient    HTTPClient
 	chatID        string
 	token         string
 	verbose       bool
 	notifySuccess bool
 }
 
-func NewTelegramSender(httpClient *http.Client, chatID string, token string, verbose bool, notifySuccess bool) *telegramSender {
+func NewTelegramSender(httpClient HTTPClient, chatID string, token string, verbose bool, notifySuccess bool) *telegramSender {
 	return &telegramSender{
 		httpClient,
 		chatID,

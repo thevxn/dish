@@ -10,13 +10,13 @@ import (
 )
 
 type webhookSender struct {
-	httpClient    *http.Client
+	httpClient    HTTPClient
 	url           string
 	verbose       bool
 	notifySuccess bool
 }
 
-func NewWebhookSender(httpClient *http.Client, url string, verbose bool, notifySuccess bool) (*webhookSender, error) {
+func NewWebhookSender(httpClient HTTPClient, url string, verbose bool, notifySuccess bool) (*webhookSender, error) {
 	parsedURL, err := parseAndValidateURL(url, nil)
 	if err != nil {
 		return nil, err
