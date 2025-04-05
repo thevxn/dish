@@ -2,11 +2,14 @@
 .vscode/*
 vendor/*
 cache/
+.cache/
 
 # binaries
 /bin
 /dish
 main
 *.exe
+
+# test files
 cover*
 
