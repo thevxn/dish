@@ -24,7 +24,7 @@ import (
 // Example url: http://api.example.com:5569/stream?query=variable
 func fetchSocketsFromRemote(url string, cacheSockets bool, cacheDir string, cacheTTL uint, apiHeaderName string, apiHeaderValue string) (io.ReadCloser, error) {
 	cacheFilePath := hashUrlToFilePath(url, cacheDir)
-
+	// If cache is enabled, try to load sockets from it first
 	if cacheSockets {
 		cachedReader, cacheTime, err := loadCachedSockets(cacheFilePath, cacheTTL)
 		// If cache is expired or fails to load, attempt to fetch fresh sockets
