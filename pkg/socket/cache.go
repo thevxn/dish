@@ -4,7 +4,6 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -23,26 +22,11 @@ func hashUrlToFilePath(url string, cacheDir string) string {
 // saveSocketsToCache caches socket data to specified file in cache directory.
 func saveSocketsToCache(filePath string, cacheDir string, data []byte) error {
 	// Make sure that cache directory exists
-	if err := os.MkdirAll(cacheDir, 0755); err != nil {
+	if err := os.MkdirAll(cacheDir, 0o755); err != nil {
 		return err
 	}
 
-	file, err := os.Create(filePath)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	n, err := file.Write(data)
-	if err != nil {
-		return err
-	}
-
-	if n < len(data) {
-		return fmt.Errorf("incomplete write: wrote %d/%d bytes", n, len(data))
-	}
-
-	return nil
+	return os.WriteFile(filePath, data, 0o0755)
 }
 
 // loadSocketsFromCache checks if cache is not expired and returns data stream.
