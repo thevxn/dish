@@ -30,9 +30,9 @@ func fetchSocketsFromRemote(url string, cacheSockets bool, cacheDir string, cach
 		// If cache is expired or fails to load, attempt to fetch fresh sockets
 		if err != nil {
 			if errors.Is(err, ErrExpiredCache) {
-				log.Printf("cache expired for URL: %s. Attempting network fetch.", url)
+				log.Printf("cache expired for URL: %s; attempting network fetch", url)
 			} else {
-				log.Printf("failed to load cache for URL: %s. Attempting network fetch.", url)
+				log.Printf("failed to load cache for URL: %s; attempting network fetch", url)
 			}
 
 			// Fetch fresh sockets from network
