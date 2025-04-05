@@ -2,6 +2,7 @@ package socket
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -28,7 +29,7 @@ func fetchSocketsFromRemote(url string, cacheSockets bool, cacheDir string, cach
 		cachedReader, cacheTime, err := loadCachedSockets(cacheFilePath, cacheTTL)
 		// If cache is expired or fails to load, attempt to fetch fresh sockets
 		if err != nil {
-			if err == ErrExpiredCache {
+			if errors.Is(err, ErrExpiredCache) {
 				log.Printf("cache expired for URL: %s. Attempting network fetch.", url)
 			} else {
 				log.Printf("failed to load cache for URL: %s. Attempting network fetch.", url)

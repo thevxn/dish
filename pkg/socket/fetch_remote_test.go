@@ -1,6 +1,7 @@
 package socket
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"path/filepath"
@@ -88,7 +89,7 @@ func TestFetchSocketsFromRemote(t *testing.T) {
 		badURL := "http://badurl.com"
 
 		_, err := fetchSocketsFromRemote(badURL, true, cacheDir, 0, apiHeaderName, apiHeaderValue)
-		if err == nil || err == ErrExpiredCache {
+		if err == nil || errors.Is(err, ErrExpiredCache) {
 			t.Errorf("expected error, got %v\n", err)
 		}
 	})
