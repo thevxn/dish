@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"log"
+	"net/http"
 	"testing"
 
 	"go.vxn.dev/dish/pkg/testhelpers"
@@ -53,4 +54,56 @@ func TestLoadSocketList(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestFetchSocketList(t *testing.T) {
+	t.Run("Fetch from file", func(t *testing.T) {
+		path := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
+
+		list, err := FetchSocketList(path, false, "", 0, "", "")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if len(list.Sockets) != 1 {
+			t.Errorf("Expected list length to be 1, got %d elements\n", len(list.Sockets))
+		}
+
+		expectedID := "vxn_dev_https"
+		if expectedID != list.Sockets[0].ID {
+			t.Errorf("Expected ID=%s, got ID=%s\n", expectedID, list.Sockets[0].ID)
+		}
+	})
+
+	t.Run("Fetch from remote", func(t *testing.T) {
+		server := testhelpers.NewMockServer(t, "", "", testhelpers.TestSocketList, http.StatusOK)
+
+		list, err := FetchSocketList(server.URL, false, "", 0, "", "")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if len(list.Sockets) != 1 {
+			t.Errorf("Expected list length to be 1, got %d elements\n", len(list.Sockets))
+		}
+
+		expectedID := "vxn_dev_https"
+		if expectedID != list.Sockets[0].ID {
+			t.Errorf("Expected ID=%s, got ID=%s\n", expectedID, list.Sockets[0].ID)
+		}
+	})
+
+	t.Run("Fetch from remote with bad URL", func(t *testing.T) {
+		_, err := FetchSocketList("http://invalid-host.local", false, "", 0, "", "")
+		if err == nil {
+			t.Errorf("Expected an error got nil\n")
+		}
+	})
+
+	t.Run("Fetch from not existent file", func(t *testing.T) {
+		_, err := FetchSocketList("thisdoesnotexist.json", false, "", 0, "", "")
+		if err == nil {
+			t.Errorf("Expected an error got nil\n")
+		}
+	})
 }
