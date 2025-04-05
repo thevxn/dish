@@ -30,7 +30,7 @@ const (
 	defaultApiHeaderName        = ""
 	defaultApiHeaderValue       = ""
 	defaultApiCacheSockets      = false
-	defaultApiCacheDir          = "cache"
+	defaultApiCacheDir          = ".cache"
 	defaultApiCacheTTLMinutes   = 10
 	defaultVerbose              = false
 	defaultPushgatewayURL       = ""
