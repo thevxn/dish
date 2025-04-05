@@ -10,6 +10,9 @@ type Config struct {
 	InstanceName         string
 	ApiHeaderName        string
 	ApiHeaderValue       string
+	ApiCacheSockets      bool
+	ApiCacheDirectory    string
+	ApiCacheTTLMinutes   uint
 	Source               string
 	Verbose              bool
 	PushgatewayURL       string
@@ -26,6 +29,9 @@ const (
 	defaultInstanceName         = "generic-dish"
 	defaultApiHeaderName        = ""
 	defaultApiHeaderValue       = ""
+	defaultApiCacheSockets      = false
+	defaultApiCacheDir          = ".cache"
+	defaultApiCacheTTLMinutes   = 10
 	defaultVerbose              = false
 	defaultPushgatewayURL       = ""
 	defaultTelegramBotToken     = ""
@@ -53,8 +59,11 @@ func defineFlags(fs *flag.FlagSet, cfg *Config) {
 	fs.BoolVar(&cfg.MachineNotifySuccess, "machineNotifySuccess", defaultMachineNotifySuccess, "a bool, specifies whether successful checks with no failures should be reported to machine channels")
 
 	// API socket source:
-	fs.StringVar(&cfg.ApiHeaderName, "hname", defaultApiHeaderName, "a string, custom additional header name")
-	fs.StringVar(&cfg.ApiHeaderValue, "hvalue", defaultApiHeaderValue, "a string, custom additional header value")
+	fs.StringVar(&cfg.ApiHeaderName, "hname", defaultApiHeaderName, "a string, name of a custom additional header to be used when fetching and pushing results to the remote API (used mainly for auth purposes)")
+	fs.StringVar(&cfg.ApiHeaderValue, "hvalue", defaultApiHeaderValue, "a string, value of the custom additional header to be used when fetching and pushing results to the remote API (used mainly for auth purposes)")
+	fs.BoolVar(&cfg.ApiCacheSockets, "cache", defaultApiCacheSockets, "a bool, specifies whether to cache the socket list fetched from the remote API source")
+	fs.StringVar(&cfg.ApiCacheDirectory, "cacheDir", defaultApiCacheDir, "a string, specifies the directory used to cache the socket list fetched from the remote API source")
+	fs.UintVar(&cfg.ApiCacheTTLMinutes, "cacheTTL", defaultApiCacheTTLMinutes, "an int, time duration (in minutes) for which the cached list of sockets is valid")
 
 	// Pushgateway:
 	fs.StringVar(&cfg.PushgatewayURL, "target", defaultPushgatewayURL, "a string, result update path/URL to pushgateway, plaintext/byte output")
@@ -75,23 +84,26 @@ func defineFlags(fs *flag.FlagSet, cfg *Config) {
 // If a flag is used for a supported config parameter, the config parameter's value is set according to the provided flag. Otherwise, a default value is used for the given parameter.
 func NewConfig(fs *flag.FlagSet, args []string) (*Config, error) {
 	cfg := &Config{
-		InstanceName:     defaultInstanceName,
-		ApiHeaderName:    defaultApiHeaderName,
-		ApiHeaderValue:   defaultApiHeaderValue,
-		Verbose:          defaultVerbose,
-		PushgatewayURL:   defaultPushgatewayURL,
-		TelegramBotToken: defaultTelegramBotToken,
-		TelegramChatID:   defaultTelegramChatID,
-		TimeoutSeconds:   defaultTimeoutSeconds,
-		ApiURL:           defaultApiURL,
-		WebhookURL:       defaultWebhookURL,
+		InstanceName:       defaultInstanceName,
+		ApiHeaderName:      defaultApiHeaderName,
+		ApiHeaderValue:     defaultApiHeaderValue,
+		ApiCacheSockets:    defaultApiCacheSockets,
+		ApiCacheDirectory:  defaultApiCacheDir,
+		ApiCacheTTLMinutes: defaultApiCacheTTLMinutes,
+		Verbose:            defaultVerbose,
+		PushgatewayURL:     defaultPushgatewayURL,
+		TelegramBotToken:   defaultTelegramBotToken,
+		TelegramChatID:     defaultTelegramChatID,
+		TimeoutSeconds:     defaultTimeoutSeconds,
+		ApiURL:             defaultApiURL,
+		WebhookURL:         defaultWebhookURL,
 	}
 
 	defineFlags(fs, cfg)
 
 	// Parse flags
 	if err := fs.Parse(args); err != nil {
-		return nil, fmt.Errorf("error parsing flags: %v", err)
+		return nil, fmt.Errorf("error parsing flags: %w", err)
 	}
 
 	// Parse args

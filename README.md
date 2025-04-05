@@ -34,7 +34,13 @@ dish [FLAGS] SOURCE
 
 ### Source
 
-The list of sockets to be checked can be provided via a local JSON file (e.g. the `./configs/demo_sockets.json` file included in this repository as an example), or via a remote RESTful JSON API.
+The list of sockets to be checked can be provided in 2 ways:
+
+1. A local JSON file
+   + E.g., the `./configs/demo_sockets.json` file included in this repository as an example.
+2. A remote RESTful JSON API endpoint
+   + The list of sockets retrieved from this endpoint can also be locally cached (see the `-cache`, `-cacheDir` and `-cacheTTL` flags below).
+   + Using local cache prevents constant hitting of the endpoint when running checks in short, periodic intervals. It also enables dish to run its checks even if the remote endpoint is down using the cached list of sockets (if available), even when the cache is considered expired.
 
 For the expected JSON schema of the list of sockets to be checked, see `./configs/demo_sockets.json`.
 
@@ -51,10 +57,16 @@ dish http://restapi.example.com/dish/sockets/:instance
 ```
 dish -h
 Usage of dish:
+  -cache
+        a bool, specifies whether to cache the socket list fetched from the remote API source
+  -cacheDir string
+        a string, specifies the directory used to cache the socket list fetched from the remote API source (default ".cache")
+  -cacheTTL uint
+        an int, time duration (in minutes) for which the cached list of sockets is valid (default 10)
   -hname string
-        a string, custom additional header name
+        a string, name of a custom additional header to be used when fetching and pushing results to the remote API (used mainly for auth purposes)
   -hvalue string
-        a string, custom additional header value
+        a string, value of the custom additional header to be used when fetching and pushing results to the remote API (used mainly for auth purposes)
   -machineNotifySuccess
         a bool, specifies whether successful checks with no failures should be reported to machine channels
   -name string

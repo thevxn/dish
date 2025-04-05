@@ -3,6 +3,7 @@ package socket
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 )
 
@@ -37,30 +38,40 @@ type Socket struct {
 	PathHTTP string `json:"path_http"`
 }
 
-// FetchSocketList fetches the list of sockets to be checked. 'input' should be a string like '/path/filename.json', or an HTTP URL string
-func FetchSocketList(input string, apiHeaderName string, apiHeaderValue string, verbose bool) (*SocketList, error) {
-	var list = &SocketList{}
-
-	// fetch JSON byte reader from input URL/path
-	reader, err := getStreamFromPath(input, apiHeaderName, apiHeaderValue)
-	if err != nil {
-		return nil, fmt.Errorf("error loading sockets from the provided input path (%s): %w", input, err)
+// PrintSockets prints SocketList.
+func PrintSockets(list *SocketList) {
+	log.Println("loaded sockets:")
+	for _, socket := range list.Sockets {
+		log.Printf("Host: %s, Port: %d, ExpectedHTTPCodes: %v", socket.Host, socket.Port, socket.ExpectedHTTPCodes)
 	}
+}
+
+// LoadSocketList decodes a JSON encoded SocketList from the provided io.ReadCloser.
+func LoadSocketList(reader io.ReadCloser) (*SocketList, error) {
 	defer reader.Close()
 
-	// got data, load struct Sockets
-	err = json.NewDecoder(reader).Decode(&list)
-	if err != nil {
+	list := new(SocketList)
+	if err := json.NewDecoder(reader).Decode(list); err != nil {
 		return nil, fmt.Errorf("error decoding sockets json: %w", err)
 	}
 
-	// write JSON data to console
-	if verbose {
-		log.Println("loaded sockets:")
-		for _, socket := range list.Sockets {
-			log.Printf("Host: %s, Port: %d, ExpectedHTTPCodes: %v", socket.Host, socket.Port, socket.ExpectedHTTPCodes)
-		}
+	return list, nil
+}
+
+// FetchSocketList fetches the list of sockets to be checked. 'input' should be a string like '/path/filename.json', or an HTTP URL string.
+func FetchSocketList(input string, cacheSockets bool, cacheDir string, cacheTTL uint, apiHeaderName string, apiHeaderValue string) (*SocketList, error) {
+	var reader io.ReadCloser
+	var err error
+
+	if IsFilePath(input) {
+		reader, err = fetchSocketsFromFile(input)
+	} else {
+		reader, err = fetchSocketsFromRemote(input, cacheSockets, cacheDir, cacheTTL, apiHeaderName, apiHeaderValue)
 	}
 
-	return list, nil
+	if err != nil {
+		return nil, err
+	}
+
+	return LoadSocketList(reader)
 }

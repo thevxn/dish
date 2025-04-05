@@ -1,89 +1,109 @@
 package socket
 
 import (
+	"bytes"
+	"io"
+	"log"
 	"net/http"
-	"net/http/httptest"
-	"os"
 	"testing"
+
+	"go.vxn.dev/dish/pkg/testhelpers"
 )
 
-func TestFetchSocketList(t *testing.T) {
-	validJSON := `{
-		"sockets": [
-			{
-				"id": "vxn_dev_https",
-				"socket_name": "vxn-dev HTTPS",
-				"host_name": "https://vxn.dev",
-				"port_tcp": 443,
-				"path_http": "/",
-				"expected_http_code_array": [200]
-			}
-		]
-	}`
-	invalidJSON := `{"sockets": [ { "id": "invalid"`
+func TestPrintSockets(t *testing.T) {
+	list := &SocketList{
+		Sockets: []Socket{
+			{ID: "1", Name: "socket", Host: "example.com", Port: 80, ExpectedHTTPCodes: []int{200, 404}},
+		},
+	}
 
-	validFile := CreateTempFile(t, validJSON)
-	defer os.Remove(validFile)
+	var buf bytes.Buffer
+	log.SetOutput(&buf)
 
-	invalidFile := CreateTempFile(t, invalidJSON)
-	defer os.Remove(invalidFile)
+	PrintSockets(list)
 
-	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(validJSON))
-	}))
-	defer testServer.Close()
+	expected := "Host: example.com, Port: 80, ExpectedHTTPCodes: [200 404]\n"
+	if !bytes.Contains(buf.Bytes(), []byte(expected)) {
+		t.Errorf("Expected TestPrintSockets() to contain %s, but got %s", expected, buf.String())
+	}
+}
 
+func TestLoadSocketList(t *testing.T) {
 	tests := []struct {
 		name      string
-		input     string
-		wantErr   bool
-		expectLen int
+		json      string
+		expectErr bool
 	}{
 		{
-			"Valid File",
-			validFile,
+			"Valid JSON",
+			testhelpers.TestSocketList,
 			false,
-			1,
 		},
 		{
-			"Valid URL",
-			testServer.URL,
-			false,
-			1,
-		},
-		{
-			"Invalid File Path",
-			"non_existent.json",
+			"Invalid JSON",
+			`{ "sockets": [ { "id": "vxn_dev_https"`,
 			true,
-			0,
-		},
-		{
-			"Malformed JSON",
-			invalidFile,
-			true,
-			0,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			list, err := FetchSocketList(tt.input, "", "", false)
-
-			if tt.wantErr {
-				if err == nil {
-					t.Error("expected error but got none")
-				}
-				return
-			}
-
-			if err != nil {
-				t.Errorf("unexpected error: %v", err)
-			}
-
-			if len(list.Sockets) != tt.expectLen {
-				t.Errorf("expected %d sockets, got %d", tt.expectLen, len(list.Sockets))
+			reader := io.NopCloser(bytes.NewReader([]byte(tt.json)))
+			if _, err := LoadSocketList(reader); (err == nil) == tt.expectErr {
+				t.Errorf("Expect error: %v, got error: %v\n", tt.expectErr, err)
 			}
 		})
 	}
+}
+
+func TestFetchSocketList(t *testing.T) {
+	t.Run("Fetch from file", func(t *testing.T) {
+		path := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
+
+		list, err := FetchSocketList(path, false, "", 0, "", "")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if len(list.Sockets) != 1 {
+			t.Errorf("Expected list length to be 1, got %d elements\n", len(list.Sockets))
+		}
+
+		expectedID := "vxn_dev_https"
+		if expectedID != list.Sockets[0].ID {
+			t.Errorf("Expected ID=%s, got ID=%s\n", expectedID, list.Sockets[0].ID)
+		}
+	})
+
+	t.Run("Fetch from remote", func(t *testing.T) {
+		server := testhelpers.NewMockServer(t, "", "", testhelpers.TestSocketList, http.StatusOK)
+
+		list, err := FetchSocketList(server.URL, false, "", 0, "", "")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if len(list.Sockets) != 1 {
+			t.Errorf("Expected list length to be 1, got %d elements\n", len(list.Sockets))
+		}
+
+		expectedID := "vxn_dev_https"
+		if expectedID != list.Sockets[0].ID {
+			t.Errorf("Expected ID=%s, got ID=%s\n", expectedID, list.Sockets[0].ID)
+		}
+	})
+
+	t.Run("Fetch from remote with bad URL", func(t *testing.T) {
+		_, err := FetchSocketList("http://invalid-host.local", false, "", 0, "", "")
+		if err == nil {
+			t.Errorf("Expected an error got nil\n")
+		}
+	})
+
+	t.Run("Fetch from not existent file", func(t *testing.T) {
+		_, err := FetchSocketList("thisdoesnotexist.json", false, "", 0, "", "")
+		if err == nil {
+			t.Errorf("Expected an error got nil\n")
+		}
+	})
 }
