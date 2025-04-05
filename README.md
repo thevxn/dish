@@ -75,6 +75,12 @@ Usage of dish:
         a bool, console stdout logging toggle
   -webhookURL string
         a string, URL of webhook endpoint
+  -cache
+        a bool, enables caching for remote sources
+  -cacheDir string
+        a string, specifies cache directory for API socket lists (default 'cache/')
+  -cacheTTL uint
+        an uint, time duration (in minutes) for which the cached file is valid (default 10)
 ```
 
 ### Alerting
