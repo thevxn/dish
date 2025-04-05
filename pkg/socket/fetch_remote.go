@@ -33,24 +33,25 @@ func fetchSocketsFromRemote(url string, cacheSockets bool, cacheDir string, cach
 			}
 
 			// Fetch fresh sockets from network (returns expired cache on fail)
-			respBody, err := attemptFetchFromNetwork(url, apiHeaderName, apiHeaderValue)
-			if err != nil {
+			respBody, fetchErr := attemptFetchFromNetwork(url, apiHeaderName, apiHeaderValue)
+			if fetchErr != nil {
+				if err != ErrExpiredCache {
+					return nil, fetchErr
+				}
+
 				log.Printf("Network fetch failed for URL: %s. Using expired cache. Error: %v\n", url, err)
 				return reader, nil
 			}
 
-			// Use io.TeeReader to save to cache and return reader from function
+			// TeeReader clones respBody reader which we pass to save func and return
 			var buffer bytes.Buffer
 			teeReader := io.TeeReader(respBody, &buffer)
 
-			// Save the response body to cache
 			if err := saveSocketsToCache(cacheFilePath, cacheDir, io.NopCloser(teeReader)); err != nil {
 				return nil, fmt.Errorf("failed to save fetched sockets to cache: %w", err)
 			}
-
 			log.Println("Successfully cached sockets from", url)
 
-			// Return respBody as buffer from teeReader
 			return io.NopCloser(&buffer), nil
 		}
 
