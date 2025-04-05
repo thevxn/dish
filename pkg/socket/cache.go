@@ -22,11 +22,11 @@ func hashUrlToFilePath(url string, cacheDir string) string {
 // saveSocketsToCache caches socket data to specified file in cache directory.
 func saveSocketsToCache(filePath string, cacheDir string, data []byte) error {
 	// Make sure that cache directory exists
-	if err := os.MkdirAll(cacheDir, 0o755); err != nil {
+	if err := os.MkdirAll(cacheDir, 0o600); err != nil {
 		return err
 	}
 
-	return os.WriteFile(filePath, data, 0o0755)
+	return os.WriteFile(filePath, data, 0o600)
 }
 
 // loadSocketsFromCache checks if cache is not expired and returns data stream.

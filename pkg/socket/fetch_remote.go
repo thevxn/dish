@@ -57,6 +57,7 @@ func fetchSocketsFromRemote(url string, cacheSockets bool, cacheDir string, cach
 		}
 
 		// Cache is valid (not expired, no error from file read)
+		log.Println("Loading sockets from cache...")
 		return reader, err
 	}
 
