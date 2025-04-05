@@ -48,7 +48,7 @@ func NewMockServer(t *testing.T, expectedHeaderName, expectedHeaderValue, respon
 		w.Write([]byte(responseBody))
 	}))
 
-	// Automatically close the server after the test finishes
+	// Automatically shut down the server when the test completes or fails
 	t.Cleanup(func() {
 		server.Close()
 	})

@@ -43,16 +43,17 @@ func fetchSocketsFromRemote(url string, cacheSockets bool, cacheDir string, cach
 				return reader, nil
 			}
 
-			// TeeReader clones respBody reader which we pass to save func and return
-			var buffer bytes.Buffer
-			teeReader := io.TeeReader(respBody, &buffer)
-
-			if err := saveSocketsToCache(cacheFilePath, cacheDir, io.NopCloser(teeReader)); err != nil {
-				return nil, fmt.Errorf("failed to save fetched sockets to cache: %w", err)
+			var buf bytes.Buffer
+			_, err := buf.ReadFrom(respBody)
+			if err != nil {
+				return nil, fmt.Errorf("failed to copy response body: %w", err)
 			}
-			log.Println("Successfully cached sockets from", url)
 
-			return io.NopCloser(&buffer), nil
+			if err := saveSocketsToCache(cacheFilePath, cacheDir, buf.Bytes()); err != nil {
+				log.Printf("Failed to save fetched sockets to cache: %v", err)
+			}
+
+			return io.NopCloser(bytes.NewReader(buf.Bytes())), nil
 		}
 
 		// Cache is valid (not expired, no error from file read)

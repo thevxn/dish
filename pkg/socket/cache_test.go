@@ -1,7 +1,6 @@
 package socket
 
 import (
-	"bytes"
 	"errors"
 	"io"
 	"os"
@@ -34,9 +33,8 @@ func TestHashUrlToFilePath(t *testing.T) {
 func TestSaveSocketsToCache(t *testing.T) {
 	filePath := testhelpers.TestFile(t, "randomhash.json", nil)
 	cacheDir := filepath.Dir(filePath)
-	reader := io.NopCloser(bytes.NewReader([]byte(testhelpers.TestSocketList)))
 
-	if err := saveSocketsToCache(filePath, cacheDir, reader); err != nil {
+	if err := saveSocketsToCache(filePath, cacheDir, []byte(testhelpers.TestSocketList)); err != nil {
 		t.Fatalf("Expected no error, but got %v", err)
 	}
 
