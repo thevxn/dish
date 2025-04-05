@@ -3,10 +3,12 @@ package alert
 import (
 	"reflect"
 	"testing"
+
+	"go.vxn.dev/dish/pkg/testhelpers"
 )
 
 func TestNewTelegramSender(t *testing.T) {
-	mockHTTPClient := &successStatusHTTPClient{}
+	mockHTTPClient := &testhelpers.SuccessStatusHTTPClient{}
 
 	chatID := "-123"
 	token := "abc123"
@@ -40,7 +42,7 @@ func TestSend(t *testing.T) {
 	}{
 		{
 			name:          "Failed Sockets",
-			client:        &successStatusHTTPClient{},
+			client:        &testhelpers.SuccessStatusHTTPClient{},
 			rawMessage:    "Test message",
 			failedCount:   1,
 			notifySuccess: false,
@@ -49,7 +51,7 @@ func TestSend(t *testing.T) {
 		},
 		{
 			name:          "Failed Sockets - Verbose",
-			client:        &successStatusHTTPClient{},
+			client:        &testhelpers.SuccessStatusHTTPClient{},
 			rawMessage:    "Test message",
 			failedCount:   1,
 			notifySuccess: false,
@@ -58,7 +60,7 @@ func TestSend(t *testing.T) {
 		},
 		{
 			name:          "No Failed Sockets with notifySuccess",
-			client:        &successStatusHTTPClient{},
+			client:        &testhelpers.SuccessStatusHTTPClient{},
 			rawMessage:    "Test message",
 			failedCount:   0,
 			notifySuccess: true,
@@ -67,7 +69,7 @@ func TestSend(t *testing.T) {
 		},
 		{
 			name:          "No Failed Sockets without notifySuccess",
-			client:        &successStatusHTTPClient{},
+			client:        &testhelpers.SuccessStatusHTTPClient{},
 			rawMessage:    "Test message",
 			failedCount:   0,
 			notifySuccess: false,
@@ -76,7 +78,7 @@ func TestSend(t *testing.T) {
 		},
 		{
 			name:          "No Failed Sockets without notifySuccess - Verbose",
-			client:        &successStatusHTTPClient{},
+			client:        &testhelpers.SuccessStatusHTTPClient{},
 			rawMessage:    "Test message",
 			failedCount:   0,
 			notifySuccess: false,
@@ -85,7 +87,7 @@ func TestSend(t *testing.T) {
 		},
 		{
 			name:          "Network Error When Sending Telegram Message",
-			client:        &failureHTTPClient{},
+			client:        &testhelpers.FailureHTTPClient{},
 			rawMessage:    "Test message",
 			failedCount:   1,
 			notifySuccess: false,
@@ -94,7 +96,7 @@ func TestSend(t *testing.T) {
 		},
 		{
 			name:          "Unexpected Response Code From Telegram",
-			client:        &errorStatusHTTPClient{},
+			client:        &testhelpers.ErrorStatusHTTPClient{},
 			rawMessage:    "Test message",
 			failedCount:   1,
 			notifySuccess: false,
@@ -103,7 +105,7 @@ func TestSend(t *testing.T) {
 		},
 		{
 			name:          "Error Reading Response Body From Telegram",
-			client:        &invalidResponseBodyHTTPClient{},
+			client:        &testhelpers.InvalidResponseBodyHTTPClient{},
 			rawMessage:    "Test message",
 			failedCount:   1,
 			notifySuccess: false,
