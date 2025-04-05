@@ -11,18 +11,15 @@ import (
 // This socket list is used across tests.
 const TestSocketList string = `{ "sockets": [ { "id": "vxn_dev_https", "socket_name": "vxn-dev HTTPS", "host_name": "https://vxn.dev", "port_tcp": 443, "path_http": "/", "expected_http_code_array": [200] } ] }`
 
-// TestFile creates a temporary file with provided filename and data.
-// Directory is removed when test finishes.
+// TestFile creates a temporary file inside of a temporary directory with the provided filename and data.
+// The temporary directory including the file is removed when the test using it finishes.
 func TestFile(t *testing.T, filename string, data []byte) string {
 	t.Helper()
-	dir, err := os.MkdirTemp(t.TempDir(), "")
-	if err != nil {
-		t.Fatal(err)
-	}
+	dir := t.TempDir()
 
 	filepath := filepath.Join(dir, filename)
 
-	err = os.WriteFile(filepath, data, 0o600)
+	err := os.WriteFile(filepath, data, 0o600)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -29,21 +29,22 @@ func saveSocketsToCache(filePath string, cacheDir string, data []byte) error {
 	return os.WriteFile(filePath, data, 0o600)
 }
 
-// loadSocketsFromCache checks if cache is not expired and returns data stream.
-func loadSocketsFromCache(filePath string, cacheTTL uint) (io.ReadCloser, error) {
+// loadCachedSockets checks whether the cache is valid (not expired) and the returns the data stream and ModTime of the cache.
+func loadCachedSockets(filePath string, cacheTTL uint) (io.ReadCloser, time.Time, error) {
 	info, err := os.Stat(filePath)
 	if err != nil {
-		return nil, err
+		return nil, time.Time{}, err
 	}
 
 	reader, err := os.Open(filePath)
 	if err != nil {
-		return nil, err
+		return nil, time.Time{}, err
 	}
 
-	if time.Since(info.ModTime()) > time.Duration(cacheTTL)*time.Minute {
-		return reader, ErrExpiredCache
+	cacheTime := info.ModTime()
+	if time.Since(cacheTime) > time.Duration(cacheTTL)*time.Minute {
+		return reader, cacheTime, ErrExpiredCache
 	}
 
-	return reader, nil
+	return reader, cacheTime, nil
 }

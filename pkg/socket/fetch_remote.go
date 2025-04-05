@@ -6,9 +6,12 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"time"
 )
 
 // fetchSocketsFromRemote loads the sockets to be monitored from a remote RESTful API endpoint. It returns the response body implementing [io.ReadCloser] for reading from and closing the stream.
+//
+// It uses a local cache if enabled and falls back to the network if the cache is not present or expired. If the network request fails and expired cache is available, it will be used.
 //
 // The url parameter must be a complete URL to a remote http/s server, including:
 //   - Scheme (http:// or https://)
@@ -21,26 +24,29 @@ import (
 func fetchSocketsFromRemote(url string, cacheSockets bool, cacheDir string, cacheTTL uint, apiHeaderName string, apiHeaderValue string) (io.ReadCloser, error) {
 	cacheFilePath := hashUrlToFilePath(url, cacheDir)
 
-	// Cache feature
 	if cacheSockets {
-		reader, err := loadSocketsFromCache(cacheFilePath, cacheTTL)
-		// Attempt to fetch fresh sockets if cache is expired
+		cachedReader, cacheTime, err := loadCachedSockets(cacheFilePath, cacheTTL)
+		// If cache is expired or fails to load, attempt to fetch fresh sockets
 		if err != nil {
 			if err == ErrExpiredCache {
-				log.Printf("Cache expired for URL: %s. Attempting network fetch.\n", url)
+				log.Printf("cache expired for URL: %s. Attempting network fetch.", url)
 			} else {
-				log.Printf("Failed to load cache for URL: %s. Attempting network fetch.\n", url)
+				log.Printf("failed to load cache for URL: %s. Attempting network fetch.", url)
 			}
 
-			// Fetch fresh sockets from network (returns expired cache on fail)
-			respBody, fetchErr := attemptFetchFromNetwork(url, apiHeaderName, apiHeaderValue)
+			// Fetch fresh sockets from network
+			respBody, fetchErr := loadFreshSockets(url, apiHeaderName, apiHeaderValue)
 			if fetchErr != nil {
+				log.Printf("fetching socket list from remote API at %s failed: %v", url, fetchErr)
+
+				// If the fetch fails and expired cache is not available, return the fetch error
 				if err != ErrExpiredCache {
 					return nil, fetchErr
 				}
 
-				log.Printf("Network fetch failed for URL: %s. Using expired cache. Error: %v\n", url, err)
-				return reader, nil
+				// If the fetch fails and expired cache is available, return the expired cache and log a warning
+				log.Printf("using expired cache from %s", cacheTime.Format(time.RFC3339))
+				return cachedReader, nil
 			}
 
 			var buf bytes.Buffer
@@ -50,23 +56,23 @@ func fetchSocketsFromRemote(url string, cacheSockets bool, cacheDir string, cach
 			}
 
 			if err := saveSocketsToCache(cacheFilePath, cacheDir, buf.Bytes()); err != nil {
-				log.Printf("Failed to save fetched sockets to cache: %v", err)
+				log.Printf("failed to save fetched sockets to cache: %v", err)
 			}
 
 			return io.NopCloser(bytes.NewReader(buf.Bytes())), nil
 		}
 
 		// Cache is valid (not expired, no error from file read)
-		log.Println("Loading sockets from cache...")
-		return reader, err
+		log.Println("loading sockets from cache...")
+		return cachedReader, err
 	}
 
 	// If we do not want to cache sockets to the file, fetch from network
-	return attemptFetchFromNetwork(url, apiHeaderName, apiHeaderValue)
+	return loadFreshSockets(url, apiHeaderName, apiHeaderValue)
 }
 
-// attemptFetchFromNetwork tries to fetch sockets from the remote source.
-func attemptFetchFromNetwork(url string, apiHeaderName string, apiHeaderValue string) (io.ReadCloser, error) {
+// loadFreshSockets fetches fresh sockets from the remote source.
+func loadFreshSockets(url string, apiHeaderName string, apiHeaderValue string) (io.ReadCloser, error) {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
