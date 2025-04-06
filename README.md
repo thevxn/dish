@@ -1,5 +1,5 @@
 <h1 align="left">
-<img alt="dish_logo" src="https://vxn.dev/logos/dish.svg" width="90" height="90">
+<img alt="dish_logo" src="https://vxn.dev/logos/dish_no_bg.svg" width="90" height="90">
 dish
 </h1>
 
