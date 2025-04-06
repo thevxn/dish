@@ -17,10 +17,10 @@ func TestNewPushgatewaySender(t *testing.T) {
 
 	expected := &pushgatewaySender{
 		httpClient:    mockHTTPClient,
-		instanceName:  "test-instance",
-		verbose:       verbose,
-		notifySuccess: notifySuccess,
 		url:           url,
+		instanceName:  "test-instance",
+		notifySuccess: notifySuccess,
+		verbose:       verbose,
 		// template will be compared based on its output, no need for it here
 	}
 

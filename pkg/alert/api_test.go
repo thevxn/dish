@@ -11,18 +11,18 @@ func TestNewAPISender(t *testing.T) {
 	mockHTTPClient := &testhelpers.SuccessStatusHTTPClient{}
 
 	url := "https://abc123.xyz.com"
-	verbose := false
-	notifySuccess := false
 	headerName := "X-Api-Key"
 	headerValue := "abc123"
+	notifySuccess := false
+	verbose := false
 
 	expected := &apiSender{
 		httpClient:    mockHTTPClient,
-		verbose:       verbose,
-		notifySuccess: notifySuccess,
+		url:           url,
 		headerName:    headerName,
 		headerValue:   headerValue,
-		url:           url,
+		notifySuccess: notifySuccess,
+		verbose:       verbose,
 	}
 
 	actual, _ := NewAPISender(mockHTTPClient, url, headerName, headerValue, verbose, notifySuccess)
