@@ -30,7 +30,7 @@ func TestNewTelegramSender(t *testing.T) {
 	}
 }
 
-func TestSend(t *testing.T) {
+func TestSend_Telegram(t *testing.T) {
 	tests := []struct {
 		name          string
 		client        HTTPClient
