@@ -47,7 +47,7 @@ func NewNotifier(httpClient HTTPClient, config *config.Config) *notifier {
 
 	// Remote API
 	if config.ApiURL != "" {
-		apiSender, err := NewApiSender(httpClient, config.ApiURL, config.ApiHeaderName, config.ApiHeaderValue, config.Verbose, config.MachineNotifySuccess)
+		apiSender, err := NewAPISender(httpClient, config.ApiURL, config.ApiHeaderName, config.ApiHeaderValue, config.Verbose, config.MachineNotifySuccess)
 		if err != nil {
 			log.Println("error creating new remote API sender:", err)
 		} else {

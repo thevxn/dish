@@ -18,7 +18,7 @@ type apiSender struct {
 	notifySuccess bool
 }
 
-func NewApiSender(httpClient HTTPClient, url string, headerName string, headerValue string, verbose bool, notifySuccess bool) (*apiSender, error) {
+func NewAPISender(httpClient HTTPClient, url string, headerName string, headerValue string, verbose bool, notifySuccess bool) (*apiSender, error) {
 	parsedURL, err := parseAndValidateURL(url, nil)
 	if err != nil {
 		return nil, err
