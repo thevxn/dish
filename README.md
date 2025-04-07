@@ -10,7 +10,7 @@ dish
 + __Tiny__ one-shot monitoring service
 + __Remote__ configuration of independent 'dish network' (via loading the socket list to be checked from a remote API)
 + __Fast__ concurrent testing, low overall execution time, 10-sec timeout per socket by default
-+ __0__ dependencies
++ __Zero__ dependencies
 
 ## Use Cases
 
