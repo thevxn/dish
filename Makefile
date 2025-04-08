@@ -86,7 +86,7 @@ build:
 local_build: 
 	@echo -e "\n${YELLOW} [local] Building project... ${RESET}\n"
 	@go mod tidy
-	@go build -tags dev -o dish cmd/dish/main.go
+	@go build -tags dev -o bin/ ./cmd/dish/
 
 run:	build
 	@echo -e "\n${YELLOW} Starting project (docker-compose up)... ${RESET}\n"

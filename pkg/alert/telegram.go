@@ -2,7 +2,6 @@ package alert
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -49,27 +48,12 @@ func (s *telegramSender) send(rawMessage string, failedCount int) error {
 
 	fullURL := telegramURL + "?" + params.Encode()
 
-	// Send the message
-	res, err := s.httpClient.Get(fullURL)
+	err := handleSubmit(s.httpClient, http.MethodGet, fullURL, nil)
 	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected response code received from Telegram (expected: %d, got: %d)", http.StatusOK, res.StatusCode)
+		return fmt.Errorf("error submitting Telegram alert: %w", err)
 	}
 
-	// Write the body to console if verbose flag set
-	if s.verbose {
-		body, err := io.ReadAll(res.Body)
-		if err != nil {
-			return fmt.Errorf("error reading response body: %w", err)
-		}
-		log.Println("telegram response:", string(body))
-	}
-
-	log.Println("telegram alert sent")
+	log.Println("Telegram alert sent")
 
 	return nil
 }

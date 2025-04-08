@@ -1,3 +1,4 @@
+// Package alert provides functionality to handle alert submission to different text (e.g. Telegram) and machine (e.g. webhooks) channels.
 package alert
 
 import (
@@ -7,7 +8,7 @@ import (
 	"go.vxn.dev/dish/pkg/config"
 )
 
-func HandleAlerts(messengerText string, results Results, failedCount int, config *config.Config) {
+func HandleAlerts(messengerText string, results *Results, failedCount int, config *config.Config) {
 	notifier := NewNotifier(http.DefaultClient, config)
 	if err := notifier.SendChatNotifications(messengerText, failedCount); err != nil {
 		log.Printf("some error(s) encountered when sending chat notifications: \n%v", err)

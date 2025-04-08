@@ -197,7 +197,7 @@ func TestSend_Pushgateway(t *testing.T) {
 				t.Fatalf("failed to create Pushgateway sender instance: %v", err)
 			}
 
-			err = sender.send(tt.results, tt.failedCount)
+			err = sender.send(&tt.results, tt.failedCount)
 			if tt.wantErr != (err != nil) {
 				t.Errorf("expected error: %v, got: %v", tt.wantErr, err)
 			}
@@ -213,9 +213,12 @@ func TestCreateMessage(t *testing.T) {
 
 	failedCount := 1
 
-	expected := `#HELP failed sockets registered by dish
+	expected := `
+#HELP failed sockets registered by dish
 #TYPE dish_failed_count counter
-dish_failed_count 1`
+dish_failed_count 1
+
+`
 
 	actual, err := sender.createMessage(failedCount)
 	if err != nil {

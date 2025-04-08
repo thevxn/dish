@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 )
@@ -34,7 +33,7 @@ func NewAPISender(httpClient HTTPClient, url string, headerName string, headerVa
 	}, nil
 }
 
-func (s *apiSender) send(m Results, failedCount int) error {
+func (s *apiSender) send(m *Results, failedCount int) error {
 	// If no checks failed and success should not be notified, there is nothing to send
 	if failedCount == 0 && !s.notifySuccess {
 		if s.verbose {
@@ -54,36 +53,15 @@ func (s *apiSender) send(m Results, failedCount int) error {
 		log.Printf("prepared remote API data: %s", string(jsonData))
 	}
 
-	// Push results
-	req, err := http.NewRequest(http.MethodPost, s.url, bodyReader)
-	if err != nil {
-		return err
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-
 	// If custom header & value is provided (mostly used for auth purposes), include it in the request
+	opts := []func(*submitOptions){}
 	if s.headerName != "" && s.headerValue != "" {
-		req.Header.Set(s.headerName, s.headerValue)
+		opts = append(opts, withHeader(s.headerName, s.headerValue))
 	}
 
-	res, err := s.httpClient.Do(req)
+	err = handleSubmit(s.httpClient, http.MethodPost, s.url, bodyReader, opts...)
 	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected response code received from remote API (expected: %d, got: %d)", http.StatusOK, res.StatusCode)
-	}
-
-	// Write the body to console if verbose flag set
-	if s.verbose {
-		body, err := io.ReadAll(res.Body)
-		if err != nil {
-			return fmt.Errorf("error reading response body: %w", err)
-		}
-		log.Println("remote API response:", string(body))
+		return fmt.Errorf("error pushing results to remote API: %w", err)
 	}
 
 	log.Println("results pushed to remote API")

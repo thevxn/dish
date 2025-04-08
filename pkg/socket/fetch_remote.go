@@ -2,13 +2,20 @@ package socket
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"time"
 )
+
+// copyBody copies the provided response body to the provided buffer. The body is closed.
+func copyBody(body io.ReadCloser, buf *bytes.Buffer) error {
+	defer body.Close()
+
+	_, err := buf.ReadFrom(body)
+	return err
+}
 
 // fetchSocketsFromRemote loads the sockets to be monitored from a remote RESTful API endpoint. It returns the response body implementing [io.ReadCloser] for reading from and closing the stream.
 //
@@ -24,52 +31,49 @@ import (
 // Example url: http://api.example.com:5569/stream?query=variable
 func fetchSocketsFromRemote(url string, cacheSockets bool, cacheDir string, cacheTTL uint, apiHeaderName string, apiHeaderValue string) (io.ReadCloser, error) {
 	cacheFilePath := hashUrlToFilePath(url, cacheDir)
-	// If cache is enabled, try to load sockets from it first
-	if cacheSockets {
-		cachedReader, cacheTime, err := loadCachedSockets(cacheFilePath, cacheTTL)
-		// If cache is expired or fails to load, attempt to fetch fresh sockets
-		if err != nil {
-			if errors.Is(err, ErrExpiredCache) {
-				log.Printf("cache expired for URL: %s; attempting network fetch", url)
-			} else {
-				log.Printf("failed to load cache for URL: %s; attempting network fetch", url)
-			}
-
-			// Fetch fresh sockets from network
-			respBody, fetchErr := loadFreshSockets(url, apiHeaderName, apiHeaderValue)
-			if fetchErr != nil {
-				log.Printf("fetching socket list from remote API at %s failed: %v", url, fetchErr)
-
-				// If the fetch fails and expired cache is not available, return the fetch error
-				if err != ErrExpiredCache {
-					return nil, fetchErr
-				}
-
-				// If the fetch fails and expired cache is available, return the expired cache and log a warning
-				log.Printf("using expired cache from %s", cacheTime.Format(time.RFC3339))
-				return cachedReader, nil
-			}
-
-			var buf bytes.Buffer
-			_, err := buf.ReadFrom(respBody)
-			if err != nil {
-				return nil, fmt.Errorf("failed to copy response body: %w", err)
-			}
-
-			if err := saveSocketsToCache(cacheFilePath, cacheDir, buf.Bytes()); err != nil {
-				log.Printf("failed to save fetched sockets to cache: %v", err)
-			}
-
-			return io.NopCloser(bytes.NewReader(buf.Bytes())), nil
-		}
-
-		// Cache is valid (not expired, no error from file read)
-		log.Println("loading sockets from cache...")
-		return cachedReader, err
-	}
 
 	// If we do not want to cache sockets to the file, fetch from network
-	return loadFreshSockets(url, apiHeaderName, apiHeaderValue)
+	if !cacheSockets {
+		return loadFreshSockets(url, apiHeaderName, apiHeaderValue)
+	}
+
+	// If cache is enabled, try to load sockets from it first
+	cachedReader, cacheTime, err := loadCachedSockets(cacheFilePath, cacheTTL)
+
+	// If cache is expired or fails to load, attempt to fetch fresh sockets
+	if err != nil {
+		log.Printf("cache unavailable for URL: %s (reason: %v); attempting network fetch", url, err)
+
+		// Fetch fresh sockets from network
+		respBody, fetchErr := loadFreshSockets(url, apiHeaderName, apiHeaderValue)
+		if fetchErr != nil {
+			log.Printf("fetching socket list from remote API at %s failed: %v", url, fetchErr)
+
+			// If the fetch fails and expired cache is not available, return the fetch error
+			if err != ErrExpiredCache {
+				return nil, fetchErr
+			}
+			// If the fetch fails and expired cache is available, return the expired cache and log a warning
+			log.Printf("using expired cache from %s", cacheTime.Format(time.RFC3339))
+			return cachedReader, nil
+		}
+
+		var buf bytes.Buffer
+		err = copyBody(respBody, &buf)
+		if err != nil {
+			return nil, fmt.Errorf("failed to copy response body: %w", err)
+		}
+
+		if err := saveSocketsToCache(cacheFilePath, cacheDir, buf.Bytes()); err != nil {
+			log.Printf("failed to save fetched sockets to cache: %v", err)
+		}
+
+		return io.NopCloser(bytes.NewReader(buf.Bytes())), nil
+	}
+
+	// Cache is valid (not expired, no error from file read)
+	log.Println("loading sockets from cache...")
+	return cachedReader, err
 }
 
 // loadFreshSockets fetches fresh sockets from the remote source.

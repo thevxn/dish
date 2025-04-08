@@ -20,7 +20,7 @@ WORKDIR /go/src/${APP_NAME}
 COPY . /go/src/${APP_NAME}
 
 # build and install the binary
-RUN go install cmd/dish/main.go
+RUN go install ./cmd/dish/
 
 #
 # stage 1 --- release
@@ -31,7 +31,7 @@ FROM alpine:${ALPINE_VERSION} AS dish-release
 WORKDIR /opt
 
 COPY configs/demo_sockets.json /opt/
-COPY --from=dish-build /go/bin/main /opt/dish
+COPY --from=dish-build /go/bin/dish /opt/dish
 RUN ln -s /opt/dish /usr/local/bin
 
 ENTRYPOINT [ "dish" ]

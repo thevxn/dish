@@ -17,7 +17,7 @@ type ChatNotifier interface {
 	send(string, int) error
 }
 type MachineNotifier interface {
-	send(Results, int) error
+	send(*Results, int) error
 }
 
 type notifier struct {
@@ -105,7 +105,7 @@ func (n *notifier) SendChatNotifications(m string, failedCount int) error {
 	return nil
 }
 
-func (n *notifier) SendMachineNotifications(m Results, failedCount int) error {
+func (n *notifier) SendMachineNotifications(m *Results, failedCount int) error {
 	var errs []error
 
 	if len(n.machineNotifiers) == 0 {

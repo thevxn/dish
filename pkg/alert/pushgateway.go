@@ -3,7 +3,6 @@ package alert
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"text/template"
@@ -74,7 +73,7 @@ func (s *pushgatewaySender) createMessage(failedCount int) (string, error) {
 // Send pushes the results to Pushgateway.
 //
 // The first argument is needed to implement the MachineNotifier interface, however, it is ignored in favor of a custom message implementation via the createMessage method.
-func (s *pushgatewaySender) send(_ Results, failedCount int) error {
+func (s *pushgatewaySender) send(_ *Results, failedCount int) error {
 	// If no checks failed and success should not be notified, there is nothing to send
 	if failedCount == 0 && !s.notifySuccess {
 		if s.verbose {
@@ -92,30 +91,9 @@ func (s *pushgatewaySender) send(_ Results, failedCount int) error {
 
 	formattedURL := s.url + "/metrics/job/" + jobName + "/instance/" + s.instanceName
 
-	req, err := http.NewRequest(http.MethodPut, formattedURL, bodyReader)
+	err = handleSubmit(s.httpClient, http.MethodPut, formattedURL, bodyReader, withContentType("application/byte"))
 	if err != nil {
-		return err
-	}
-
-	req.Header.Set("Content-Type", "application/byte")
-
-	res, err := s.httpClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected response code received from Pushgateway (expected: %d, got: %d)", http.StatusOK, res.StatusCode)
-	}
-
-	// Write the body to console if verbose flag set
-	if s.verbose {
-		body, err := io.ReadAll(res.Body)
-		if err != nil {
-			return fmt.Errorf("error reading response body: %w", err)
-		}
-		log.Println("pushgateway response:", string(body))
+		return fmt.Errorf("error pushing results to Pushgateway: %w", err)
 	}
 
 	log.Println("results pushed to Pushgateway")

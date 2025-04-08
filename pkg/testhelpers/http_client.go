@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+const internalServerErrorResponse = "internal server error"
+
 // SuccessStatusHTTPClient is a mock HTTP client implementation which returns HTTP Success (200) status responses.
 type SuccessStatusHTTPClient struct{}
 
@@ -37,21 +39,21 @@ type ErrorStatusHTTPClient struct{}
 func (e *ErrorStatusHTTPClient) Do(req *http.Request) (*http.Response, error) {
 	return &http.Response{
 		StatusCode: 500,
-		Body:       io.NopCloser(strings.NewReader("internal server error")),
+		Body:       io.NopCloser(strings.NewReader(internalServerErrorResponse)),
 	}, nil
 }
 
 func (e *ErrorStatusHTTPClient) Get(url string) (*http.Response, error) {
 	return &http.Response{
 		StatusCode: 500,
-		Body:       io.NopCloser(strings.NewReader("internal server error")),
+		Body:       io.NopCloser(strings.NewReader(internalServerErrorResponse)),
 	}, nil
 }
 
 func (e *ErrorStatusHTTPClient) Post(url, contentType string, body io.Reader) (*http.Response, error) {
 	return &http.Response{
 		StatusCode: 500,
-		Body:       io.NopCloser(strings.NewReader("internal server error")),
+		Body:       io.NopCloser(strings.NewReader(internalServerErrorResponse)),
 	}, nil
 }
 
@@ -86,21 +88,21 @@ type InvalidResponseBodyHTTPClient struct{}
 
 func (i *InvalidResponseBodyHTTPClient) Do(req *http.Request) (*http.Response, error) {
 	return &http.Response{
-		StatusCode: 200,
+		StatusCode: 500,
 		Body:       &InvalidBodyReadCloser{},
 	}, nil
 }
 
 func (i *InvalidResponseBodyHTTPClient) Get(url string) (*http.Response, error) {
 	return &http.Response{
-		StatusCode: 200,
+		StatusCode: 500,
 		Body:       &InvalidBodyReadCloser{},
 	}, nil
 }
 
 func (i *InvalidResponseBodyHTTPClient) Post(url, contentType string, body io.Reader) (*http.Response, error) {
 	return &http.Response{
-		StatusCode: 200,
+		StatusCode: 500,
 		Body:       &InvalidBodyReadCloser{},
 	}, nil
 }

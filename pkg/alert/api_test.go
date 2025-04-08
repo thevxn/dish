@@ -195,7 +195,7 @@ func TestSend_API(t *testing.T) {
 				t.Fatalf("failed to create API sender instance: %v", err)
 			}
 
-			err = sender.send(tt.results, tt.failedCount)
+			err = sender.send(&tt.results, tt.failedCount)
 			if tt.wantErr != (err != nil) {
 				t.Errorf("expected error: %v, got: %v", tt.wantErr, err)
 			}

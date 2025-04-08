@@ -156,7 +156,7 @@ func TestSend_Webhook(t *testing.T) {
 				t.Fatalf("failed to create Webhook sender instance: %v", err)
 			}
 
-			err = sender.send(tt.results, tt.failedCount)
+			err = sender.send(&tt.results, tt.failedCount)
 			if tt.wantErr != (err != nil) {
 				t.Errorf("expected error: %v, got: %v", tt.wantErr, err)
 			}
