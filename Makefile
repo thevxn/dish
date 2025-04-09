@@ -12,7 +12,7 @@ include .env.example
 PROJECT_NAME?=${APP_NAME}
 
 # release binaries build vars
-MAIN_PATH?=./cmd/dish/main.go
+MAIN_PATH?=./cmd/dish/
 LATEST_TAG?=$(shell git describe --tags --abbrev=0 | sed 's/^v//')
 
 
@@ -86,7 +86,7 @@ build:
 local_build: 
 	@echo -e "\n${YELLOW} [local] Building project... ${RESET}\n"
 	@go mod tidy
-	@go build -tags dev -o bin/ ./cmd/dish/
+	@go build -tags dev -o bin/ ${MAIN_PATH}
 
 run:	build
 	@echo -e "\n${YELLOW} Starting project (docker-compose up)... ${RESET}\n"
