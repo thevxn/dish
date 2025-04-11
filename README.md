@@ -206,6 +206,10 @@ MAILTO=monitoring@example.com
 */2 * * * * /home/user/tiny-dish-run.sh
 ```
 
+### Integration Example
+
+For an example of what can be built using dish integrated with a remote API, you can check out our [status page](https://status.vxn.dev).
+
 ## History
 
 [dish history article](https://krusty.space/projects/dish/)
