@@ -4,13 +4,17 @@ import (
 	"io"
 	"testing"
 
+	"go.vxn.dev/dish/pkg/config"
 	"go.vxn.dev/dish/pkg/testhelpers"
 )
 
 func TestFetchSocketsFromFile(t *testing.T) {
 	filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
+	cfg := &config.Config{
+		Source: filePath,
+	}
 
-	reader, err := fetchSocketsFromFile(filePath)
+	reader, err := fetchSocketsFromFile(cfg)
 	if err != nil {
 		t.Fatalf("Failed to fetch sockets from file %v\n", err)
 	}
