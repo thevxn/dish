@@ -20,8 +20,16 @@ dish
 
 ## Install
 
+Using `go install`:
+
 ```shell
 go install go.vxn.dev/dish/cmd/dish@latest
+```
+
+Using Homebrew:
+
+```shell
+brew install dish
 ```
 
 ## Usage
