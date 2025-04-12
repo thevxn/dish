@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"go.vxn.dev/dish/pkg/config"
 	"go.vxn.dev/dish/pkg/testhelpers"
 )
 
@@ -24,7 +25,14 @@ func TestNewPushgatewaySender(t *testing.T) {
 		// template will be compared based on its output, no need for it here
 	}
 
-	actual, err := NewPushgatewaySender(mockHTTPClient, url, instanceName, verbose, notifySuccess)
+	cfg := &config.Config{
+		PushgatewayURL:       url,
+		InstanceName:         instanceName,
+		Verbose:              verbose,
+		MachineNotifySuccess: notifySuccess,
+	}
+
+	actual, err := NewPushgatewaySender(mockHTTPClient, cfg)
 	if err != nil {
 		t.Fatalf("error creating a new Pushgateway sender instance: %v", err)
 	}
@@ -66,6 +74,15 @@ func TestSend_Pushgateway(t *testing.T) {
 			"test1": true,
 			"test2": false,
 		},
+	}
+
+	newConfig := func(url, instanceName string, notifySuccess, verbose bool) *config.Config {
+		return &config.Config{
+			PushgatewayURL:       url,
+			InstanceName:         instanceName,
+			Verbose:              verbose,
+			MachineNotifySuccess: notifySuccess,
+		}
 	}
 
 	tests := []struct {
@@ -192,7 +209,8 @@ func TestSend_Pushgateway(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sender, err := NewPushgatewaySender(tt.client, url, tt.instanceName, tt.verbose, tt.notifySuccess)
+			cfg := newConfig(url, tt.instanceName, tt.notifySuccess, tt.verbose)
+			sender, err := NewPushgatewaySender(tt.client, cfg)
 			if err != nil {
 				t.Fatalf("failed to create Pushgateway sender instance: %v", err)
 			}
@@ -206,7 +224,14 @@ func TestSend_Pushgateway(t *testing.T) {
 }
 
 func TestCreateMessage(t *testing.T) {
-	sender, err := NewPushgatewaySender(&testhelpers.SuccessStatusHTTPClient{}, "https://abc123.xyz.com", "test-instance", false, false)
+	cfg := &config.Config{
+		PushgatewayURL:       "https://abc123.xyz.com",
+		InstanceName:         "test-instance",
+		MachineNotifySuccess: false,
+		Verbose:              false,
+	}
+
+	sender, err := NewPushgatewaySender(&testhelpers.SuccessStatusHTTPClient{}, cfg)
 	if err != nil {
 		t.Fatalf("failed to create Pushgateway sender instance: %v", err)
 	}

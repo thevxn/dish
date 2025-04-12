@@ -7,90 +7,65 @@ import (
 	"path/filepath"
 	"testing"
 
+	"go.vxn.dev/dish/pkg/config"
 	"go.vxn.dev/dish/pkg/testhelpers"
 )
 
 func TestFetchSocketsFromRemote(t *testing.T) {
 	apiHeaderName := "Authorization"
 	apiHeaderValue := "Bearer xyzzzzzzz"
-
 	mockServer := testhelpers.NewMockServer(t, apiHeaderName, apiHeaderValue, testhelpers.TestSocketList, http.StatusOK)
 
-	t.Run("Fetch With Valid Cache", func(t *testing.T) {
-		filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
-		cacheDir := filepath.Dir(filePath)
-
-		resp, err := fetchSocketsFromRemote(mockServer.URL, true, cacheDir, 10, apiHeaderName, apiHeaderValue)
-		if err != nil {
-			t.Fatalf("expected no error, got %v", err)
+	newConfig := func(source string, useCache bool, ttl uint) *config.Config {
+		// Temp cache directory needs to be created and specified for each test separately
+		// See the range tests below
+		return &config.Config{
+			Source:             source,
+			ApiCacheSockets:    useCache,
+			ApiCacheTTLMinutes: ttl,
+			ApiHeaderName:      apiHeaderName,
+			ApiHeaderValue:     apiHeaderValue,
 		}
+	}
 
-		readBytes, err := io.ReadAll(resp)
-		if err != nil {
-			t.Fatalf("failed to read from response: %v", err)
-		}
-		if string(readBytes) != testhelpers.TestSocketList {
-			t.Errorf("expected %s, got %s", testhelpers.TestSocketList, string(readBytes))
-		}
-	})
+	tests := []struct {
+		name          string
+		cfg           *config.Config
+		expectedError bool
+	}{
+		{"Fetch With Valid Cache", newConfig(mockServer.URL, true, 10), false},
+		{"Fetch With Expired Cache", newConfig(mockServer.URL, true, 0), false},
+		{"Fetch Without Caching", newConfig(mockServer.URL, false, 0), false},
+		{"Invalid URL Without Cache", newConfig("http://badurl.com", false, 0), true},
+		{"Invalid URL With Cache", newConfig("http://badurl.com", true, 0), true},
+	}
 
-	t.Run("Fetch With Expired Cache", func(t *testing.T) {
-		filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
-		cacheDir := filepath.Dir(filePath)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Specify temp cache file & directory for each test separately
+			// This fixes open file handles preventing the tests from succeeding on Windows
+			filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
+			tt.cfg.ApiCacheDirectory = filepath.Dir(filePath)
 
-		resp, err := fetchSocketsFromRemote(mockServer.URL, true, cacheDir, 0, apiHeaderName, apiHeaderValue)
-		if err != nil {
-			t.Fatalf("expected no error, got %v", err)
-		}
+			resp, err := fetchSocketsFromRemote(tt.cfg)
+			if tt.expectedError {
+				if err == nil || errors.Is(err, ErrExpiredCache) {
+					t.Errorf("expected error, got %v", err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("expected no error, got %v", err)
+			}
 
-		readBytes, err := io.ReadAll(resp)
-		if err != nil {
-			t.Fatalf("failed to read from response: %v", err)
-		}
-		if string(readBytes) != testhelpers.TestSocketList {
-			t.Errorf("expected %s, got %s", testhelpers.TestSocketList, string(readBytes))
-		}
-	})
+			readBytes, err := io.ReadAll(resp)
+			if err != nil {
+				t.Fatalf("failed to read from response: %v", err)
+			}
 
-	t.Run("Fetch Without Caching", func(t *testing.T) {
-		filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
-		cacheDir := filepath.Dir(filePath)
-
-		resp, err := fetchSocketsFromRemote(mockServer.URL, false, cacheDir, 0, apiHeaderName, apiHeaderValue)
-		if err != nil {
-			t.Fatalf("expected no error, got %v", err)
-		}
-
-		readBytes, err := io.ReadAll(resp)
-		if err != nil {
-			t.Fatalf("failed to read from response: %v", err)
-		}
-		if string(readBytes) != testhelpers.TestSocketList {
-			t.Errorf("expected %s, got %s", testhelpers.TestSocketList, string(readBytes))
-		}
-	})
-
-	t.Run("Invalid URL Without Cache Flag", func(t *testing.T) {
-		filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
-		cacheDir := filepath.Dir(filePath)
-
-		badURL := "http://badurl.com"
-
-		_, err := fetchSocketsFromRemote(badURL, false, cacheDir, 0, apiHeaderName, apiHeaderValue)
-		if err == nil {
-			t.Errorf("expected error, got none")
-		}
-	})
-
-	t.Run("Invalid URL With Cache Flag", func(t *testing.T) {
-		filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
-		cacheDir := filepath.Dir(filePath)
-
-		badURL := "http://badurl.com"
-
-		_, err := fetchSocketsFromRemote(badURL, true, cacheDir, 0, apiHeaderName, apiHeaderValue)
-		if err == nil || errors.Is(err, ErrExpiredCache) {
-			t.Errorf("expected error, got %v\n", err)
-		}
-	})
+			if string(readBytes) != testhelpers.TestSocketList {
+				t.Errorf("expected %s, got %s", testhelpers.TestSocketList, string(readBytes))
+			}
+		})
+	}
 }

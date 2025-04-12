@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"log"
+
+	"go.vxn.dev/dish/pkg/config"
 )
 
 type Result struct {
@@ -59,14 +61,14 @@ func LoadSocketList(reader io.ReadCloser) (*SocketList, error) {
 }
 
 // FetchSocketList fetches the list of sockets to be checked. 'input' should be a string like '/path/filename.json', or an HTTP URL string.
-func FetchSocketList(input string, cacheSockets bool, cacheDir string, cacheTTL uint, apiHeaderName string, apiHeaderValue string) (*SocketList, error) {
+func FetchSocketList(config *config.Config) (*SocketList, error) {
 	var reader io.ReadCloser
 	var err error
 
-	if IsFilePath(input) {
-		reader, err = fetchSocketsFromFile(input)
+	if IsFilePath(config.Source) {
+		reader, err = fetchSocketsFromFile(config)
 	} else {
-		reader, err = fetchSocketsFromRemote(input, cacheSockets, cacheDir, cacheTTL, apiHeaderName, apiHeaderValue)
+		reader, err = fetchSocketsFromRemote(config)
 	}
 
 	if err != nil {

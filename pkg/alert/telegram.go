@@ -5,10 +5,14 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+
+	"go.vxn.dev/dish/pkg/config"
 )
 
-const baseURL = "https://api.telegram.org"
-const messageTitle = "\U0001F4E1 <b>dish run results</b>:" // 📡
+const (
+	baseURL      = "https://api.telegram.org"
+	messageTitle = "\U0001F4E1 <b>dish run results</b>:" // 📡
+)
 
 type telegramSender struct {
 	httpClient    HTTPClient
@@ -18,13 +22,13 @@ type telegramSender struct {
 	notifySuccess bool
 }
 
-func NewTelegramSender(httpClient HTTPClient, chatID string, token string, verbose bool, notifySuccess bool) *telegramSender {
+func NewTelegramSender(httpClient HTTPClient, config *config.Config) *telegramSender {
 	return &telegramSender{
 		httpClient,
-		chatID,
-		token,
-		verbose,
-		notifySuccess,
+		config.TelegramChatID,
+		config.TelegramBotToken,
+		config.Verbose,
+		config.TextNotifySuccess,
 	}
 }
 

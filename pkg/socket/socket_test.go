@@ -5,8 +5,10 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"reflect"
 	"testing"
 
+	"go.vxn.dev/dish/pkg/config"
 	"go.vxn.dev/dish/pkg/testhelpers"
 )
 
@@ -57,53 +59,67 @@ func TestLoadSocketList(t *testing.T) {
 }
 
 func TestFetchSocketList(t *testing.T) {
-	t.Run("Fetch from file", func(t *testing.T) {
-		path := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
+	mockServer := testhelpers.NewMockServer(t, "", "", testhelpers.TestSocketList, http.StatusOK)
+	validFile := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
+	socketStringReader := io.NopCloser(bytes.NewBufferString(testhelpers.TestSocketList))
+	originalList, err := LoadSocketList(socketStringReader)
+	if err != nil {
+		t.Fatalf("failed to parse sockets string to an object: %v", err)
+	}
 
-		list, err := FetchSocketList(path, false, "", 0, "", "")
-		if err != nil {
-			t.Fatal(err)
+	newConfig := func(source string) *config.Config {
+		return &config.Config{
+			Source: source,
 		}
+	}
 
-		if len(list.Sockets) != 1 {
-			t.Errorf("Expected list length to be 1, got %d elements\n", len(list.Sockets))
-		}
+	tests := []struct {
+		name        string
+		source      string
+		expectError bool
+	}{
+		{
+			name:        "Fetch from file",
+			source:      validFile,
+			expectError: false,
+		},
+		{
+			name:        "Fetch from remote",
+			source:      mockServer.URL,
+			expectError: false,
+		},
+		{
+			name:        "Fetch from remote with bad URL",
+			source:      "http://invalid-host.local",
+			expectError: true,
+		},
+		{
+			name:        "Fetch from not existent file",
+			source:      "thisdoesntexist.json",
+			expectError: true,
+		},
+	}
 
-		expectedID := "vxn_dev_https"
-		if expectedID != list.Sockets[0].ID {
-			t.Errorf("Expected ID=%s, got ID=%s\n", expectedID, list.Sockets[0].ID)
-		}
-	})
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg := newConfig(tt.source)
 
-	t.Run("Fetch from remote", func(t *testing.T) {
-		server := testhelpers.NewMockServer(t, "", "", testhelpers.TestSocketList, http.StatusOK)
+			fetchedList, err := FetchSocketList(cfg)
+			if tt.expectError {
+				if err == nil {
+					t.Errorf("expected error, got %v", err)
+				}
+				return
+			}
 
-		list, err := FetchSocketList(server.URL, false, "", 0, "", "")
-		if err != nil {
-			t.Fatal(err)
-		}
+			if err != nil {
+				t.Fatalf("expected no error, got %v", err)
+			}
 
-		if len(list.Sockets) != 1 {
-			t.Errorf("Expected list length to be 1, got %d elements\n", len(list.Sockets))
-		}
-
-		expectedID := "vxn_dev_https"
-		if expectedID != list.Sockets[0].ID {
-			t.Errorf("Expected ID=%s, got ID=%s\n", expectedID, list.Sockets[0].ID)
-		}
-	})
-
-	t.Run("Fetch from remote with bad URL", func(t *testing.T) {
-		_, err := FetchSocketList("http://invalid-host.local", false, "", 0, "", "")
-		if err == nil {
-			t.Errorf("Expected an error got nil\n")
-		}
-	})
-
-	t.Run("Fetch from not existent file", func(t *testing.T) {
-		_, err := FetchSocketList("thisdoesnotexist.json", false, "", 0, "", "")
-		if err == nil {
-			t.Errorf("Expected an error got nil\n")
-		}
-	})
+			// Manual comparison of 2 objects won't work because of expected codes type ([]int) in Socket struct
+			if !reflect.DeepEqual(fetchedList, originalList) {
+				t.Errorf("expected %+v, got %+v", originalList, fetchedList)
+			}
+		})
+	}
 }

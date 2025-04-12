@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 	"text/template"
+
+	"go.vxn.dev/dish/pkg/config"
 )
 
 const (
@@ -36,9 +38,9 @@ type pushgatewaySender struct {
 }
 
 // NewPushgatewaySender validates the provided URL, prepares and parses a message template to be used for alerting and returns a new pushgatewaySender struct with the provided attributes.
-func NewPushgatewaySender(httpClient HTTPClient, url string, instanceName string, verbose bool, notifySuccess bool) (*pushgatewaySender, error) {
+func NewPushgatewaySender(httpClient HTTPClient, config *config.Config) (*pushgatewaySender, error) {
 	// Parse and validate the provided URL
-	parsedURL, err := parseAndValidateURL(url, nil)
+	parsedURL, err := parseAndValidateURL(config.PushgatewayURL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -52,9 +54,9 @@ func NewPushgatewaySender(httpClient HTTPClient, url string, instanceName string
 	return &pushgatewaySender{
 		httpClient:    httpClient,
 		url:           parsedURL.String(),
-		instanceName:  instanceName,
-		verbose:       verbose,
-		notifySuccess: notifySuccess,
+		instanceName:  config.InstanceName,
+		verbose:       config.Verbose,
+		notifySuccess: config.MachineNotifySuccess,
 		tmpl:          tmpl,
 	}, nil
 }

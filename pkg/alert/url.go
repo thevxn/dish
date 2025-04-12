@@ -10,7 +10,7 @@ import (
 var defaultSchemes = []string{"http", "https"}
 
 // parseAndValidateURL parses and validates a URL with strict scheme requirements.
-// The supportedSchemes parameter allows customizing allowed protocols (defaults to http/https if nil).
+// The supportedSchemes parameter allows customizing allowed protocols (defaults to HTTP/HTTPS if nil).
 func parseAndValidateURL(rawURL string, supportedSchemes []string) (*url.URL, error) {
 	if strings.TrimSpace(rawURL) == "" {
 		return nil, fmt.Errorf("URL cannot be empty")

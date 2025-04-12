@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"go.vxn.dev/dish/pkg/config"
 )
 
 type apiSender struct {
@@ -17,8 +19,8 @@ type apiSender struct {
 	notifySuccess bool
 }
 
-func NewAPISender(httpClient HTTPClient, url string, headerName string, headerValue string, verbose bool, notifySuccess bool) (*apiSender, error) {
-	parsedURL, err := parseAndValidateURL(url, nil)
+func NewAPISender(httpClient HTTPClient, config *config.Config) (*apiSender, error) {
+	parsedURL, err := parseAndValidateURL(config.ApiURL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -26,10 +28,10 @@ func NewAPISender(httpClient HTTPClient, url string, headerName string, headerVa
 	return &apiSender{
 		httpClient:    httpClient,
 		url:           parsedURL.String(),
-		headerName:    headerName,
-		headerValue:   headerValue,
-		verbose:       verbose,
-		notifySuccess: notifySuccess,
+		headerName:    config.ApiHeaderName,
+		headerValue:   config.ApiHeaderValue,
+		verbose:       config.Verbose,
+		notifySuccess: config.MachineNotifySuccess,
 	}, nil
 }
 
