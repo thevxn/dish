@@ -15,9 +15,9 @@ func fetchSocketsFromFile(config *config.Config) (io.ReadCloser, error) {
 		return nil, err
 	}
 
-	// TODO: replace with logger
+	// TODO: Replace with logger
 	if config.Verbose {
-		log.Printf("Fetching sockets from the source (%s)", config.Source)
+		log.Printf("fetching sockets from file (%s)", config.Source)
 	}
 
 	return file, nil
