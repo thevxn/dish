@@ -45,8 +45,7 @@ func TestFetchSocketsFromRemote(t *testing.T) {
 			// Specify temp cache file & directory for each test separately
 			// This fixes open file handles preventing the tests from succeeding on Windows
 			filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
-			cacheDir := filepath.Dir(filePath)
-			tt.cfg.ApiCacheDirectory = cacheDir
+			tt.cfg.ApiCacheDirectory = filepath.Dir(filePath)
 
 			resp, err := fetchSocketsFromRemote(tt.cfg)
 			if tt.expectedError {
