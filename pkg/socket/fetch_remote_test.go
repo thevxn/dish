@@ -16,14 +16,12 @@ func TestFetchSocketsFromRemote(t *testing.T) {
 	apiHeaderValue := "Bearer xyzzzzzzz"
 	mockServer := testhelpers.NewMockServer(t, apiHeaderName, apiHeaderValue, testhelpers.TestSocketList, http.StatusOK)
 
-	filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
-	cacheDir := filepath.Dir(filePath)
-
 	newConfig := func(source string, useCache bool, ttl uint) *config.Config {
+		// Temp cache directory needs to be created and specified for each test separately
+		// See the range tests below
 		return &config.Config{
 			Source:             source,
 			ApiCacheSockets:    useCache,
-			ApiCacheDirectory:  cacheDir,
 			ApiCacheTTLMinutes: ttl,
 			ApiHeaderName:      apiHeaderName,
 			ApiHeaderValue:     apiHeaderValue,
@@ -44,6 +42,12 @@ func TestFetchSocketsFromRemote(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// Specify temp cache file & directory for each test separately
+			// This fixes open file handles preventing the tests from succeeding on Windows
+			filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
+			cacheDir := filepath.Dir(filePath)
+			tt.cfg.ApiCacheDirectory = cacheDir
+
 			resp, err := fetchSocketsFromRemote(tt.cfg)
 			if tt.expectedError {
 				if err == nil || errors.Is(err, ErrExpiredCache) {
@@ -51,7 +55,6 @@ func TestFetchSocketsFromRemote(t *testing.T) {
 				}
 				return
 			}
-
 			if err != nil {
 				t.Fatalf("expected no error, got %v", err)
 			}
