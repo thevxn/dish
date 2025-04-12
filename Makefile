@@ -72,7 +72,6 @@ all: info
 info: 
 	@echo -e "\n${GREEN} ${PROJECT_NAME} / Makefile ${RESET}\n"
 
-	@echo -e "${YELLOW} make fmt     --- reformat the go source (gofmt) ${RESET}"
 	@echo -e "${YELLOW} make test    --- run unit tests (go test) ${RESET}"
 	@echo -e "${YELLOW} make build   --- build project (docker image) ${RESET}"
 	@echo -e "${YELLOW} make run     --- run project ${RESET}"
