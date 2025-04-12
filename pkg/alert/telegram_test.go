@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	"go.vxn.dev/dish/pkg/config"
 	"go.vxn.dev/dish/pkg/testhelpers"
 )
 
@@ -23,7 +24,14 @@ func TestNewTelegramSender(t *testing.T) {
 		notifySuccess: notifySuccess,
 	}
 
-	actual := NewTelegramSender(mockHTTPClient, chatID, token, verbose, notifySuccess)
+	cfg := &config.Config{
+		TelegramChatID:    chatID,
+		TelegramBotToken:  token,
+		Verbose:           verbose,
+		TextNotifySuccess: notifySuccess,
+	}
+
+	actual := NewTelegramSender(mockHTTPClient, cfg)
 
 	if !reflect.DeepEqual(expected, actual) {
 		t.Fatalf("expected %v, got %v", expected, actual)
@@ -31,6 +39,15 @@ func TestNewTelegramSender(t *testing.T) {
 }
 
 func TestSend_Telegram(t *testing.T) {
+	newConfig := func(chatID, token string, verbose, notifySuccess bool) *config.Config {
+		return &config.Config{
+			TelegramChatID:    chatID,
+			TelegramBotToken:  token,
+			Verbose:           verbose,
+			TextNotifySuccess: notifySuccess,
+		}
+	}
+
 	tests := []struct {
 		name          string
 		client        HTTPClient
@@ -116,7 +133,8 @@ func TestSend_Telegram(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sender := NewTelegramSender(tt.client, "-123", "abc123", tt.verbose, tt.notifySuccess)
+			cfg := newConfig("-123", "abc123", tt.verbose, tt.notifySuccess)
+			sender := NewTelegramSender(tt.client, cfg)
 
 			err := sender.send(tt.rawMessage, tt.failedCount)
 

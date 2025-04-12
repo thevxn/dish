@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"go.vxn.dev/dish/pkg/config"
 )
 
 type webhookSender struct {
@@ -15,8 +17,8 @@ type webhookSender struct {
 	notifySuccess bool
 }
 
-func NewWebhookSender(httpClient HTTPClient, url string, verbose bool, notifySuccess bool) (*webhookSender, error) {
-	parsedURL, err := parseAndValidateURL(url, nil)
+func NewWebhookSender(httpClient HTTPClient, config *config.Config) (*webhookSender, error) {
+	parsedURL, err := parseAndValidateURL(config.WebhookURL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -24,8 +26,8 @@ func NewWebhookSender(httpClient HTTPClient, url string, verbose bool, notifySuc
 	return &webhookSender{
 		httpClient:    httpClient,
 		url:           parsedURL.String(),
-		verbose:       verbose,
-		notifySuccess: notifySuccess,
+		verbose:       config.Verbose,
+		notifySuccess: config.MachineNotifySuccess,
 	}, nil
 }
 

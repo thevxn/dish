@@ -39,7 +39,7 @@ func NewNotifier(httpClient HTTPClient, config *config.Config) *notifier {
 
 	// Telegram
 	if config.TelegramBotToken != "" && config.TelegramChatID != "" {
-		notificationSenders = append(notificationSenders, NewTelegramSender(httpClient, config.TelegramChatID, config.TelegramBotToken, config.Verbose, config.TextNotifySuccess))
+		notificationSenders = append(notificationSenders, NewTelegramSender(httpClient, config))
 	}
 
 	// Set machine interface integrations to be notified (e.g. Webhooks)
@@ -47,7 +47,7 @@ func NewNotifier(httpClient HTTPClient, config *config.Config) *notifier {
 
 	// Remote API
 	if config.ApiURL != "" {
-		apiSender, err := NewAPISender(httpClient, config.ApiURL, config.ApiHeaderName, config.ApiHeaderValue, config.Verbose, config.MachineNotifySuccess)
+		apiSender, err := NewAPISender(httpClient, config)
 		if err != nil {
 			log.Println("error creating new remote API sender:", err)
 		} else {
@@ -57,7 +57,7 @@ func NewNotifier(httpClient HTTPClient, config *config.Config) *notifier {
 
 	// Webhooks
 	if config.WebhookURL != "" {
-		webhookSender, err := NewWebhookSender(httpClient, config.WebhookURL, config.Verbose, config.MachineNotifySuccess)
+		webhookSender, err := NewWebhookSender(httpClient, config)
 		if err != nil {
 			log.Println("error creating new webhook sender:", err)
 		} else {
@@ -67,7 +67,7 @@ func NewNotifier(httpClient HTTPClient, config *config.Config) *notifier {
 
 	// Pushgateway
 	if config.PushgatewayURL != "" {
-		pgwSender, err := NewPushgatewaySender(httpClient, config.PushgatewayURL, config.InstanceName, config.Verbose, config.MachineNotifySuccess)
+		pgwSender, err := NewPushgatewaySender(httpClient, config)
 		if err != nil {
 			log.Println("error creating new Pushgateway sender:", err)
 		} else {

@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	"go.vxn.dev/dish/pkg/config"
 	"go.vxn.dev/dish/pkg/testhelpers"
 )
 
@@ -25,7 +26,15 @@ func TestNewAPISender(t *testing.T) {
 		verbose:       verbose,
 	}
 
-	actual, _ := NewAPISender(mockHTTPClient, url, headerName, headerValue, verbose, notifySuccess)
+	cfg := &config.Config{
+		ApiURL:               url,
+		ApiHeaderName:        headerName,
+		ApiHeaderValue:       headerValue,
+		MachineNotifySuccess: notifySuccess,
+		Verbose:              verbose,
+	}
+
+	actual, _ := NewAPISender(mockHTTPClient, cfg)
 
 	if !reflect.DeepEqual(expected, actual) {
 		t.Fatalf("expected %v, got %v", expected, actual)
@@ -52,6 +61,16 @@ func TestSend_API(t *testing.T) {
 			"test1": true,
 			"test2": false,
 		},
+	}
+
+	newConfig := func(headerName, headerValue string, notifySuccess, verbose bool) *config.Config {
+		return &config.Config{
+			ApiURL:               url,
+			MachineNotifySuccess: notifySuccess,
+			Verbose:              verbose,
+			ApiHeaderName:        headerName,
+			ApiHeaderValue:       headerValue,
+		}
 	}
 
 	tests := []struct {
@@ -190,7 +209,8 @@ func TestSend_API(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sender, err := NewAPISender(tt.client, url, tt.headerName, tt.headerValue, tt.verbose, tt.notifySuccess)
+			cfg := newConfig(tt.headerName, tt.headerValue, tt.notifySuccess, tt.verbose)
+			sender, err := NewAPISender(tt.client, cfg)
 			if err != nil {
 				t.Fatalf("failed to create API sender instance: %v", err)
 			}

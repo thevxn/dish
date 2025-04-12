@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	"go.vxn.dev/dish/pkg/config"
 	"go.vxn.dev/dish/pkg/testhelpers"
 )
 
@@ -21,7 +22,12 @@ func TestNewWebhookSender(t *testing.T) {
 		verbose:       verbose,
 	}
 
-	actual, _ := NewWebhookSender(mockHTTPClient, url, verbose, notifySuccess)
+	cfg := &config.Config{
+		WebhookURL:           url,
+		Verbose:              verbose,
+		MachineNotifySuccess: notifySuccess,
+	}
+	actual, _ := NewWebhookSender(mockHTTPClient, cfg)
 
 	if !reflect.DeepEqual(expected, actual) {
 		t.Fatalf("expected %v, got %v", expected, actual)
@@ -46,6 +52,14 @@ func TestSend_Webhook(t *testing.T) {
 			"test1": true,
 			"test2": false,
 		},
+	}
+
+	newConfig := func(url string, notifySuccess, verbose bool) *config.Config {
+		return &config.Config{
+			WebhookURL:           url,
+			Verbose:              verbose,
+			MachineNotifySuccess: notifySuccess,
+		}
 	}
 
 	tests := []struct {
@@ -151,7 +165,8 @@ func TestSend_Webhook(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sender, err := NewWebhookSender(tt.client, url, tt.verbose, tt.notifySuccess)
+			cfg := newConfig(url, tt.verbose, tt.notifySuccess)
+			sender, err := NewWebhookSender(tt.client, cfg)
 			if err != nil {
 				t.Fatalf("failed to create Webhook sender instance: %v", err)
 			}
