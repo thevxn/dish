@@ -31,24 +31,24 @@ func copyBody(body io.ReadCloser, buf *bytes.Buffer) error {
 //   - Optional query parameters
 //
 // Example url: http://api.example.com:5569/stream?query=variable
-func fetchSocketsFromRemote(cfg *config.Config) (io.ReadCloser, error) {
-	cacheFilePath := hashUrlToFilePath(cfg.Source, cfg.ApiCacheDirectory)
+func fetchSocketsFromRemote(config *config.Config) (io.ReadCloser, error) {
+	cacheFilePath := hashUrlToFilePath(config.Source, config.ApiCacheDirectory)
 
 	// If we do not want to cache sockets to the file, fetch from network
-	if !cfg.ApiCacheSockets {
-		return loadFreshSockets(cfg.Source, cfg.ApiHeaderName, cfg.ApiHeaderValue)
+	if !config.ApiCacheSockets {
+		return loadFreshSockets(config.Source, config.ApiHeaderName, config.ApiHeaderValue)
 	}
 
 	// If cache is enabled, try to load sockets from it first
-	cachedReader, cacheTime, err := loadCachedSockets(cacheFilePath, cfg.ApiCacheTTLMinutes)
+	cachedReader, cacheTime, err := loadCachedSockets(cacheFilePath, config.ApiCacheTTLMinutes)
 	// If cache is expired or fails to load, attempt to fetch fresh sockets
 	if err != nil {
-		log.Printf("cache unavailable for URL: %s (reason: %v); attempting network fetch", cfg.Source, err)
+		log.Printf("cache unavailable for URL: %s (reason: %v); attempting network fetch", config.Source, err)
 
 		// Fetch fresh sockets from network
-		respBody, fetchErr := loadFreshSockets(cfg.Source, cfg.ApiHeaderName, cfg.ApiHeaderValue)
+		respBody, fetchErr := loadFreshSockets(config.Source, config.ApiHeaderName, config.ApiHeaderValue)
 		if fetchErr != nil {
-			log.Printf("fetching socket list from remote API at %s failed: %v", cfg.Source, fetchErr)
+			log.Printf("fetching socket list from remote API at %s failed: %v", config.Source, fetchErr)
 
 			// If the fetch fails and expired cache is not available, return the fetch error
 			if err != ErrExpiredCache {
@@ -65,7 +65,7 @@ func fetchSocketsFromRemote(cfg *config.Config) (io.ReadCloser, error) {
 			return nil, fmt.Errorf("failed to copy response body: %w", err)
 		}
 
-		if err := saveSocketsToCache(cacheFilePath, cfg.ApiCacheDirectory, buf.Bytes()); err != nil {
+		if err := saveSocketsToCache(cacheFilePath, config.ApiCacheDirectory, buf.Bytes()); err != nil {
 			log.Printf("failed to save fetched sockets to cache: %v", err)
 		}
 

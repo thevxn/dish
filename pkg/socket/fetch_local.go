@@ -9,15 +9,15 @@ import (
 )
 
 // fetchSocketsFromFile opens a file and returns [io.ReadCloser] for reading from the stream.
-func fetchSocketsFromFile(cfg *config.Config) (io.ReadCloser, error) {
-	file, err := os.Open(cfg.Source)
+func fetchSocketsFromFile(config *config.Config) (io.ReadCloser, error) {
+	file, err := os.Open(config.Source)
 	if err != nil {
 		return nil, err
 	}
 
 	// TODO: replace with logger
-	if cfg.Verbose {
-		log.Printf("Fetching sockets from the source (%s)", cfg.Source)
+	if config.Verbose {
+		log.Printf("Fetching sockets from the source (%s)", config.Source)
 	}
 
 	return file, nil

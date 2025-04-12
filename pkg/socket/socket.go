@@ -61,14 +61,14 @@ func LoadSocketList(reader io.ReadCloser) (*SocketList, error) {
 }
 
 // FetchSocketList fetches the list of sockets to be checked. 'input' should be a string like '/path/filename.json', or an HTTP URL string.
-func FetchSocketList(cfg *config.Config) (*SocketList, error) {
+func FetchSocketList(config *config.Config) (*SocketList, error) {
 	var reader io.ReadCloser
 	var err error
 
-	if IsFilePath(cfg.Source) {
-		reader, err = fetchSocketsFromFile(cfg)
+	if IsFilePath(config.Source) {
+		reader, err = fetchSocketsFromFile(config)
 	} else {
-		reader, err = fetchSocketsFromRemote(cfg)
+		reader, err = fetchSocketsFromRemote(config)
 	}
 
 	if err != nil {

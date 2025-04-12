@@ -67,7 +67,7 @@ func TestFetchSocketList(t *testing.T) {
 		t.Fatalf("failed to parse sockets string to an object: %v", err)
 	}
 
-	newCfg := func(source string) *config.Config {
+	newConfig := func(source string) *config.Config {
 		return &config.Config{
 			Source: source,
 		}
@@ -102,7 +102,7 @@ func TestFetchSocketList(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cfg := newCfg(tt.source)
+			cfg := newConfig(tt.source)
 
 			fetchedList, err := FetchSocketList(cfg)
 			if tt.expectError {
