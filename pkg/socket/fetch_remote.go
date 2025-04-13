@@ -36,7 +36,7 @@ func fetchSocketsFromRemote(config *config.Config) (io.ReadCloser, error) {
 
 	// If we do not want to cache sockets to the file, fetch from network
 	if !config.ApiCacheSockets {
-		return loadFreshSockets(config.Source, config.ApiHeaderName, config.ApiHeaderValue)
+		return loadFreshSockets(config)
 	}
 
 	// If cache is enabled, try to load sockets from it first
@@ -46,7 +46,7 @@ func fetchSocketsFromRemote(config *config.Config) (io.ReadCloser, error) {
 		log.Printf("cache unavailable for URL: %s (reason: %v); attempting network fetch", config.Source, err)
 
 		// Fetch fresh sockets from network
-		respBody, fetchErr := loadFreshSockets(config.Source, config.ApiHeaderName, config.ApiHeaderValue)
+		respBody, fetchErr := loadFreshSockets(config)
 		if fetchErr != nil {
 			log.Printf("fetching socket list from remote API at %s failed: %v", config.Source, fetchErr)
 
@@ -78,8 +78,8 @@ func fetchSocketsFromRemote(config *config.Config) (io.ReadCloser, error) {
 }
 
 // loadFreshSockets fetches fresh sockets from the remote source.
-func loadFreshSockets(url string, apiHeaderName string, apiHeaderValue string) (io.ReadCloser, error) {
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+func loadFreshSockets(config *config.Config) (io.ReadCloser, error) {
+	req, err := http.NewRequest(http.MethodGet, config.Source, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
 	}
@@ -87,8 +87,8 @@ func loadFreshSockets(url string, apiHeaderName string, apiHeaderValue string) (
 	client := &http.Client{}
 	req.Header.Set("Content-Type", "application/json")
 
-	if apiHeaderName != "" && apiHeaderValue != "" {
-		req.Header.Set(apiHeaderName, apiHeaderValue)
+	if config.ApiHeaderName != "" && config.ApiHeaderValue != "" {
+		req.Header.Set(config.ApiHeaderName, config.ApiHeaderValue)
 	}
 
 	resp, err := client.Do(req)
