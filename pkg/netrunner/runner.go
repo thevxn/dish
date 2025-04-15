@@ -1,6 +1,7 @@
 package netrunner
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
@@ -16,97 +17,106 @@ import (
 
 const agentVersion = "1.10"
 
-func TestSocket(sock socket.Socket, channel chan<- socket.Result, wg *sync.WaitGroup, timeoutSeconds uint, verbose bool) {
+// RunSocketTest is meant to be invoked in a separate goroutine.
+// It runs a test for the given socket. The test result is sent through the given
+// channel. If the test fails to start then the error is logged to stdout and no
+// result is sent. When this func returns, it calls Done() on the WaitGroup and
+// the channel is closed.
+func RunSocketTest(sock socket.Socket, out chan<- socket.Result, wg *sync.WaitGroup, timeoutSeconds uint, verbose bool) {
 	defer wg.Done()
+	defer close(out)
 
-	regex, err := regexp.Compile("^(http|https)://")
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutSeconds)*time.Second)
+	defer cancel()
+
+	runner, err := NewNetRunner(sock, verbose)
 	if err != nil {
-		log.Printf("regex compilation failed: %v", err)
-
-		if channel != nil {
-			close(channel)
-		}
+		log.Printf("failed to test socket: %v", err.Error())
 		return
 	}
 
-	result := socket.Result{
-		Socket: sock,
-	}
-
-	if !regex.MatchString(sock.Host) {
-		// Testing raw host and port (tcp), report only unsuccessful tests; exclusively non-HTTP/S sockets
-		result.Error = rawConnect(sock, timeoutSeconds, verbose)
-		result.Passed = result.Error == nil
-
-		sendResult(channel, result)
-		return
-	}
-
-	result.Passed, result.ResponseCode, result.Error = checkSite(sock, timeoutSeconds, verbose)
-	sendResult(channel, result)
+	out <- runner.RunTest(ctx, sock)
 }
 
-// rawConnect performs a direct host:port socket check
-func rawConnect(sock socket.Socket, timeoutSeconds uint, verbose bool) error {
-	endpoint := net.JoinHostPort(sock.Host, strconv.Itoa(sock.Port))
-	timeout := time.Duration(time.Second * time.Duration(timeoutSeconds))
+// NetRunner is used to run tests for a socket.
+type NetRunner interface {
+	RunTest(ctx context.Context, sock socket.Socket) socket.Result
+}
 
-	if verbose {
-		log.Println("runner: rawconnect: " + endpoint)
+// NewNetRunner determines the protocol used for the socket test and
+// creates a new NetRunner for it.
+func NewNetRunner(sock socket.Socket, verbose bool) (NetRunner, error) {
+	exp, err := regexp.Compile("^(http|https)://")
+	if err != nil {
+		return nil, fmt.Errorf("regex compilation failed: %w", err)
 	}
 
-	// open the socket
-	conn, err := net.DialTimeout("tcp", endpoint, timeout)
+	if exp.MatchString(sock.Host) {
+		return httpRunner{client: &http.Client{}, verbose: verbose}, nil
+	}
+
+	return tcpRunner{verbose: verbose}, nil
+}
+
+type tcpRunner struct {
+	verbose bool
+}
+
+// RunTest is used to test TCP sockets. It opens a TCP connection with the given socket.
+// The test passes if the connection is successfully opened with no errors.
+func (runner tcpRunner) RunTest(ctx context.Context, sock socket.Socket) socket.Result {
+	endpoint := net.JoinHostPort(sock.Host, strconv.Itoa(sock.Port))
+
+	if runner.verbose {
+		log.Println("tcprunner: connect: " + endpoint)
+	}
+
+	d := net.Dialer{}
+
+	conn, err := d.DialContext(ctx, "tcp", endpoint)
 	if err != nil {
-		return err
+		return socket.Result{Socket: sock, Error: err, Passed: false}
 	}
 	defer conn.Close()
 
-	return nil
+	return socket.Result{Socket: sock, Passed: true}
 }
 
-// checkSite executes test over HTTP/S endpoints exclusively
-func checkSite(socket socket.Socket, timeoutSeconds uint, verbose bool) (bool, int, error) {
-	// Configure HTTP client
-	client := &http.Client{
-		Timeout: time.Duration(timeoutSeconds) * time.Second,
-	}
-	url := socket.Host + ":" + strconv.Itoa(socket.Port) + socket.PathHTTP
+type httpRunner struct {
+	client  *http.Client
+	verbose bool
+}
 
-	if verbose {
-		log.Println("runner: checksite:", url)
+// RunTest is used to test HTTP/S endpoints exclusively. It executes a HTTP GET
+// request to the given socket. The test passes if the request did not end with
+// an error and the response status matches the expected HTTP codes.
+func (runner httpRunner) RunTest(ctx context.Context, sock socket.Socket) socket.Result {
+	url := sock.Host + ":" + strconv.Itoa(sock.Port) + sock.PathHTTP
+
+	if runner.verbose {
+		log.Println("httprunner: connect:", url)
 	}
 
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return false, 0, err
+		return socket.Result{Socket: sock, Passed: false, Error: err}
 	}
 	req.Header.Set("User-Agent", fmt.Sprintf("dish/%s", agentVersion))
 
-	// open socket --- Head to url
-	resp, err := client.Do(req)
+	resp, err := runner.client.Do(req)
 	if err != nil {
-		return false, 0, err
+		return socket.Result{Socket: sock, Passed: false, Error: err}
+	}
+	defer resp.Body.Close()
+
+	if !slices.Contains(sock.ExpectedHTTPCodes, resp.StatusCode) {
+		err = fmt.Errorf("expected codes: %v, got %d", sock.ExpectedHTTPCodes, resp.StatusCode)
 	}
 
-	// fetch StatusCode for HTTP expected code comparison
-	if resp != nil {
-		defer resp.Body.Close()
-
-		if !slices.Contains(socket.ExpectedHTTPCodes, resp.StatusCode) {
-			err = fmt.Errorf("expected codes: %v, got %d", socket.ExpectedHTTPCodes, resp.StatusCode)
-		}
-
-		return slices.Contains(socket.ExpectedHTTPCodes, resp.StatusCode), resp.StatusCode, err
-	}
-
-	return true, 0, nil
-}
-
-// sendResult sends the result of a check to the result channel and closes it
-func sendResult(channel chan<- socket.Result, result socket.Result) {
-	if channel != nil {
-		channel <- result
-		close(channel)
+	return socket.Result{
+		Socket:       sock,
+		Passed:       slices.Contains(sock.ExpectedHTTPCodes, resp.StatusCode),
+		ResponseCode: resp.StatusCode,
+		Error:        err,
 	}
 }
