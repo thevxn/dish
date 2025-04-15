@@ -49,7 +49,7 @@ func TestRunSocketTest(t *testing.T) {
 
 		select {
 		// Once the test is finished no further results are sent.
-		// If this select case blocks instead of reading the default immediately value then the channel is not closed.
+		// If this select case blocks instead of reading the default value immediately then the channel is not closed.
 		case <-c:
 		default:
 			t.Error("RunSocketTest: the output channel has not been closed after returning")
