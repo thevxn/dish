@@ -1,3 +1,5 @@
+# https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#standard-github-hosted-runners-for-public-repositories
+
 name: Tests
 
 on:
@@ -7,7 +9,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build_and_test:
+  linux_x64:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,3 +21,69 @@ jobs:
         run: go build -v ./cmd/...
       - name: Test
         run: go test -v ./...
+        
+  windows_x64:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24'
+      - name: Build
+        run: go build -v ./cmd/...
+      - name: Test
+        run: go test -v ./...
+        
+  linux_arm64:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24'
+      - name: Build
+        run: go build -v ./cmd/...
+      - name: Test
+        run: go test -v ./...
+
+  windows_arm64:
+    runs-on: windows-11-arm
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24'
+      - name: Build
+        run: go build -v ./cmd/...
+      - name: Test
+        run: go test -v ./...
+
+  macOS_intel:
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24'
+      - name: Build
+        run: go build -v ./cmd/...
+      - name: Test
+        run: go test -v ./...
+
+  macOS_arm64:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24'
+      - name: Build
+        run: go build -v ./cmd/...
+      - name: Test
+        run: go test -v ./...
+        
