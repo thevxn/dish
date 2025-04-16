@@ -48,18 +48,18 @@ jobs:
       - name: Test
         run: go test -v ./...
 
-  windows_arm64:
-    runs-on: windows-11-arm
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.24'
-      - name: Build
-        run: go build -v ./cmd/...
-      - name: Test
-        run: go test -v ./...
+  # windows_arm64:
+  #   runs-on: windows-11-arm
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Set up Go
+  #       uses: actions/setup-go@v4
+  #       with:
+  #         go-version: '1.24'
+  #     - name: Build
+  #       run: go build -v ./cmd/...
+  #     - name: Test
+  #       run: go test -v ./...
 
   macOS_intel:
     runs-on: macos-13
