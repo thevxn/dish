@@ -68,7 +68,7 @@ func (runner tcpRunner) RunTest(ctx context.Context, sock socket.Socket) socket.
 	endpoint := net.JoinHostPort(sock.Host, strconv.Itoa(sock.Port))
 
 	if runner.verbose {
-		log.Println("tcprunner: connect: " + endpoint)
+		log.Println("TCP runner: connect: " + endpoint)
 	}
 
 	d := net.Dialer{}
@@ -94,7 +94,7 @@ func (runner httpRunner) RunTest(ctx context.Context, sock socket.Socket) socket
 	url := sock.Host + ":" + strconv.Itoa(sock.Port) + sock.PathHTTP
 
 	if runner.verbose {
-		log.Println("httprunner: connect:", url)
+		log.Println("HTTP runner: connect:", url)
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
