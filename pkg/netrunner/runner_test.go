@@ -23,13 +23,15 @@ func TestRunSocketTest(t *testing.T) {
 			Host: "google.com",
 			Port: 80,
 		}
+
 		want := socket.Result{
 			Socket: sock,
 			Passed: true,
 		}
+
 		c := make(chan socket.Result)
-		done := make(chan struct{})
 		wg := &sync.WaitGroup{}
+		done := make(chan struct{})
 
 		wg.Add(1)
 		go RunSocketTest(sock, c, wg, 1, false)
@@ -39,13 +41,13 @@ func TestRunSocketTest(t *testing.T) {
 			done <- struct{}{}
 		}()
 
+		got := <-c
+
 		select {
 		case <-done:
 		case <-time.After(time.Second):
 			t.Fatalf("RunSocketTest: timed out waiting for the test results")
 		}
-
-		got := <-c
 
 		select {
 		// Once the test is finished no further results are sent.
