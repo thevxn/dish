@@ -135,3 +135,7 @@ binaries:
 	@gzip dish-${LATEST_TAG}.linux-x86_64
 	@GOARCH=amd64 GOOS=windows go build -o dish-${LATEST_TAG}.windows-x86_64.exe ${MAIN_PATH}
 	@gzip dish-${LATEST_TAG}.windows-x86_64.exe
+	@GOARCH=arm64 GOOS=darwin go build -o dish-${LATEST_TAG}.macos-arm64 ${MAIN_PATH}
+	@gzip dish-${LATEST_TAG}.macos-arm64
+	@GOARCH=amd64 GOOS=darwin go build -o dish-${LATEST_TAG}.macos-x86_64 ${MAIN_PATH}
+	@gzip dish-${LATEST_TAG}.macos-x86_64
