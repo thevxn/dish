@@ -21,7 +21,7 @@ type MachineNotifier interface {
 }
 
 type notifier struct {
-	verbose          bool
+	logger           *log.Logger
 	chatNotifiers    []ChatNotifier
 	machineNotifiers []MachineNotifier
 }
@@ -76,7 +76,7 @@ func NewNotifier(httpClient HTTPClient, config *config.Config) *notifier {
 	}
 
 	return &notifier{
-		verbose:          config.Verbose,
+		logger:           config.Logger,
 		chatNotifiers:    notificationSenders,
 		machineNotifiers: payloadSenders,
 	}

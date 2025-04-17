@@ -15,7 +15,7 @@ type apiSender struct {
 	url           string
 	headerName    string
 	headerValue   string
-	verbose       bool
+	logger        *log.Logger
 	notifySuccess bool
 }
 
@@ -30,7 +30,7 @@ func NewAPISender(httpClient HTTPClient, config *config.Config) (*apiSender, err
 		url:           parsedURL.String(),
 		headerName:    config.ApiHeaderName,
 		headerValue:   config.ApiHeaderValue,
-		verbose:       config.Verbose,
+		logger:        config.Logger,
 		notifySuccess: config.MachineNotifySuccess,
 	}, nil
 }
@@ -38,9 +38,7 @@ func NewAPISender(httpClient HTTPClient, config *config.Config) (*apiSender, err
 func (s *apiSender) send(m *Results, failedCount int) error {
 	// If no checks failed and success should not be notified, there is nothing to send
 	if failedCount == 0 && !s.notifySuccess {
-		if s.verbose {
-			log.Println("no sockets failed, nothing will be sent to remote API")
-		}
+		s.logger.Println("no sockets failed, nothing will be sent to remote API")
 		return nil
 	}
 
@@ -51,9 +49,7 @@ func (s *apiSender) send(m *Results, failedCount int) error {
 
 	bodyReader := bytes.NewReader(jsonData)
 
-	if s.verbose {
-		log.Printf("prepared remote API data: %s", string(jsonData))
-	}
+	s.logger.Printf("prepared remote API data: %s", string(jsonData))
 
 	// If custom header & value is provided (mostly used for auth purposes), include it in the request
 	opts := []func(*submitOptions){}

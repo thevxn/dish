@@ -13,22 +13,21 @@ func TestNewPushgatewaySender(t *testing.T) {
 
 	url := "https://abc123.xyz.com"
 	instanceName := "test-instance"
-	verbose := false
 	notifySuccess := false
+	logger := config.NewLogger(false)
 
 	expected := &pushgatewaySender{
 		httpClient:    mockHTTPClient,
 		url:           url,
 		instanceName:  "test-instance",
 		notifySuccess: notifySuccess,
-		verbose:       verbose,
 		// template will be compared based on its output, no need for it here
 	}
 
 	cfg := &config.Config{
 		PushgatewayURL:       url,
 		InstanceName:         instanceName,
-		Verbose:              verbose,
+		Logger:               logger,
 		MachineNotifySuccess: notifySuccess,
 	}
 
@@ -36,16 +35,12 @@ func TestNewPushgatewaySender(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error creating a new Pushgateway sender instance: %v", err)
 	}
-
 	// Compare fields individually due to complex structs
 	if expected.url != actual.url {
 		t.Errorf("expected url: %s, got: %s", expected.url, actual.url)
 	}
 	if expected.instanceName != actual.instanceName {
 		t.Errorf("expected instanceName: %s, got: %s", expected.instanceName, actual.instanceName)
-	}
-	if expected.verbose != actual.verbose {
-		t.Errorf("expected verbose: %v, got: %v", expected.verbose, actual.verbose)
 	}
 	if expected.notifySuccess != actual.notifySuccess {
 		t.Errorf("expected notifySuccess: %v, got: %v", expected.notifySuccess, actual.notifySuccess)
@@ -80,8 +75,8 @@ func TestSend_Pushgateway(t *testing.T) {
 		return &config.Config{
 			PushgatewayURL:       url,
 			InstanceName:         instanceName,
-			Verbose:              verbose,
 			MachineNotifySuccess: notifySuccess,
+			Logger:               config.NewLogger(verbose),
 		}
 	}
 

@@ -2,7 +2,6 @@ package socket
 
 import (
 	"io"
-	"log"
 	"os"
 
 	"go.vxn.dev/dish/pkg/config"
@@ -15,10 +14,7 @@ func fetchSocketsFromFile(config *config.Config) (io.ReadCloser, error) {
 		return nil, err
 	}
 
-	// TODO: Replace with logger
-	if config.Verbose {
-		log.Printf("fetching sockets from file (%s)", config.Source)
-	}
+	config.Logger.Printf("fetching sockets from file (%s)", config.Source)
 
 	return file, nil
 }

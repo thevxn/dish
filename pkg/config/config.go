@@ -4,6 +4,9 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
+	"log"
+	"os"
 )
 
 type Config struct {
@@ -15,6 +18,7 @@ type Config struct {
 	ApiCacheTTLMinutes   uint
 	Source               string
 	Verbose              bool
+	Logger               *log.Logger
 	PushgatewayURL       string
 	TelegramBotToken     string
 	TelegramChatID       string
@@ -106,6 +110,8 @@ func NewConfig(fs *flag.FlagSet, args []string) (*Config, error) {
 		return nil, fmt.Errorf("error parsing flags: %w", err)
 	}
 
+	cfg.Logger = NewLogger(cfg.Verbose)
+
 	// Parse args
 	parsedArgs := flag.CommandLine.Args()
 
@@ -117,4 +123,13 @@ func NewConfig(fs *flag.FlagSet, args []string) (*Config, error) {
 	cfg.Source = parsedArgs[0]
 
 	return cfg, nil
+}
+
+// NewLogger returns a logger that writes to stdout if verbose is true,
+// it discards logs if verbose is false.
+func NewLogger(verbose bool) *log.Logger {
+	if verbose {
+		return log.New(os.Stdout, "", 0)
+	}
+	return log.New(io.Discard, "", 0)
 }
