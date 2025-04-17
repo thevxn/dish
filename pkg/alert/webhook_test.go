@@ -13,19 +13,19 @@ func TestNewWebhookSender(t *testing.T) {
 
 	url := "https://abc123.xyz.com"
 	notifySuccess := false
-	verbose := false
+	logger := config.NewLogger(false)
 
 	expected := &webhookSender{
 		httpClient:    mockHTTPClient,
 		url:           url,
 		notifySuccess: notifySuccess,
-		verbose:       verbose,
+		logger:        logger,
 	}
 
 	cfg := &config.Config{
 		WebhookURL:           url,
-		Verbose:              verbose,
 		MachineNotifySuccess: notifySuccess,
+		Logger:               logger,
 	}
 	actual, _ := NewWebhookSender(mockHTTPClient, cfg)
 
@@ -57,7 +57,7 @@ func TestSend_Webhook(t *testing.T) {
 	newConfig := func(url string, notifySuccess, verbose bool) *config.Config {
 		return &config.Config{
 			WebhookURL:           url,
-			Verbose:              verbose,
+			Logger:               config.NewLogger(verbose),
 			MachineNotifySuccess: notifySuccess,
 		}
 	}

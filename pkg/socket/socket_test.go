@@ -19,10 +19,10 @@ func TestPrintSockets(t *testing.T) {
 		},
 	}
 
-	var buf bytes.Buffer
-	log.SetOutput(&buf)
+	buf := new(bytes.Buffer)
+	logger := log.New(buf, "", 0)
 
-	PrintSockets(list)
+	PrintSockets(list, logger)
 
 	expected := "Host: example.com, Port: 80, ExpectedHTTPCodes: [200 404]\n"
 	if !bytes.Contains(buf.Bytes(), []byte(expected)) {
@@ -70,6 +70,7 @@ func TestFetchSocketList(t *testing.T) {
 	newConfig := func(source string) *config.Config {
 		return &config.Config{
 			Source: source,
+			Logger: config.NewLogger(false),
 		}
 	}
 

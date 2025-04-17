@@ -18,7 +18,7 @@ type telegramSender struct {
 	httpClient    HTTPClient
 	chatID        string
 	token         string
-	verbose       bool
+	logger        *log.Logger
 	notifySuccess bool
 }
 
@@ -27,7 +27,7 @@ func NewTelegramSender(httpClient HTTPClient, config *config.Config) *telegramSe
 		httpClient,
 		config.TelegramChatID,
 		config.TelegramBotToken,
-		config.Verbose,
+		config.Logger,
 		config.TextNotifySuccess,
 	}
 }
@@ -35,9 +35,7 @@ func NewTelegramSender(httpClient HTTPClient, config *config.Config) *telegramSe
 func (s *telegramSender) send(rawMessage string, failedCount int) error {
 	// If no checks failed and success should not be notified, there is nothing to send
 	if failedCount == 0 && !s.notifySuccess {
-		if s.verbose {
-			log.Printf("no sockets failed, nothing will be sent to Telegram")
-		}
+		s.logger.Printf("no sockets failed, nothing will be sent to Telegram")
 		return nil
 	}
 

@@ -12,6 +12,7 @@ func TestFetchSocketsFromFile(t *testing.T) {
 	filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
 	cfg := &config.Config{
 		Source: filePath,
+		Logger: config.NewLogger(false),
 	}
 
 	reader, err := fetchSocketsFromFile(cfg)

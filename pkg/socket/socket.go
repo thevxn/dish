@@ -41,10 +41,10 @@ type Socket struct {
 }
 
 // PrintSockets prints SocketList.
-func PrintSockets(list *SocketList) {
-	log.Println("loaded sockets:")
+func PrintSockets(list *SocketList, logger *log.Logger) {
+	logger.Println("loaded sockets:")
 	for _, socket := range list.Sockets {
-		log.Printf("Host: %s, Port: %d, ExpectedHTTPCodes: %v", socket.Host, socket.Port, socket.ExpectedHTTPCodes)
+		logger.Printf("Host: %s, Port: %d, ExpectedHTTPCodes: %v", socket.Host, socket.Port, socket.ExpectedHTTPCodes)
 	}
 }
 

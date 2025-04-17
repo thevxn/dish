@@ -52,9 +52,7 @@ func runTests(cfg *config.Config) (*testResults, error) {
 	}
 
 	// Print loaded sockets if flag is set in cfg
-	if cfg.Verbose {
-		socket.PrintSockets(list)
-	}
+	socket.PrintSockets(list, cfg.Logger)
 
 	testResults := &testResults{
 		messengerText: "",
@@ -75,7 +73,7 @@ func runTests(cfg *config.Config) (*testResults, error) {
 		wg.Add(1)
 		channels[i] = make(chan socket.Result)
 
-		go netrunner.RunSocketTest(sock, channels[i], &wg, cfg.TimeoutSeconds, cfg.Verbose)
+		go netrunner.RunSocketTest(sock, channels[i], &wg, cfg.TimeoutSeconds, cfg.Logger)
 		i++
 	}
 

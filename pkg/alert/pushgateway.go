@@ -32,7 +32,7 @@ type pushgatewaySender struct {
 	httpClient    HTTPClient
 	url           string
 	instanceName  string
-	verbose       bool
+	logger        *log.Logger
 	notifySuccess bool
 	tmpl          *template.Template
 }
@@ -55,7 +55,7 @@ func NewPushgatewaySender(httpClient HTTPClient, config *config.Config) (*pushga
 		httpClient:    httpClient,
 		url:           parsedURL.String(),
 		instanceName:  config.InstanceName,
-		verbose:       config.Verbose,
+		logger:        config.Logger,
 		notifySuccess: config.MachineNotifySuccess,
 		tmpl:          tmpl,
 	}, nil
@@ -78,9 +78,7 @@ func (s *pushgatewaySender) createMessage(failedCount int) (string, error) {
 func (s *pushgatewaySender) send(_ *Results, failedCount int) error {
 	// If no checks failed and success should not be notified, there is nothing to send
 	if failedCount == 0 && !s.notifySuccess {
-		if s.verbose {
-			log.Println("no sockets failed, nothing will be sent to Pushgateway")
-		}
+		s.logger.Println("no sockets failed, nothing will be sent to Pushgateway")
 		return nil
 	}
 

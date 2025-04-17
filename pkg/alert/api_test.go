@@ -15,7 +15,7 @@ func TestNewAPISender(t *testing.T) {
 	headerName := "X-Api-Key"
 	headerValue := "abc123"
 	notifySuccess := false
-	verbose := false
+	logger := config.NewLogger(false)
 
 	expected := &apiSender{
 		httpClient:    mockHTTPClient,
@@ -23,7 +23,7 @@ func TestNewAPISender(t *testing.T) {
 		headerName:    headerName,
 		headerValue:   headerValue,
 		notifySuccess: notifySuccess,
-		verbose:       verbose,
+		logger:        logger,
 	}
 
 	cfg := &config.Config{
@@ -31,7 +31,7 @@ func TestNewAPISender(t *testing.T) {
 		ApiHeaderName:        headerName,
 		ApiHeaderValue:       headerValue,
 		MachineNotifySuccess: notifySuccess,
-		Verbose:              verbose,
+		Logger:               logger,
 	}
 
 	actual, _ := NewAPISender(mockHTTPClient, cfg)
@@ -67,8 +67,8 @@ func TestSend_API(t *testing.T) {
 		return &config.Config{
 			ApiURL:               url,
 			MachineNotifySuccess: notifySuccess,
-			Verbose:              verbose,
 			ApiHeaderName:        headerName,
+			Logger:               config.NewLogger(verbose),
 			ApiHeaderValue:       headerValue,
 		}
 	}

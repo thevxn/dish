@@ -13,7 +13,7 @@ import (
 type webhookSender struct {
 	httpClient    HTTPClient
 	url           string
-	verbose       bool
+	logger        *log.Logger
 	notifySuccess bool
 }
 
@@ -26,17 +26,15 @@ func NewWebhookSender(httpClient HTTPClient, config *config.Config) (*webhookSen
 	return &webhookSender{
 		httpClient:    httpClient,
 		url:           parsedURL.String(),
-		verbose:       config.Verbose,
 		notifySuccess: config.MachineNotifySuccess,
+		logger:        config.Logger,
 	}, nil
 }
 
 func (s *webhookSender) send(m *Results, failedCount int) error {
 	// If no checks failed and success should not be notified, there is nothing to send
 	if failedCount == 0 && !s.notifySuccess {
-		if s.verbose {
-			log.Printf("no sockets failed, nothing will be sent to webhook")
-		}
+		s.logger.Printf("no sockets failed, nothing will be sent to webhook")
 		return nil
 	}
 
@@ -47,9 +45,7 @@ func (s *webhookSender) send(m *Results, failedCount int) error {
 
 	bodyReader := bytes.NewReader(jsonData)
 
-	if s.verbose {
-		log.Printf("prepared webhook data: %s", string(jsonData))
-	}
+	s.logger.Printf("prepared webhook data: %s", string(jsonData))
 
 	err = handleSubmit(s.httpClient, http.MethodPost, s.url, bodyReader)
 	if err != nil {

@@ -25,6 +25,7 @@ func TestFetchSocketsFromRemote(t *testing.T) {
 			ApiCacheTTLMinutes: ttl,
 			ApiHeaderName:      apiHeaderName,
 			ApiHeaderValue:     apiHeaderValue,
+			Logger:             config.NewLogger(false),
 		}
 	}
 

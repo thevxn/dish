@@ -13,21 +13,21 @@ func TestNewTelegramSender(t *testing.T) {
 
 	chatID := "-123"
 	token := "abc123"
-	verbose := false
 	notifySuccess := false
+	logger := config.NewLogger(false)
 
 	expected := &telegramSender{
 		httpClient:    mockHTTPClient,
 		chatID:        chatID,
 		token:         token,
-		verbose:       verbose,
 		notifySuccess: notifySuccess,
+		logger:        logger,
 	}
 
 	cfg := &config.Config{
 		TelegramChatID:    chatID,
 		TelegramBotToken:  token,
-		Verbose:           verbose,
+		Logger:            logger,
 		TextNotifySuccess: notifySuccess,
 	}
 
@@ -43,7 +43,7 @@ func TestSend_Telegram(t *testing.T) {
 		return &config.Config{
 			TelegramChatID:    chatID,
 			TelegramBotToken:  token,
-			Verbose:           verbose,
+			Logger:            config.NewLogger(verbose),
 			TextNotifySuccess: notifySuccess,
 		}
 	}
