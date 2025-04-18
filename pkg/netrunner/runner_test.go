@@ -238,7 +238,7 @@ func TestHttpRunner_RunTest(t *testing.T) {
 		},
 		{
 			name: "returns a failure on a call to an invalid HTTPs server",
-			// The since both DNS and HTTPs use TCP the conn opens successfully but
+			// Since both DNS and HTTPs use TCP, the conn opens successfully but,
 			// the request timeouts while awaiting HTTP headers.
 			runner: httpRunner{client: &http.Client{Timeout: time.Second}, verbose: false},
 			args: args{
