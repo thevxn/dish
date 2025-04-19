@@ -2,6 +2,7 @@ package netrunner
 
 import (
 	"context"
+	"flag"
 	"net/http"
 	"reflect"
 	"sync"
@@ -32,9 +33,9 @@ func TestRunSocketTest(t *testing.T) {
 
 		c := make(chan socket.Result)
 		wg := &sync.WaitGroup{}
-		cfg := &config.Config{
-			TimeoutSeconds: 1,
-			Verbose:        false,
+		cfg, err := config.NewConfig(flag.CommandLine, []string{"--timeout=1", "--verbose=false", "mocksource.json"})
+		if err != nil {
+			t.Fatalf("unexpected error creating config: %v", err)
 		}
 		done := make(chan struct{})
 
