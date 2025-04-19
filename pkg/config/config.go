@@ -1,3 +1,5 @@
+// Package config provides access to configuration parameters
+// set via flags or args.
 package config
 
 import (
@@ -6,6 +8,7 @@ import (
 	"fmt"
 )
 
+// Config holds the configuration parameters.
 type Config struct {
 	InstanceName         string
 	ApiHeaderName        string
@@ -43,6 +46,7 @@ const (
 	defaultMachineNotifySuccess = false
 )
 
+// ErrNoSourceProvided is returned when no source of sockets is specified.
 var ErrNoSourceProvided = errors.New("no source provided")
 
 // defineFlags defines flags on the provided FlagSet. The values of the flags are stored in the provided Config when parsed.

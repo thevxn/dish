@@ -17,7 +17,7 @@ type testResults struct {
 	failedCount   int
 }
 
-// fanInChannels collects results from multiple goroutines
+// fanInChannels collects results from multiple goroutines.
 func fanInChannels(channels ...chan socket.Result) <-chan socket.Result {
 	var wg sync.WaitGroup
 	out := make(chan socket.Result)
