@@ -75,7 +75,7 @@ func runTests(cfg *config.Config) (*testResults, error) {
 		wg.Add(1)
 		channels[i] = make(chan socket.Result)
 
-		go netrunner.RunSocketTest(sock, channels[i], &wg, cfg.TimeoutSeconds, cfg.Verbose)
+		go netrunner.RunSocketTest(sock, channels[i], &wg, cfg)
 		i++
 	}
 

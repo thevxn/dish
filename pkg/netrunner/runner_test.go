@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	"go.vxn.dev/dish/pkg/config"
 	"go.vxn.dev/dish/pkg/socket"
 )
 
@@ -31,10 +32,14 @@ func TestRunSocketTest(t *testing.T) {
 
 		c := make(chan socket.Result)
 		wg := &sync.WaitGroup{}
+		cfg := &config.Config{
+			TimeoutSeconds: 1,
+			Verbose:        false,
+		}
 		done := make(chan struct{})
 
 		wg.Add(1)
-		go RunSocketTest(sock, c, wg, 1, false)
+		go RunSocketTest(sock, c, wg, cfg)
 
 		go func() {
 			wg.Wait()
