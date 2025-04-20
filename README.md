@@ -220,5 +220,5 @@ For an example of what can be built using dish integrated with a remote API, you
 
 ## Articles
 
-+ [dish deep-dive article](https://blog.vxn.dev)
++ [dish deep-dive article](https://blog.vxn.dev/dish-monitoring-service)
 + [dish history article](https://krusty.space/projects/dish/)
