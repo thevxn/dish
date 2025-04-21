@@ -17,11 +17,10 @@ import (
 
 const agentVersion = "1.10"
 
-// RunSocketTest is meant to be invoked in a separate goroutine.
-// It runs a test for the given socket. The test result is sent through the given
-// channel. If the test fails to start then the error is logged to stdout and no
-// result is sent. When this func returns, it calls Done() on the WaitGroup and
-// the channel is closed.
+// RunSocketTest is intended to be invoked in a separate goroutine.
+// It runs a test for the given socket and sends the result through the given channel.
+// If the test fails to start, the error is logged to STDOUT and no result is
+// sent. On return, Done() is called on the WaitGroup and the channel is closed.
 func RunSocketTest(sock socket.Socket, out chan<- socket.Result, wg *sync.WaitGroup, timeoutSeconds uint, verbose bool) {
 	defer wg.Done()
 	defer close(out)
