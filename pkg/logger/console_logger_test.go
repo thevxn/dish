@@ -10,14 +10,14 @@ func TestNewConsoleLogger(t *testing.T) {
 	t.Run("verbose mode on", func(t *testing.T) {
 		logger := NewConsoleLogger(true)
 		if logger.logLevel != TRACE {
-			t.Errorf("expected loglevel to be %d, got %d", TRACE, logger.logLevel)
+			t.Errorf("expected loglevel %d, got %d", TRACE, logger.logLevel)
 		}
 	})
 
 	t.Run("verbose mode off", func(t *testing.T) {
 		logger := NewConsoleLogger(false)
 		if logger.logLevel != INFO {
-			t.Errorf("expected loglevel to be %d, got %d", INFO, logger.logLevel)
+			t.Errorf("expected loglevel %d, got %d", INFO, logger.logLevel)
 		}
 	})
 }
@@ -72,11 +72,11 @@ func TestConsoleLogger_Panic(t *testing.T) {
 			t.Fatal("expected panic but did not get one")
 		}
 
-		expected := "fatal error: dish"
+		expected := "FATAL: could not start dish"
 		if r != expected {
 			t.Fatalf("expected panic message %s, got %s", expected, r)
 		}
 	}()
 
-	logger.Fatalf("fatal error: %s", "dish")
+	logger.Fatalf("could not start %s", "dish")
 }

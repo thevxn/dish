@@ -19,10 +19,9 @@ func NewConsoleLogger(verbose bool) *ConsoleLogger {
 		stdLogger: log.New(os.Stderr, "", log.LstdFlags),
 	}
 
+	l.logLevel = INFO
 	if verbose {
 		l.logLevel = TRACE
-	} else {
-		l.logLevel = INFO
 	}
 
 	return l
@@ -35,19 +34,16 @@ func (l *ConsoleLogger) log(level LogLevel, prefix string, format string, v ...a
 		return
 	}
 
-	if format == "" {
-		l.stdLogger.Println(prefix, fmt.Sprint(v...))
-	} else {
-		l.stdLogger.Printf(prefix+" "+format, v...)
+	msg := prefix + " " + fmt.Sprint(v...)
+	if format != "" {
+		msg = prefix + " " + fmt.Sprintf(format, v...)
 	}
+
+	l.stdLogger.Print(msg)
 
 	// Panic if there is FATAL log
 	if level == FATAL {
-		if format == "" {
-			panic(fmt.Sprint(v...))
-		} else {
-			panic(fmt.Sprintf(format, v...))
-		}
+		panic(msg)
 	}
 }
 
