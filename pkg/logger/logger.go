@@ -14,9 +14,6 @@ const (
 
 // Logger interface defines methods for logging at various levels.
 type Logger interface {
-	SetLogLevel(level LogLevel)
-	GetLogLevel() LogLevel
-
 	Trace(v ...any)
 	Tracef(format string, v ...any)
 	Debug(v ...any)

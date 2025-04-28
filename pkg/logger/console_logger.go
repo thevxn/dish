@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sync/atomic"
 )
 
 // ConsoleLogger logs output to stderr.
 type ConsoleLogger struct {
 	stdLogger *log.Logger
-	logLevel  atomic.Int32
+	logLevel  LogLevel
 }
 
 // NewConsoleLogger creates a new ConsoleLogger instance,
@@ -21,28 +20,18 @@ func NewConsoleLogger(verbose bool) *ConsoleLogger {
 	}
 
 	if verbose {
-		l.SetLogLevel(TRACE)
+		l.logLevel = TRACE
 	} else {
-		l.SetLogLevel(INFO)
+		l.logLevel = INFO
 	}
 
 	return l
 }
 
-// SetLogLevel safely sets logger's log level.
-func (l *ConsoleLogger) SetLogLevel(level LogLevel) {
-	l.logLevel.Store(int32(level))
-}
-
-// GetLogLevel safely returns current log level.
-func (l *ConsoleLogger) GetLogLevel() LogLevel {
-	return LogLevel(l.logLevel.Load())
-}
-
 // log prints a message if the current log level allows it,
 // It adds passed prefix and formats output if a format string is passed.
 func (l *ConsoleLogger) log(level LogLevel, prefix string, format string, v ...any) {
-	if l.GetLogLevel() > level {
+	if l.logLevel > level {
 		return
 	}
 
@@ -52,8 +41,13 @@ func (l *ConsoleLogger) log(level LogLevel, prefix string, format string, v ...a
 		l.stdLogger.Printf(prefix+" "+format, v...)
 	}
 
+	// Panic if there is FATAL log
 	if level == FATAL {
-		os.Exit(1)
+		if format == "" {
+			panic(fmt.Sprint(v...))
+		} else {
+			panic(fmt.Sprintf(format, v...))
+		}
 	}
 }
 
