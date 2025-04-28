@@ -37,16 +37,16 @@ func TestConsoleLogger(t *testing.T) {
 		{
 			name: "Info",
 			logFunc: func() {
-				logger.Info("hello")
+				logger.Info("hello", 123, 321)
 			},
-			expected: "INFO: hello\n",
+			expected: "INFO: hello123 321\n",
 		},
 		{
 			name: "Infof",
 			logFunc: func() {
-				logger.Infof("hello %s", "dish")
+				logger.Infof("hello %s !", "dish")
 			},
-			expected: "INFO: hello dish\n",
+			expected: "INFO: hello dish !\n",
 		},
 	}
 
