@@ -20,17 +20,21 @@ dish
 
 ## Install
 
-Using `go install`:
+### Using go install
 
 ```shell
 go install go.vxn.dev/dish/cmd/dish@latest
 ```
 
-Using Homebrew:
+### Using Homebrew
 
 ```shell
 brew install dish
 ```
+
+### Manual Download
+
+Download the binary built for your OS and architecture from the [Releases](https://github.com/thevxn/dish/releases) section.
 
 ## Usage
 
