@@ -75,7 +75,7 @@ func TestNewNetRunner(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "returns a httpRunner when given an HTTPs socket",
+			name: "returns an httpRunner when given an HTTPs socket",
 			args: args{
 				verbose: false,
 				sock: socket.Socket{
@@ -94,7 +94,7 @@ func TestNewNetRunner(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "returns a httpRunner when given a HTTP socket",
+			name: "returns an httpRunner when given a HTTP socket",
 			args: args{
 				verbose: false,
 				sock: socket.Socket{
