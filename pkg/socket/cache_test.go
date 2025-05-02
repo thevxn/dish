@@ -61,9 +61,10 @@ func TestSaveSocketsToCache(t *testing.T) {
 }
 
 func TestLoadSocketsFromCache(t *testing.T) {
-	filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
 	t.Run("Load Sockets From Cache", func(t *testing.T) {
+		filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
 		cacheTTL := uint(60)
+
 		readerFromCache, _, err := loadCachedSockets(filePath, cacheTTL)
 		if err != nil {
 			t.Fatalf("expected no error, but got %v", err)
@@ -81,7 +82,9 @@ func TestLoadSocketsFromCache(t *testing.T) {
 	})
 
 	t.Run("Load Sockets From Expired Cache", func(t *testing.T) {
+		filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
 		cacheTTL := uint(0)
+
 		readerFromCache, _, err := loadCachedSockets(filePath, cacheTTL)
 		if !errors.Is(err, ErrExpiredCache) {
 			t.Errorf("expected error %v, but got %v", ErrExpiredCache, err)
