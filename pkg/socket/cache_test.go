@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"go.vxn.dev/dish/pkg/testhelpers"
 )
@@ -84,6 +85,7 @@ func TestLoadSocketsFromCache(t *testing.T) {
 	t.Run("Load Sockets From Expired Cache", func(t *testing.T) {
 		filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
 		cacheTTL := uint(0)
+		time.Sleep(200 * time.Millisecond)
 
 		readerFromCache, _, err := loadCachedSockets(filePath, cacheTTL)
 		if !errors.Is(err, ErrExpiredCache) {
