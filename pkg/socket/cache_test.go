@@ -85,6 +85,9 @@ func TestLoadSocketsFromCache(t *testing.T) {
 	t.Run("Load Sockets From Expired Cache", func(t *testing.T) {
 		filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
 		cacheTTL := uint(0)
+
+		// For some reason Windows tests in CI/CD think that 0 time has elapsed since the creation of the test file when it's being checked inside of loadCachedSockets, therefore the expired cache error is not returned.
+		// Sleeping for a couple ms seems to have solved the issue.
 		time.Sleep(200 * time.Millisecond)
 
 		readerFromCache, _, err := loadCachedSockets(filePath, cacheTTL)
