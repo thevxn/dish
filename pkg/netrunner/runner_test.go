@@ -2,6 +2,7 @@ package netrunner
 
 import (
 	"context"
+	"flag"
 	"net/http"
 	"reflect"
 	"sync"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	"go.vxn.dev/dish/pkg/config"
 	"go.vxn.dev/dish/pkg/socket"
 )
 
@@ -31,10 +33,14 @@ func TestRunSocketTest(t *testing.T) {
 
 		c := make(chan socket.Result)
 		wg := &sync.WaitGroup{}
+		cfg, err := config.NewConfig(flag.CommandLine, []string{"--timeout=1", "--verbose=false", "mocksource.json"})
+		if err != nil {
+			t.Fatalf("unexpected error creating config: %v", err)
+		}
 		done := make(chan struct{})
 
 		wg.Add(1)
-		go RunSocketTest(sock, c, wg, 1, false)
+		go RunSocketTest(sock, c, wg, cfg)
 
 		go func() {
 			wg.Wait()
@@ -149,8 +155,7 @@ func TestNewNetRunner(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := NewNetRunner(tt.args.sock, tt.args.verbose)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("NewNetRunner():\n error = %v\n wantErr = %v", err, tt.wantErr)
-				return
+				t.Fatalf("NewNetRunner():\n error = %v\n wantErr = %v", err, tt.wantErr)
 			}
 
 			if tt.wantErr {
@@ -158,7 +163,7 @@ func TestNewNetRunner(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewNetRunner():\n got = %v\n want = %v", got, tt.want)
+				t.Fatalf("NewNetRunner():\n got = %v\n want = %v", got, tt.want)
 			}
 		})
 	}
@@ -208,7 +213,7 @@ func TestTcpRunner_RunTest(t *testing.T) {
 			r := tcpRunner{tt.fields.verbose}
 
 			if got := r.RunTest(context.Background(), tt.args.sock); !cmp.Equal(got, tt.want) {
-				t.Errorf("tcpRunner.RunTest():\n got = %v\n want = %v", got, tt.want)
+				t.Fatalf("tcpRunner.RunTest():\n got = %v\n want = %v", got, tt.want)
 			}
 		})
 	}
@@ -254,7 +259,7 @@ func TestHttpRunner_RunTest(t *testing.T) {
 		},
 		{
 			name: "returns a failure on a call to an invalid HTTPs server",
-			// The since both DNS and HTTPs use TCP the conn opens successfully but
+			// Since both DNS and HTTPs use TCP, the conn opens successfully but,
 			// the request timeouts while awaiting HTTP headers.
 			runner: httpRunner{client: &http.Client{Timeout: time.Second}, verbose: testing.Verbose()},
 			args: args{
@@ -285,7 +290,7 @@ func TestHttpRunner_RunTest(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.runner.RunTest(context.Background(), tt.args.sock)
 			if !cmp.Equal(got, tt.want, cmpopts.EquateErrors()) {
-				t.Errorf("httpRunner.RunTest():\n got = %v\n want = %v", got, tt.want)
+				t.Fatalf("httpRunner.RunTest():\n got = %v\n want = %v", got, tt.want)
 			}
 		})
 	}

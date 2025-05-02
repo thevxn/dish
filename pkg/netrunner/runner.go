@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"go.vxn.dev/dish/pkg/config"
 	"go.vxn.dev/dish/pkg/socket"
 )
 
@@ -22,14 +23,14 @@ const agentVersion = "1.10"
 // It runs a test for the given socket and sends the result through the given channel.
 // If the test fails to start, the error is logged to STDOUT and no result is
 // sent. On return, Done() is called on the WaitGroup and the channel is closed.
-func RunSocketTest(sock socket.Socket, out chan<- socket.Result, wg *sync.WaitGroup, timeoutSeconds uint, verbose bool) {
+func RunSocketTest(sock socket.Socket, out chan<- socket.Result, wg *sync.WaitGroup, cfg *config.Config) {
 	defer wg.Done()
 	defer close(out)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutSeconds)*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(cfg.TimeoutSeconds)*time.Second)
 	defer cancel()
 
-	runner, err := NewNetRunner(sock, verbose)
+	runner, err := NewNetRunner(sock, cfg.Verbose)
 	if err != nil {
 		log.Printf("failed to test socket: %v", err.Error())
 		return

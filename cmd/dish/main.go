@@ -36,8 +36,7 @@ func main() {
 	alert.HandleAlerts(res.messengerText, res.results, res.failedCount, cfg)
 
 	if res.failedCount > 0 {
-		log.Println("dish run: some tests failed")
-		log.Print("\n", res.messengerText)
+		log.Println("dish run: some tests failed:\n", res.messengerText)
 		return
 	}
 

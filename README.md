@@ -20,17 +20,21 @@ dish
 
 ## Install
 
-Using `go install`:
+### Using go install
 
 ```shell
 go install go.vxn.dev/dish/cmd/dish@latest
 ```
 
-Using Homebrew:
+### Using Homebrew
 
 ```shell
 brew install dish
 ```
+
+### Manual Download
+
+Download the binary built for your OS and architecture from the [Releases](https://github.com/thevxn/dish/releases) section.
 
 ## Usage
 
@@ -220,5 +224,5 @@ For an example of what can be built using dish integrated with a remote API, you
 
 ## Articles
 
-+ [dish deep-dive article](https://blog.vxn.dev)
++ [dish deep-dive article](https://blog.vxn.dev/dish-monitoring-service)
 + [dish history article](https://krusty.space/projects/dish/)

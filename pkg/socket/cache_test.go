@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"go.vxn.dev/dish/pkg/testhelpers"
 )
@@ -61,9 +62,10 @@ func TestSaveSocketsToCache(t *testing.T) {
 }
 
 func TestLoadSocketsFromCache(t *testing.T) {
-	filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
 	t.Run("Load Sockets From Cache", func(t *testing.T) {
+		filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
 		cacheTTL := uint(60)
+
 		readerFromCache, _, err := loadCachedSockets(filePath, cacheTTL)
 		if err != nil {
 			t.Fatalf("expected no error, but got %v", err)
@@ -81,7 +83,13 @@ func TestLoadSocketsFromCache(t *testing.T) {
 	})
 
 	t.Run("Load Sockets From Expired Cache", func(t *testing.T) {
+		filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
 		cacheTTL := uint(0)
+
+		// For some reason Windows tests in CI/CD think that 0 time has elapsed since the creation of the test file when it's being checked inside of loadCachedSockets, therefore the expired cache error is not returned.
+		// Sleeping for a couple ms seems to have solved the issue.
+		time.Sleep(200 * time.Millisecond)
+
 		readerFromCache, _, err := loadCachedSockets(filePath, cacheTTL)
 		if !errors.Is(err, ErrExpiredCache) {
 			t.Errorf("expected error %v, but got %v", ErrExpiredCache, err)

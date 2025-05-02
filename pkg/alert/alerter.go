@@ -1,4 +1,5 @@
-// Package alert provides functionality to handle alert submission to different text (e.g. Telegram) and machine (e.g. webhooks) channels.
+// Package alert provides functionality to handle alert and result submission
+// to different text (e.g. Telegram) and machine (e.g. webhooks) integration channels.
 package alert
 
 import (
