@@ -2,6 +2,7 @@ package netrunner
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -42,8 +43,14 @@ type NetRunner interface {
 	RunTest(ctx context.Context, sock socket.Socket) socket.Result
 }
 
-// NewNetRunner determines the protocol used for the socket test and
-// creates a new NetRunner for it.
+// NewNetRunner determines the protocol used for the socket test and creates a
+// new NetRunner for it.
+//
+// Rules for the test method determination (first matching rule applies):
+//   - If socket.Host starts with 'http://' or 'https://', a HTTP runner is returned.
+//   - If socket.Port is between 1 and 65535, a TCP runner is returned.
+//   - If socket.Host is not empty, an ICMP runner is returned.
+//   - If none of the above conditions are met, a non-nil error is returned.
 func NewNetRunner(sock socket.Socket, verbose bool) (NetRunner, error) {
 	exp, err := regexp.Compile("^(http|https)://")
 	if err != nil {
@@ -54,7 +61,15 @@ func NewNetRunner(sock socket.Socket, verbose bool) (NetRunner, error) {
 		return httpRunner{client: &http.Client{}, verbose: verbose}, nil
 	}
 
-	return tcpRunner{verbose: verbose}, nil
+	if sock.Port >= 1 && sock.Port <= 65535 {
+		return tcpRunner{verbose: verbose}, nil
+	}
+
+	if sock.Host != "" {
+		return icmpRunner{verbose: verbose}, nil
+	}
+
+	return nil, errors.New("no protocol could be determined from the socket")
 }
 
 type tcpRunner struct {

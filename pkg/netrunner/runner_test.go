@@ -75,6 +75,14 @@ func TestNewNetRunner(t *testing.T) {
 		wantErr bool
 	}{
 		{
+			name: "returns an error on an empty socket",
+			args: args{
+				verbose: testing.Verbose(),
+				sock:    socket.Socket{},
+			},
+			wantErr: true,
+		},
+		{
 			name: "returns an httpRunner when given an HTTPs socket",
 			args: args{
 				verbose: testing.Verbose(),
@@ -123,6 +131,17 @@ func TestNewNetRunner(t *testing.T) {
 				},
 			},
 			want:    tcpRunner{verbose: testing.Verbose()},
+			wantErr: false,
+		},
+		{
+			name: "returns an icmpRunner when given an ICMP socket",
+			args: args{
+				verbose: testing.Verbose(),
+				sock: socket.Socket{
+					Host: "google.com",
+				},
+			},
+			want:    icmpRunner{verbose: testing.Verbose()},
 			wantErr: false,
 		},
 	}
@@ -267,6 +286,94 @@ func TestHttpRunner_RunTest(t *testing.T) {
 			got := tt.runner.RunTest(context.Background(), tt.args.sock)
 			if !cmp.Equal(got, tt.want, cmpopts.EquateErrors()) {
 				t.Errorf("httpRunner.RunTest():\n got = %v\n want = %v", got, tt.want)
+			}
+		})
+	}
+}
+
+// TestIcmpRunner_RunTest is an integration test. It executes network calls to
+// external public servers.
+// This test is common for all OS implementations.
+func TestIcmpRunner_RunTest(t *testing.T) {
+	type args struct {
+		sock socket.Socket
+	}
+	tests := []struct {
+		name   string
+		runner icmpRunner
+		args   args
+		want   socket.Result
+	}{
+		{
+			name: "returns a success on a call to a valid host",
+			runner: icmpRunner{
+				verbose: testing.Verbose(),
+			},
+			args: args{
+				sock: socket.Socket{
+					ID:   "google_icmp",
+					Name: "Google ICMP",
+					Host: "google.com",
+				},
+			},
+			want: socket.Result{
+				Socket: socket.Socket{
+					ID:   "google_icmp",
+					Name: "Google ICMP",
+					Host: "google.com",
+				},
+				Passed: true,
+			},
+		},
+		{
+			name: "returns a success on a call to a valid IP address",
+			runner: icmpRunner{
+				verbose: testing.Verbose(),
+			},
+			args: args{
+				sock: socket.Socket{
+					ID:   "google_icmp",
+					Name: "Google ICMP",
+					Host: "8.8.8.8",
+				},
+			},
+			want: socket.Result{
+				Socket: socket.Socket{
+					ID:   "google_icmp",
+					Name: "Google ICMP",
+					Host: "8.8.8.8",
+				},
+				Passed: true,
+			},
+		},
+		{
+			name: "returns an error on an empty host",
+			runner: icmpRunner{
+				verbose: testing.Verbose(),
+			},
+			args: args{
+				sock: socket.Socket{
+					ID:   "empty_host",
+					Name: "Empty Host",
+					Host: "",
+				},
+			},
+			want: socket.Result{
+				Socket: socket.Socket{
+					ID:   "empty_host",
+					Name: "Empty Host",
+					Host: "",
+				},
+				Passed: false,
+				Error:  cmpopts.AnyError,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.runner.RunTest(context.Background(), tt.args.sock)
+			if !cmp.Equal(got, tt.want, cmpopts.EquateErrors()) {
+				t.Fatalf("icmpRunner.RunTest():\n got = %v\n want = %v", got, tt.want)
 			}
 		})
 	}
