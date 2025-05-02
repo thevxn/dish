@@ -77,7 +77,7 @@ func TestNewNetRunner(t *testing.T) {
 		{
 			name: "returns an httpRunner when given an HTTPs socket",
 			args: args{
-				verbose: false,
+				verbose: testing.Verbose(),
 				sock: socket.Socket{
 					ID:                "google_https",
 					Name:              "Google HTTPs",
@@ -89,14 +89,14 @@ func TestNewNetRunner(t *testing.T) {
 			},
 			want: httpRunner{
 				client:  &http.Client{},
-				verbose: false,
+				verbose: testing.Verbose(),
 			},
 			wantErr: false,
 		},
 		{
 			name: "returns an httpRunner when given a HTTP socket",
 			args: args{
-				verbose: false,
+				verbose: testing.Verbose(),
 				sock: socket.Socket{
 					ID:                "google_http",
 					Name:              "Google HTTP",
@@ -108,24 +108,21 @@ func TestNewNetRunner(t *testing.T) {
 			},
 			want: httpRunner{
 				client:  &http.Client{},
-				verbose: false,
+				verbose: testing.Verbose(),
 			},
 			wantErr: false,
 		},
 		{
 			name: "returns a tcpRunner when given a TCP socket",
 			args: args{
-				verbose: false,
+				verbose: testing.Verbose(),
 				sock: socket.Socket{
-					ID:                "",
-					Name:              "",
-					Host:              "",
 					Port:              80,
 					ExpectedHTTPCodes: []int{200},
 					PathHTTP:          "/",
 				},
 			},
-			want:    tcpRunner{verbose: false},
+			want:    tcpRunner{verbose: testing.Verbose()},
 			wantErr: false,
 		},
 	}
@@ -166,7 +163,7 @@ func TestTcpRunner_RunTest(t *testing.T) {
 		{
 			name: "returns a success on a call to a valid TCP server",
 			fields: fields{
-				verbose: false,
+				verbose: testing.Verbose(),
 			},
 			args: args{
 				sock: socket.Socket{
@@ -212,7 +209,7 @@ func TestHttpRunner_RunTest(t *testing.T) {
 	}{
 		{
 			name:   "returns a success on a call to a valid HTTPs server",
-			runner: httpRunner{client: &http.Client{}, verbose: false},
+			runner: httpRunner{client: &http.Client{}, verbose: testing.Verbose()},
 			args: args{
 				sock: socket.Socket{
 					ID:                "google_http",
@@ -240,7 +237,7 @@ func TestHttpRunner_RunTest(t *testing.T) {
 			name: "returns a failure on a call to an invalid HTTPs server",
 			// The since both DNS and HTTPs use TCP the conn opens successfully but
 			// the request timeouts while awaiting HTTP headers.
-			runner: httpRunner{client: &http.Client{Timeout: time.Second}, verbose: false},
+			runner: httpRunner{client: &http.Client{Timeout: time.Second}, verbose: testing.Verbose()},
 			args: args{
 				sock: socket.Socket{
 					ID:                "cloudflare_dns",
