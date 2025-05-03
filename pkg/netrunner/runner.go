@@ -2,7 +2,6 @@ package netrunner
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -70,7 +69,7 @@ func NewNetRunner(sock socket.Socket, verbose bool) (NetRunner, error) {
 		return icmpRunner{verbose: verbose}, nil
 	}
 
-	return nil, errors.New("no protocol could be determined from the socket")
+	return nil, fmt.Errorf("no protocol could be determined from the socket %s", sock.ID)
 }
 
 type tcpRunner struct {
