@@ -37,10 +37,6 @@ func (runner icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socket
 
 	sockAddr := &syscall.SockaddrInet4{Addr: [4]byte(ip)}
 
-	if runner.verbose {
-		log.Println("ICMP runner: send to " + ip.String())
-	}
-
 	// When using ICMP over DGRAM, Linux Kernel automatically sets (overwrites) and
 	// validates the id, seq and checksum of each incoming and outgoing ICMP message.
 	// This is largely non-documented in the linux man pages. The closest I found is:
@@ -75,6 +71,10 @@ func (runner icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socket
 
 	copy(reqBuf[8:], payload)
 
+	if runner.verbose {
+		log.Println("ICMP runner: send to " + ip.String())
+	}
+
 	if err := syscall.Sendto(sysSocket, reqBuf, 0, sockAddr); err != nil {
 		return socket.Result{Socket: sock, Error: fmt.Errorf("failed to send an echo request: %w", err)}
 	}
@@ -83,6 +83,10 @@ func (runner icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socket
 	// Recvfrom before writing to the buffer, checks its length (not capacity).
 	// If the length of the buffer is too small to fit the data then it's silently truncated.
 	replyBuf := make([]byte, 1500)
+
+	if runner.verbose {
+		log.Println("ICMP runner: recv from " + ip.String())
+	}
 
 	n, _, err := syscall.Recvfrom(sysSocket, replyBuf, 0)
 	if err != nil {
