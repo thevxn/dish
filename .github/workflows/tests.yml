@@ -18,6 +18,10 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.24'
+      - name: Set global ping privileges
+        run: |
+          # Allow everyone to use ping.
+          sudo sysctl -w net.ipv4.ping_group_range="0 2147483647" 
       - name: Build
         run: go build -v ./cmd/...
       - name: Test
@@ -44,6 +48,10 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.24'
+      - name: Set global ping privileges
+        run: |
+          # Allow everyone to use ping.
+          sudo sysctl -w net.ipv4.ping_group_range="0 2147483647" 
       - name: Build
         run: go build -v ./cmd/...
       - name: Test
