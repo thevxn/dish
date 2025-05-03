@@ -373,6 +373,28 @@ func TestIcmpRunner_RunTest(t *testing.T) {
 				Error:  cmpopts.AnyError,
 			},
 		},
+		{
+			name: "returns an error on an invalid IP address",
+			runner: icmpRunner{
+				verbose: testing.Verbose(),
+			},
+			args: args{
+				sock: socket.Socket{
+					ID:   "invalid_ip",
+					Name: "Invalid IP",
+					Host: "256.100.50.25",
+				},
+			},
+			want: socket.Result{
+				Socket: socket.Socket{
+					ID:   "invalid_ip",
+					Name: "Invalid IP",
+					Host: "256.100.50.25",
+				},
+				Passed: false,
+				Error:  cmpopts.AnyError,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
