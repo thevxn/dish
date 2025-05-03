@@ -21,14 +21,14 @@ type icmpRunner struct {
 
 // RunTest is used to test ICMP sockets. It sends an ICMP Echo Request to the given socket using
 // non-privileged ICMP and verifies the reply. The test passes if the reply has the same payload
-// as the request. Returns an error if the socket host cannot resolve to an IP address. If the host
-// resolves to more than one address, only the first one is tested.
+// as the request. Returns an error if the socket host cannot be resolved to an IPv4 address. If
+// the host resolves to more than one address, only the first one is used.
 func (runner icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socket.Result {
 	if runner.verbose {
 		log.Printf("Resolving host '%s' to an IP address", sock.Host)
 	}
 
-	addr, err := net.DefaultResolver.LookupIP(ctx, "ip", sock.Host)
+	addr, err := net.DefaultResolver.LookupIP(ctx, "ip4", sock.Host)
 	if err != nil {
 		return socket.Result{Socket: sock, Error: fmt.Errorf("failed to resolve socket host: %w", err)}
 	}
