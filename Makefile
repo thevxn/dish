@@ -18,6 +18,7 @@ LATEST_TAG?=$(shell git describe --tags --abbrev=0 | sed 's/^v//')
 
 DOCKER_DEV_IMAGE?=${PROJECT_NAME}-image
 DOCKER_DEV_CONTAINER?=${PROJECT_NAME}-run
+DOCKER_TEST_CONTAINER?=${PROJECT_NAME}-test
 
 COMPOSE_FILE=deployments/docker-compose.yml
 COMPOSE_FILE_TEST=./docker-compose.test.yml

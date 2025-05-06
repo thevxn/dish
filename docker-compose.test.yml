@@ -3,7 +3,7 @@ name: ${PROJECT_NAME}
 services:
   dish:
     image: ${DOCKER_IMAGE_TAG}
-    container_name: ${DOCKER_DEV_CONTAINER}
+    container_name: ${DOCKER_TEST_CONTAINER}
     restart: no
     build:
       context: .
