@@ -81,9 +81,17 @@ func TestNewNetRunner(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "returns a httpRunner when given an HTTPs socket",
+			name: "returns an error on an empty socket",
 			args: args{
-				verbose: false,
+				verbose: testing.Verbose(),
+				sock:    socket.Socket{},
+			},
+			wantErr: true,
+		},
+		{
+			name: "returns an httpRunner when given an HTTPs socket",
+			args: args{
+				verbose: testing.Verbose(),
 				sock: socket.Socket{
 					ID:                "google_https",
 					Name:              "Google HTTPs",
@@ -95,14 +103,14 @@ func TestNewNetRunner(t *testing.T) {
 			},
 			want: httpRunner{
 				client:  &http.Client{},
-				verbose: false,
+				verbose: testing.Verbose(),
 			},
 			wantErr: false,
 		},
 		{
-			name: "returns a httpRunner when given a HTTP socket",
+			name: "returns an httpRunner when given a HTTP socket",
 			args: args{
-				verbose: false,
+				verbose: testing.Verbose(),
 				sock: socket.Socket{
 					ID:                "google_http",
 					Name:              "Google HTTP",
@@ -114,24 +122,32 @@ func TestNewNetRunner(t *testing.T) {
 			},
 			want: httpRunner{
 				client:  &http.Client{},
-				verbose: false,
+				verbose: testing.Verbose(),
 			},
 			wantErr: false,
 		},
 		{
 			name: "returns a tcpRunner when given a TCP socket",
 			args: args{
-				verbose: false,
+				verbose: testing.Verbose(),
 				sock: socket.Socket{
-					ID:                "",
-					Name:              "",
-					Host:              "",
 					Port:              80,
 					ExpectedHTTPCodes: []int{200},
 					PathHTTP:          "/",
 				},
 			},
-			want:    tcpRunner{verbose: false},
+			want:    tcpRunner{verbose: testing.Verbose()},
+			wantErr: false,
+		},
+		{
+			name: "returns an icmpRunner when given an ICMP socket",
+			args: args{
+				verbose: testing.Verbose(),
+				sock: socket.Socket{
+					Host: "google.com",
+				},
+			},
+			want:    icmpRunner{verbose: testing.Verbose()},
 			wantErr: false,
 		},
 	}
@@ -171,7 +187,7 @@ func TestTcpRunner_RunTest(t *testing.T) {
 		{
 			name: "returns a success on a call to a valid TCP server",
 			fields: fields{
-				verbose: false,
+				verbose: testing.Verbose(),
 			},
 			args: args{
 				sock: socket.Socket{
@@ -217,7 +233,7 @@ func TestHttpRunner_RunTest(t *testing.T) {
 	}{
 		{
 			name:   "returns a success on a call to a valid HTTPs server",
-			runner: httpRunner{client: &http.Client{}, verbose: false},
+			runner: httpRunner{client: &http.Client{}, verbose: testing.Verbose()},
 			args: args{
 				sock: socket.Socket{
 					ID:                "google_http",
@@ -245,7 +261,7 @@ func TestHttpRunner_RunTest(t *testing.T) {
 			name: "returns a failure on a call to an invalid HTTPs server",
 			// Since both DNS and HTTPs use TCP, the conn opens successfully but,
 			// the request timeouts while awaiting HTTP headers.
-			runner: httpRunner{client: &http.Client{Timeout: time.Second}, verbose: false},
+			runner: httpRunner{client: &http.Client{Timeout: time.Second}, verbose: testing.Verbose()},
 			args: args{
 				sock: socket.Socket{
 					ID:                "cloudflare_dns",
@@ -275,6 +291,119 @@ func TestHttpRunner_RunTest(t *testing.T) {
 			got := tt.runner.RunTest(context.Background(), tt.args.sock)
 			if !cmp.Equal(got, tt.want, cmpopts.EquateErrors()) {
 				t.Fatalf("httpRunner.RunTest():\n got = %v\n want = %v", got, tt.want)
+			}
+		})
+	}
+}
+
+// TestIcmpRunner_RunTest is an integration test. It executes network calls to
+// external public servers.
+// This test is common for all OS implementations.
+func TestIcmpRunner_RunTest(t *testing.T) {
+	type args struct {
+		sock socket.Socket
+	}
+	tests := []struct {
+		name   string
+		runner icmpRunner
+		args   args
+		want   socket.Result
+	}{
+		{
+			name: "returns a success on a call to a valid host",
+			runner: icmpRunner{
+				verbose: testing.Verbose(),
+			},
+			args: args{
+				sock: socket.Socket{
+					ID:   "google_icmp",
+					Name: "Google ICMP",
+					Host: "google.com",
+				},
+			},
+			want: socket.Result{
+				Socket: socket.Socket{
+					ID:   "google_icmp",
+					Name: "Google ICMP",
+					Host: "google.com",
+				},
+				Passed: true,
+			},
+		},
+		{
+			name: "returns a success on a call to a valid IP address",
+			runner: icmpRunner{
+				verbose: testing.Verbose(),
+			},
+			args: args{
+				sock: socket.Socket{
+					ID:   "google_icmp",
+					Name: "Google ICMP",
+					Host: "8.8.8.8",
+				},
+			},
+			want: socket.Result{
+				Socket: socket.Socket{
+					ID:   "google_icmp",
+					Name: "Google ICMP",
+					Host: "8.8.8.8",
+				},
+				Passed: true,
+			},
+		},
+		{
+			name: "returns an error on an empty host",
+			runner: icmpRunner{
+				verbose: testing.Verbose(),
+			},
+			args: args{
+				sock: socket.Socket{
+					ID:   "empty_host",
+					Name: "Empty Host",
+					Host: "",
+				},
+			},
+			want: socket.Result{
+				Socket: socket.Socket{
+					ID:   "empty_host",
+					Name: "Empty Host",
+					Host: "",
+				},
+				Passed: false,
+				Error:  cmpopts.AnyError,
+			},
+		},
+		{
+			name: "returns an error on an invalid IP address",
+			runner: icmpRunner{
+				verbose: testing.Verbose(),
+			},
+			args: args{
+				sock: socket.Socket{
+					ID:   "invalid_ip",
+					Name: "Invalid IP",
+					Host: "256.100.50.25",
+				},
+			},
+			want: socket.Result{
+				Socket: socket.Socket{
+					ID:   "invalid_ip",
+					Name: "Invalid IP",
+					Host: "256.100.50.25",
+				},
+				Passed: false,
+				Error:  cmpopts.AnyError,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+
+			got := tt.runner.RunTest(ctx, tt.args.sock)
+			if !cmp.Equal(got, tt.want, cmpopts.EquateErrors()) {
+				t.Fatalf("icmpRunner.RunTest():\n got = %v\n want = %v", got, tt.want)
 			}
 		})
 	}
