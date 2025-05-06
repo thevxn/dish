@@ -87,4 +87,12 @@ jobs:
         run: go build -v ./cmd/...
       - name: Test
         run: go test -v ./...
-        
+    
+  self-hosted_icmp_tests:
+    runs-on: ${{ vars.TEST_RUNNER_LABEL }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Run tests in a container
+      env:
+        PROJECT_NAME: dish
+      run: mv .env.example .env && make docker-test

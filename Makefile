@@ -20,6 +20,7 @@ DOCKER_DEV_IMAGE?=${PROJECT_NAME}-image
 DOCKER_DEV_CONTAINER?=${PROJECT_NAME}-run
 
 COMPOSE_FILE=deployments/docker-compose.yml
+COMPOSE_FILE_TEST=./docker-compose.test.yml
 
 # define standard colors
 # https://gist.github.com/rsperl/d2dfe88a520968fbc1f49db0a29345b9
@@ -103,6 +104,10 @@ test:
 	@go test -v -coverprofile cover.out ./...
 	@go tool cover -html cover.out -o cover.html
 	@open cover.html
+
+docker-test:
+	@echo -e "\n${YELLOW} Running tests... ${RESET}\n"
+	@docker compose -f ${COMPOSE_FILE_TEST} up --force-recreate
 
 push: 
 	@git tag -fa 'v${APP_VERSION}' -m 'v${APP_VERSION}'
