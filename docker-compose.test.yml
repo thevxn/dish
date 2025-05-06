@@ -1,0 +1,19 @@
+name: ${PROJECT_NAME}
+
+services:
+  dish:
+    image: ${DOCKER_IMAGE_TAG}
+    container_name: ${DOCKER_TEST_CONTAINER}
+    restart: no
+    build:
+      context: .
+      dockerfile: build/Dockerfile
+      target: dish-build
+      args: 
+        ALPINE_VERSION: ${ALPINE_VERSION}
+        APP_NAME: ${APP_NAME}
+        APP_FLAGS: ${APP_FLAGS}
+        SOURCE: ${SOURCE}
+        GOLANG_VERSION: ${GOLANG_VERSION}
+    entrypoint: go
+    command: test -v ./... 
