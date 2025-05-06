@@ -95,4 +95,4 @@ jobs:
     - name: Run tests in a container
       env:
         PROJECT_NAME: dish
-      run: mv .env.example .env && make docker-test
+      run: make docker-test
