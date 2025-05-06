@@ -88,7 +88,8 @@ jobs:
       - name: Test
         run: go test -v ./...
     
-  self-hosted_icmp_tests:
+  # Self-hosted runner mainly intended for running ICMP integration tests which cannot be run in the GH runners due to incoming traffic being blocked
+  self-hosted:
     runs-on: ${{ vars.TEST_RUNNER_LABEL }}
     steps:
     - uses: actions/checkout@v4
