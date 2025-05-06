@@ -108,6 +108,7 @@ test:
 
 docker-test:
 	@echo -e "\n${YELLOW} Running tests... ${RESET}\n"
+	@docker compose -f ${COMPOSE_FILE_TEST} build --no-cache
 	@docker compose -f ${COMPOSE_FILE_TEST} up --force-recreate
 
 push: 
