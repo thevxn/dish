@@ -41,8 +41,7 @@ func (l *ConsoleLogger) log(level LogLevel, prefix string, format string, v ...a
 
 	l.stdLogger.Print(msg)
 
-	// Panic if there is FATAL log
-	if level == FATAL {
+	if level == PANIC {
 		panic(msg)
 	}
 }
@@ -87,10 +86,10 @@ func (l *ConsoleLogger) Errorf(f string, v ...any) {
 	l.log(ERROR, "ERROR:", f, v...)
 }
 
-func (l *ConsoleLogger) Fatal(v ...any) {
-	l.log(FATAL, "FATAL:", "", v...)
+func (l *ConsoleLogger) Panic(v ...any) {
+	l.log(PANIC, "PANIC:", "", v...)
 }
 
-func (l *ConsoleLogger) Fatalf(f string, v ...any) {
-	l.log(FATAL, "FATAL:", f, v...)
+func (l *ConsoleLogger) Panicf(f string, v ...any) {
+	l.log(PANIC, "PANIC:", f, v...)
 }

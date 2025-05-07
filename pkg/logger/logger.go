@@ -9,7 +9,7 @@ const (
 	INFO
 	WARN
 	ERROR
-	FATAL
+	PANIC
 )
 
 // Logger interface defines methods for logging at various levels.
@@ -24,6 +24,6 @@ type Logger interface {
 	Warnf(format string, v ...any)
 	Error(v ...any)
 	Errorf(format string, v ...any)
-	Fatal(v ...any)
-	Fatalf(format string, v ...any)
+	Panic(v ...any)
+	Panicf(format string, v ...any)
 }

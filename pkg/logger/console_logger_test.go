@@ -22,7 +22,7 @@ func TestNewConsoleLogger(t *testing.T) {
 	})
 }
 
-func TestConsoleLogger(t *testing.T) {
+func TestConsoleLogger_log(t *testing.T) {
 	var buf bytes.Buffer
 	logger := &ConsoleLogger{
 		stdLogger: log.New(&buf, "", 0),
@@ -35,14 +35,14 @@ func TestConsoleLogger(t *testing.T) {
 		expected string
 	}{
 		{
-			name: "Info",
+			name: "Info adds INFO prefix and joins arguments with spaces",
 			logFunc: func() {
 				logger.Info("hello", 123, 321)
 			},
 			expected: "INFO: hello123 321\n",
 		},
 		{
-			name: "Infof",
+			name: "Infof adds INFO prefix and formats string correctly",
 			logFunc: func() {
 				logger.Infof("hello %s !", "dish")
 			},
@@ -63,7 +63,7 @@ func TestConsoleLogger(t *testing.T) {
 	}
 }
 
-func TestConsoleLogger_Panic(t *testing.T) {
+func TestConsoleLogger_log_Panic(t *testing.T) {
 	logger := NewConsoleLogger(true)
 
 	defer func() {
@@ -72,11 +72,11 @@ func TestConsoleLogger_Panic(t *testing.T) {
 			t.Fatal("expected panic but did not get one")
 		}
 
-		expected := "FATAL: could not start dish"
+		expected := "PANIC: could not start dish"
 		if r != expected {
 			t.Fatalf("expected panic message %s, got %s", expected, r)
 		}
 	}()
 
-	logger.Fatalf("could not start %s", "dish")
+	logger.Panicf("could not start %s", "dish")
 }
