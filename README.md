@@ -14,7 +14,7 @@ dish
 
 ## Use Cases
 
-+ Lightweight health checks of HTTP and/or TCP sockets
++ Lightweight health checks of HTTP and ICMP endpoints and TCP sockets
 + Decentralized monitoring with standalone dish instances deployed on different hosts that pull configuration from a common API
 + Cron-driven one-shot checks without the need for any long-running agents
 
@@ -46,7 +46,7 @@ dish [FLAGS] SOURCE
 
 ### Source
 
-The list of sockets to be checked can be provided in 2 ways:
+The list of endpoints to be checked can be provided in 2 ways:
 
 1. A local JSON file
    + E.g., the `./configs/demo_sockets.json` file included in this repository as an example.
@@ -63,6 +63,17 @@ dish /opt/dish/sockets.json
 # remote JSON API source
 dish http://restapi.example.com/dish/sockets/:instance
 ```
+
+### Specifying the Protocol to Be Used
+
+The protocol which `dish` will use to check the provided endpoint will be determined by using the following rules (first matching rule applies) on the provided config JSON:
+
++ If the `host_name` field starts with "http://" or "https://", __HTTP__ will be used.
++ If the `port_tcp` field is between 1 and 65535, __TCP__ will be used.
++ If `host_name` is not empty, __ICMP__ will be used.
++ If none of the above conditions are met, the check fails.
+
+__Note:__ ICMP is currently not supported on Windows.
 
 ### Flags
 
