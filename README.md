@@ -64,7 +64,7 @@ dish /opt/dish/sockets.json
 dish http://restapi.example.com/dish/sockets/:instance
 ```
 
-### Specifying the Protocol to Be Used
+### Specifying Protocol
 
 The protocol which `dish` will use to check the provided endpoint will be determined by using the following rules (first matching rule applies) on the provided config JSON:
 
@@ -173,7 +173,7 @@ docker run --rm \
  https://api.example.com
 ```
 
-#### Bash script and cronjob
+#### Bash script and Cronjob
 
 Create a bash script to easily deploy dish and update its settings:
 
