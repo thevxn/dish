@@ -18,11 +18,10 @@ import (
 
 const agentVersion = "1.10"
 
-// RunSocketTest is meant to be invoked in a separate goroutine.
-// It runs a test for the given socket. The test result is sent through the given
-// channel. If the test fails to start then the error is logged to stdout and no
-// result is sent. When this func returns, it calls Done() on the WaitGroup and
-// the channel is closed.
+// RunSocketTest is intended to be invoked in a separate goroutine.
+// It runs a test for the given socket and sends the result through the given channel.
+// If the test fails to start, the error is logged to STDOUT and no result is
+// sent. On return, Done() is called on the WaitGroup and the channel is closed.
 func RunSocketTest(sock socket.Socket, out chan<- socket.Result, wg *sync.WaitGroup, cfg *config.Config) {
 	defer wg.Done()
 	defer close(out)
@@ -44,8 +43,14 @@ type NetRunner interface {
 	RunTest(ctx context.Context, sock socket.Socket) socket.Result
 }
 
-// NewNetRunner determines the protocol used for the socket test and
-// creates a new NetRunner for it.
+// NewNetRunner determines the protocol used for the socket test and creates a
+// new NetRunner for it.
+//
+// Rules for the test method determination (first matching rule applies):
+//   - If socket.Host starts with 'http://' or 'https://', a HTTP runner is returned.
+//   - If socket.Port is between 1 and 65535, a TCP runner is returned.
+//   - If socket.Host is not empty, an ICMP runner is returned.
+//   - If none of the above conditions are met, a non-nil error is returned.
 func NewNetRunner(sock socket.Socket, verbose bool) (NetRunner, error) {
 	exp, err := regexp.Compile("^(http|https)://")
 	if err != nil {
@@ -56,7 +61,15 @@ func NewNetRunner(sock socket.Socket, verbose bool) (NetRunner, error) {
 		return httpRunner{client: &http.Client{}, verbose: verbose}, nil
 	}
 
-	return tcpRunner{verbose: verbose}, nil
+	if sock.Port >= 1 && sock.Port <= 65535 {
+		return tcpRunner{verbose: verbose}, nil
+	}
+
+	if sock.Host != "" {
+		return icmpRunner{verbose: verbose}, nil
+	}
+
+	return nil, fmt.Errorf("no protocol could be determined from the socket %s", sock.ID)
 }
 
 type tcpRunner struct {
