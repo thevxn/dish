@@ -1,0 +1,20 @@
+name: Generate code coverage badge
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  generate-coverage-badge:
+    runs-on: ubuntu-latest
+    name: Update coverage badge
+    steps:
+      - name: Update coverage report
+        uses: ncruces/go-coverage-report@v0
+        with:
+            report: true
+            chart: true
+            amend: true
+        continue-on-error: false

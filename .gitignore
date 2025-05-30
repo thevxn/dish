@@ -11,4 +11,4 @@ main
 *.exe
 
 # test files
-cover*
+cover.*
