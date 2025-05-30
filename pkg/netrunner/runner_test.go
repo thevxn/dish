@@ -5,6 +5,7 @@ import (
 	"flag"
 	"net/http"
 	"reflect"
+	"runtime"
 	"sync"
 	"testing"
 	"time"
@@ -298,8 +299,12 @@ func TestHttpRunner_RunTest(t *testing.T) {
 
 // TestIcmpRunner_RunTest is an integration test. It executes network calls to
 // external public servers.
-// This test is common for all OS implementations.
+// This test is common for all OS implementations except for Windows which is not supported.
 func TestIcmpRunner_RunTest(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("ICMP tests are skipped on Windows")
+	}
+
 	type args struct {
 		sock socket.Socket
 	}
