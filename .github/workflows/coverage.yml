@@ -17,4 +17,4 @@ jobs:
             report: true
             chart: true
             amend: true
-        continue-on-error: false
+        continue-on-error: true
