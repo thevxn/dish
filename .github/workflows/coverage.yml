@@ -11,6 +11,7 @@ jobs:
     runs-on: ${{ vars.TEST_RUNNER_LABEL }}
     name: Update coverage badge
     steps:
+      - uses: actions/checkout@v4
       - name: Update coverage report
         uses: ncruces/go-coverage-report@v0
         with:
