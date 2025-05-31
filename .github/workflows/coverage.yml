@@ -17,4 +17,5 @@ jobs:
             report: true
             chart: true
             amend: true
+            badge-title: coverage
         continue-on-error: false
