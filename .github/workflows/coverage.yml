@@ -11,12 +11,6 @@ jobs:
     runs-on: ${{ vars.TEST_RUNNER_LABEL }}
     name: Update coverage badge
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '^1.24.3'
-        env:
-          GOCACHE: /tmp/go-build-cache
       - name: Update coverage report
         uses: ncruces/go-coverage-report@v0
         with:
