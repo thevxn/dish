@@ -6,6 +6,22 @@ import (
 	"os"
 )
 
+const (
+	// ANSI color codes
+	colorReset = "\033[0m"
+	yellow     = "\033[33m"
+	red        = "\033[31m"
+	magenta    = "\033[35m"
+
+	// Log prefixes
+	tracePrefix   = "[ TRACE ]:"
+	debugPrefix   = "[ DEBUG ]:"
+	infoPrefix    = "[ INFO ]:"
+	warningPrefix = "[ " + yellow + "WARN" + colorReset + " ]:"
+	errorPrefix   = "[ " + red + "ERROR" + colorReset + " ]:"
+	panicPrefix   = "[ " + magenta + "PANIC" + colorReset + " ]:"
+)
+
 // consoleLogger logs output to stderr.
 type consoleLogger struct {
 	stdLogger *log.Logger
@@ -47,49 +63,50 @@ func (l *consoleLogger) log(level LogLevel, prefix string, format string, v ...a
 }
 
 func (l *consoleLogger) Trace(v ...any) {
-	l.log(TRACE, "TRACE:", "", v...)
+	l.log(TRACE, tracePrefix, "", v...)
 }
 
 func (l *consoleLogger) Tracef(f string, v ...any) {
-	l.log(TRACE, "TRACE:", f, v...)
+	l.log(TRACE, tracePrefix, f, v...)
 }
 
 func (l *consoleLogger) Debug(v ...any) {
-	l.log(DEBUG, "DEBUG:", "", v...)
+	l.log(DEBUG, debugPrefix, "", v...)
 }
 
 func (l *consoleLogger) Debugf(f string, v ...any) {
-	l.log(DEBUG, "DEBUG:", f, v...)
+	l.log(DEBUG, debugPrefix, f, v...)
 }
 
 func (l *consoleLogger) Info(v ...any) {
-	l.log(INFO, "INFO:", "", v...)
+	l.log(INFO, infoPrefix, "", v...)
 }
 
 func (l *consoleLogger) Infof(f string, v ...any) {
-	l.log(INFO, "INFO:", f, v...)
+	l.log(INFO, infoPrefix, f, v...)
 }
 
 func (l *consoleLogger) Warn(v ...any) {
-	l.log(WARN, "WARN:", "", v...)
+
+	l.log(WARN, warningPrefix, "", v...)
 }
 
 func (l *consoleLogger) Warnf(f string, v ...any) {
-	l.log(WARN, "WARN:", f, v...)
+	l.log(WARN, warningPrefix, f, v...)
 }
 
 func (l *consoleLogger) Error(v ...any) {
-	l.log(ERROR, "ERROR:", "", v...)
+	l.log(ERROR, errorPrefix, "", v...)
 }
 
 func (l *consoleLogger) Errorf(f string, v ...any) {
-	l.log(ERROR, "ERROR:", f, v...)
+	l.log(ERROR, errorPrefix, f, v...)
 }
 
 func (l *consoleLogger) Panic(v ...any) {
-	l.log(PANIC, "PANIC:", "", v...)
+	l.log(PANIC, panicPrefix, "", v...)
 }
 
 func (l *consoleLogger) Panicf(f string, v ...any) {
-	l.log(PANIC, "PANIC:", f, v...)
+	l.log(PANIC, panicPrefix, f, v...)
 }
