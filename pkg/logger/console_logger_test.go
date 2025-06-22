@@ -40,7 +40,7 @@ func TestConsoleLogger_log(t *testing.T) {
 				stdLogger: log.New(&buf, "", 0),
 				logLevel:  TRACE,
 			},
-			expected: "INFO: hello123 321\n",
+			expected: infoPrefix + "hello123 321\n",
 		},
 		{
 			name: "Infof adds INFO prefix and formats string correctly",
@@ -51,7 +51,7 @@ func TestConsoleLogger_log(t *testing.T) {
 				stdLogger: log.New(&buf, "", 0),
 				logLevel:  TRACE,
 			},
-			expected: "INFO: hello dish !\n",
+			expected: infoPrefix + "hello dish !\n",
 		},
 		{
 			name: "Debug does not print if logLevel is INFO",
@@ -73,7 +73,7 @@ func TestConsoleLogger_log(t *testing.T) {
 				stdLogger: log.New(&buf, "", 0),
 				logLevel:  DEBUG,
 			},
-			expected: "DEBUG: debug\n",
+			expected: debugPrefix + "debug\n",
 		},
 		{
 			name: "Debugf adds DEBUG prefix and formats string correctly",
@@ -84,7 +84,7 @@ func TestConsoleLogger_log(t *testing.T) {
 				stdLogger: log.New(&buf, "", 0),
 				logLevel:  DEBUG,
 			},
-			expected: "DEBUG: debug 1\n",
+			expected: debugPrefix + "debug 1\n",
 		},
 		{
 			name: "Warn prints with WARN prefix",
@@ -95,7 +95,7 @@ func TestConsoleLogger_log(t *testing.T) {
 				stdLogger: log.New(&buf, "", 0),
 				logLevel:  TRACE,
 			},
-			expected: "WARN: warn message\n",
+			expected: warningPrefix + "warn message\n",
 		},
 		{
 			name: "Warnf prints formatted WARN message",
@@ -106,7 +106,7 @@ func TestConsoleLogger_log(t *testing.T) {
 				stdLogger: log.New(&buf, "", 0),
 				logLevel:  TRACE,
 			},
-			expected: "WARN: warn 42\n",
+			expected: warningPrefix + "warn 42\n",
 		},
 		{
 			name: "Error prints with ERROR prefix",
@@ -117,7 +117,7 @@ func TestConsoleLogger_log(t *testing.T) {
 				stdLogger: log.New(&buf, "", 0),
 				logLevel:  TRACE,
 			},
-			expected: "ERROR: error\n",
+			expected: errorPrefix + "error\n",
 		},
 		{
 			name: "Errorf prints formatted ERROR message",
@@ -128,7 +128,7 @@ func TestConsoleLogger_log(t *testing.T) {
 				stdLogger: log.New(&buf, "", 0),
 				logLevel:  TRACE,
 			},
-			expected: "ERROR: fail here\n",
+			expected: errorPrefix + "fail here\n",
 		},
 		{
 			name: "Trace prints with TRACE prefix",
@@ -139,7 +139,7 @@ func TestConsoleLogger_log(t *testing.T) {
 				stdLogger: log.New(&buf, "", 0),
 				logLevel:  TRACE,
 			},
-			expected: "TRACE: trace\n",
+			expected: tracePrefix + "trace\n",
 		},
 		{
 			name: "Tracef prints formatted TRACE message",
@@ -150,7 +150,7 @@ func TestConsoleLogger_log(t *testing.T) {
 				stdLogger: log.New(&buf, "", 0),
 				logLevel:  TRACE,
 			},
-			expected: "TRACE: trace 1\n",
+			expected: tracePrefix + "trace 1\n",
 		},
 	}
 
@@ -176,7 +176,7 @@ func TestConsoleLogger_log_Panic(t *testing.T) {
 			t.Fatal("expected panic but did not get one")
 		}
 
-		expected := "PANIC: could not start dish"
+		expected := panicPrefix + "could not start dish"
 		if r != expected {
 			t.Fatalf("expected panic message %s, got %s", expected, r)
 		}
@@ -194,7 +194,7 @@ func TestConsoleLogger_log_Panicf(t *testing.T) {
 			t.Fatal("expected panic but did not get one")
 		}
 
-		expected := "PANIC: could not start dish"
+		expected := panicPrefix + "could not start dish"
 		if r != expected {
 			t.Fatalf("expected panic message %s, got %s", expected, r)
 		}
