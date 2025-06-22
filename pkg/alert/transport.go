@@ -78,7 +78,8 @@ func handleSubmit(client HTTPClient, method string, url string, body io.Reader, 
 		} else {
 			log.Printf("response from %s: %s", url, string(body))
 		}
-		return fmt.Errorf("unexpected response code received (expected: %d, got: %d)", http.StatusOK, res.StatusCode)
+
+		return fmt.Errorf("unexpected response code received (expected: 200-299, got: %d)", res.StatusCode)
 	}
 
 	return nil
