@@ -14,12 +14,12 @@ const (
 	magenta    = "\033[35m"
 
 	// Log prefixes
-	tracePrefix   = "[ TRACE ]:"
-	debugPrefix   = "[ DEBUG ]:"
-	infoPrefix    = "[ INFO ]:"
-	warningPrefix = "[ " + yellow + "WARN" + colorReset + " ]:"
-	errorPrefix   = "[ " + red + "ERROR" + colorReset + " ]:"
-	panicPrefix   = "[ " + magenta + "PANIC" + colorReset + " ]:"
+	tracePrefix   = "[ TRACE ]: "
+	debugPrefix   = "[ DEBUG ]: "
+	infoPrefix    = "[ INFO ]: "
+	warningPrefix = "[ " + yellow + "WARN" + colorReset + " ]: "
+	errorPrefix   = "[ " + red + "ERROR" + colorReset + " ]: "
+	panicPrefix   = "[ " + magenta + "PANIC" + colorReset + " ]: "
 )
 
 // consoleLogger logs output to stderr.
@@ -50,9 +50,9 @@ func (l *consoleLogger) log(level LogLevel, prefix string, format string, v ...a
 		return
 	}
 
-	msg := prefix + " " + fmt.Sprint(v...)
+	msg := prefix + fmt.Sprint(v...)
 	if format != "" {
-		msg = prefix + " " + fmt.Sprintf(format, v...)
+		msg = prefix + fmt.Sprintf(format, v...)
 	}
 
 	l.stdLogger.Print(msg)
