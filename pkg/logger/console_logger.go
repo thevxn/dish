@@ -8,18 +8,19 @@ import (
 
 const (
 	// ANSI color codes
-	colorReset = "\033[0m"
-	yellow     = "\033[33m"
-	red        = "\033[31m"
-	magenta    = "\033[35m"
+	// TODO: only use these in verbose mode?
+	// colorReset = "\033[0m"
+	// yellow     = "\033[33m"
+	// red        = "\033[31m"
+	// magenta    = "\033[35m"
 
 	// Log prefixes
 	tracePrefix   = "[ TRACE ]: "
 	debugPrefix   = "[ DEBUG ]: "
 	infoPrefix    = "[ INFO ]: "
-	warningPrefix = "[ " + yellow + "WARN" + colorReset + " ]: "
-	errorPrefix   = "[ " + red + "ERROR" + colorReset + " ]: "
-	panicPrefix   = "[ " + magenta + "PANIC" + colorReset + " ]: "
+	warningPrefix = "[ WARN ]: "
+	errorPrefix   = "[ ERROR ]: "
+	panicPrefix   = "[ PANIC ]: "
 )
 
 // consoleLogger logs output to stderr.
