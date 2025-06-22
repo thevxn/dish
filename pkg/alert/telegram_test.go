@@ -10,6 +10,7 @@ import (
 
 func TestNewTelegramSender(t *testing.T) {
 	mockHTTPClient := &testhelpers.SuccessStatusHTTPClient{}
+	mockLogger := &testhelpers.MockLogger{}
 
 	chatID := "-123"
 	token := "abc123"
@@ -22,6 +23,7 @@ func TestNewTelegramSender(t *testing.T) {
 		token:         token,
 		verbose:       verbose,
 		notifySuccess: notifySuccess,
+		logger:        mockLogger,
 	}
 
 	cfg := &config.Config{
@@ -31,7 +33,7 @@ func TestNewTelegramSender(t *testing.T) {
 		TextNotifySuccess: notifySuccess,
 	}
 
-	actual := NewTelegramSender(mockHTTPClient, cfg)
+	actual := NewTelegramSender(mockHTTPClient, cfg, mockLogger)
 
 	if !reflect.DeepEqual(expected, actual) {
 		t.Fatalf("expected %v, got %v", expected, actual)
@@ -134,7 +136,7 @@ func TestSend_Telegram(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := newConfig("-123", "abc123", tt.verbose, tt.notifySuccess)
-			sender := NewTelegramSender(tt.client, cfg)
+			sender := NewTelegramSender(tt.client, cfg, &testhelpers.MockLogger{})
 
 			err := sender.send(tt.rawMessage, tt.failedCount)
 

@@ -8,6 +8,7 @@ import (
 
 	"go.vxn.dev/dish/pkg/alert"
 	"go.vxn.dev/dish/pkg/config"
+	"go.vxn.dev/dish/pkg/logger"
 )
 
 func main() {
@@ -23,22 +24,25 @@ func main() {
 		return
 	}
 
-	log.Println("dish run: started")
+	logger := logger.NewConsoleLogger(cfg.Verbose)
+
+	logger.Info("dish run: started")
 
 	// Run tests on sockets
 	res, err := runTests(cfg)
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 		return
 	}
 
 	// Submit results and alerts
-	alert.HandleAlerts(res.messengerText, res.results, res.failedCount, cfg)
+	alerter := alert.NewAlerter(logger)
+	alerter.HandleAlerts(res.messengerText, res.results, res.failedCount, cfg)
 
 	if res.failedCount > 0 {
-		log.Println("dish run: some tests failed:\n", res.messengerText)
+		logger.Warn("dish run: some tests failed:\n", res.messengerText)
 		return
 	}
 
-	log.Println("dish run: all tests ok")
+	logger.Info("dish run: all tests ok")
 }

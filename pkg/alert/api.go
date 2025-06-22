@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"go.vxn.dev/dish/pkg/config"
+	"go.vxn.dev/dish/pkg/logger"
 )
 
 type apiSender struct {
@@ -17,9 +17,10 @@ type apiSender struct {
 	headerValue   string
 	verbose       bool
 	notifySuccess bool
+	logger        logger.Logger
 }
 
-func NewAPISender(httpClient HTTPClient, config *config.Config) (*apiSender, error) {
+func NewAPISender(httpClient HTTPClient, config *config.Config, logger logger.Logger) (*apiSender, error) {
 	parsedURL, err := parseAndValidateURL(config.ApiURL, nil)
 	if err != nil {
 		return nil, err
@@ -32,15 +33,15 @@ func NewAPISender(httpClient HTTPClient, config *config.Config) (*apiSender, err
 		headerValue:   config.ApiHeaderValue,
 		verbose:       config.Verbose,
 		notifySuccess: config.MachineNotifySuccess,
+		logger:        logger,
 	}, nil
 }
 
 func (s *apiSender) send(m *Results, failedCount int) error {
 	// If no checks failed and success should not be notified, there is nothing to send
 	if failedCount == 0 && !s.notifySuccess {
-		if s.verbose {
-			log.Println("no sockets failed, nothing will be sent to remote API")
-		}
+		s.logger.Debug("no sockets failed, nothing will be sent to remote API")
+
 		return nil
 	}
 
@@ -51,9 +52,7 @@ func (s *apiSender) send(m *Results, failedCount int) error {
 
 	bodyReader := bytes.NewReader(jsonData)
 
-	if s.verbose {
-		log.Printf("prepared remote API data: %s", string(jsonData))
-	}
+	s.logger.Debugf("prepared remote API data: %s", string(jsonData))
 
 	// If custom header & value is provided (mostly used for auth purposes), include it in the request
 	opts := []func(*submitOptions){}
@@ -66,7 +65,7 @@ func (s *apiSender) send(m *Results, failedCount int) error {
 		return fmt.Errorf("error pushing results to remote API: %w", err)
 	}
 
-	log.Println("results pushed to remote API")
+	s.logger.Info("results pushed to remote API")
 
 	return nil
 }

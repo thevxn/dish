@@ -3,10 +3,10 @@ package alert
 import (
 	"errors"
 	"io"
-	"log"
 	"net/http"
 
 	"go.vxn.dev/dish/pkg/config"
+	"go.vxn.dev/dish/pkg/logger"
 )
 
 type Results struct {
@@ -24,6 +24,7 @@ type notifier struct {
 	verbose          bool
 	chatNotifiers    []ChatNotifier
 	machineNotifiers []MachineNotifier
+	logger           logger.Logger
 }
 
 type HTTPClient interface {
@@ -33,13 +34,13 @@ type HTTPClient interface {
 }
 
 // NewNotifier creates a new instance of notifier. Based on the flags used, it spawns new instances of ChatNotifiers (e.g. Telegram) and MachineNotifiers (e.g. Webhooks) and stores them on the notifier struct to be used for alert notifications.
-func NewNotifier(httpClient HTTPClient, config *config.Config) *notifier {
+func NewNotifier(httpClient HTTPClient, config *config.Config, logger logger.Logger) *notifier {
 	// Set chat integrations to be notified (e.g. Telegram)
 	notificationSenders := make([]ChatNotifier, 0)
 
 	// Telegram
 	if config.TelegramBotToken != "" && config.TelegramChatID != "" {
-		notificationSenders = append(notificationSenders, NewTelegramSender(httpClient, config))
+		notificationSenders = append(notificationSenders, NewTelegramSender(httpClient, config, logger))
 	}
 
 	// Set machine interface integrations to be notified (e.g. Webhooks)
@@ -47,9 +48,9 @@ func NewNotifier(httpClient HTTPClient, config *config.Config) *notifier {
 
 	// Remote API
 	if config.ApiURL != "" {
-		apiSender, err := NewAPISender(httpClient, config)
+		apiSender, err := NewAPISender(httpClient, config, logger)
 		if err != nil {
-			log.Println("error creating new remote API sender:", err)
+			logger.Error("error creating new remote API sender: ", err)
 		} else {
 			payloadSenders = append(payloadSenders, apiSender)
 		}
@@ -57,9 +58,9 @@ func NewNotifier(httpClient HTTPClient, config *config.Config) *notifier {
 
 	// Webhooks
 	if config.WebhookURL != "" {
-		webhookSender, err := NewWebhookSender(httpClient, config)
+		webhookSender, err := NewWebhookSender(httpClient, config, logger)
 		if err != nil {
-			log.Println("error creating new webhook sender:", err)
+			logger.Error("error creating new webhook sender: ", err)
 		} else {
 			payloadSenders = append(payloadSenders, webhookSender)
 		}
@@ -67,9 +68,9 @@ func NewNotifier(httpClient HTTPClient, config *config.Config) *notifier {
 
 	// Pushgateway
 	if config.PushgatewayURL != "" {
-		pgwSender, err := NewPushgatewaySender(httpClient, config)
+		pgwSender, err := NewPushgatewaySender(httpClient, config, logger)
 		if err != nil {
-			log.Println("error creating new Pushgateway sender:", err)
+			logger.Error("error creating new Pushgateway sender:", err)
 		} else {
 			payloadSenders = append(payloadSenders, pgwSender)
 		}
@@ -79,6 +80,7 @@ func NewNotifier(httpClient HTTPClient, config *config.Config) *notifier {
 		verbose:          config.Verbose,
 		chatNotifiers:    notificationSenders,
 		machineNotifiers: payloadSenders,
+		logger:           logger,
 	}
 }
 
@@ -86,14 +88,14 @@ func (n *notifier) SendChatNotifications(m string, failedCount int) error {
 	var errs []error
 
 	if len(n.chatNotifiers) == 0 {
-		log.Println("no chat notification receivers configured, no notifications will be sent")
+		n.logger.Debug("no chat notification receivers configured, no notifications will be sent")
 
 		return nil
 	}
 
 	for _, sender := range n.chatNotifiers {
 		if err := sender.send(m, failedCount); err != nil {
-			log.Printf("failed to send notification using %T: %v", sender, err)
+			n.logger.Errorf("failed to send notification using %T: %v", sender, err)
 			errs = append(errs, err)
 		}
 	}
@@ -109,13 +111,14 @@ func (n *notifier) SendMachineNotifications(m *Results, failedCount int) error {
 	var errs []error
 
 	if len(n.machineNotifiers) == 0 {
-		log.Println("no machine interface payload receivers configured, no notifications will be sent")
+		n.logger.Debug("no machine interface payload receivers configured, no notifications will be sent")
 
 		return nil
 	}
+
 	for _, sender := range n.machineNotifiers {
 		if err := sender.send(m, failedCount); err != nil {
-			log.Printf("failed to send notification using %T: %v", sender, err)
+			n.logger.Errorf("failed to send notification using %T: %v", sender, err)
 			errs = append(errs, err)
 		}
 	}

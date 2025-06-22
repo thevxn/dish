@@ -2,11 +2,11 @@ package alert
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 
 	"go.vxn.dev/dish/pkg/config"
+	"go.vxn.dev/dish/pkg/logger"
 )
 
 const (
@@ -20,24 +20,25 @@ type telegramSender struct {
 	token         string
 	verbose       bool
 	notifySuccess bool
+	logger        logger.Logger
 }
 
-func NewTelegramSender(httpClient HTTPClient, config *config.Config) *telegramSender {
+func NewTelegramSender(httpClient HTTPClient, config *config.Config, logger logger.Logger) *telegramSender {
 	return &telegramSender{
-		httpClient,
-		config.TelegramChatID,
-		config.TelegramBotToken,
-		config.Verbose,
-		config.TextNotifySuccess,
+		httpClient:    httpClient,
+		chatID:        config.TelegramChatID,
+		token:         config.TelegramBotToken,
+		verbose:       config.Verbose,
+		notifySuccess: config.TextNotifySuccess,
+		logger:        logger,
 	}
 }
 
 func (s *telegramSender) send(rawMessage string, failedCount int) error {
 	// If no checks failed and success should not be notified, there is nothing to send
 	if failedCount == 0 && !s.notifySuccess {
-		if s.verbose {
-			log.Printf("no sockets failed, nothing will be sent to Telegram")
-		}
+		s.logger.Debug("no sockets failed, nothing will be sent to Telegram")
+
 		return nil
 	}
 
@@ -57,7 +58,7 @@ func (s *telegramSender) send(rawMessage string, failedCount int) error {
 		return fmt.Errorf("error submitting Telegram alert: %w", err)
 	}
 
-	log.Println("Telegram alert sent")
+	s.logger.Info("Telegram alert sent")
 
 	return nil
 }

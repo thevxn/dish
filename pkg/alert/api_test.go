@@ -24,6 +24,7 @@ func TestNewAPISender(t *testing.T) {
 		headerValue:   headerValue,
 		notifySuccess: notifySuccess,
 		verbose:       verbose,
+		logger:        &testhelpers.MockLogger{},
 	}
 
 	cfg := &config.Config{
@@ -34,7 +35,7 @@ func TestNewAPISender(t *testing.T) {
 		Verbose:              verbose,
 	}
 
-	actual, _ := NewAPISender(mockHTTPClient, cfg)
+	actual, _ := NewAPISender(mockHTTPClient, cfg, &testhelpers.MockLogger{})
 
 	if !reflect.DeepEqual(expected, actual) {
 		t.Fatalf("expected %v, got %v", expected, actual)
@@ -210,7 +211,7 @@ func TestSend_API(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := newConfig(tt.headerName, tt.headerValue, tt.notifySuccess, tt.verbose)
-			sender, err := NewAPISender(tt.client, cfg)
+			sender, err := NewAPISender(tt.client, cfg, &testhelpers.MockLogger{})
 			if err != nil {
 				t.Fatalf("failed to create API sender instance: %v", err)
 			}

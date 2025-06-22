@@ -72,6 +72,7 @@ func handleSubmit(client HTTPClient, method string, url string, body io.Reader, 
 
 	// If status code is not within <200, 299>, log the body and return an error with the received status code
 	if res.StatusCode < http.StatusOK || res.StatusCode >= http.StatusMultipleChoices {
+		// TODO: Do not read the body here, either do it in the caller of this function or implement a new handleRead function in this package..
 		body, err := io.ReadAll(res.Body)
 		if err != nil {
 			log.Printf("error reading response body: %v", err)

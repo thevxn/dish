@@ -10,6 +10,7 @@ import (
 
 func TestNewWebhookSender(t *testing.T) {
 	mockHTTPClient := &testhelpers.SuccessStatusHTTPClient{}
+	mockLogger := &testhelpers.MockLogger{}
 
 	url := "https://abc123.xyz.com"
 	notifySuccess := false
@@ -20,6 +21,7 @@ func TestNewWebhookSender(t *testing.T) {
 		url:           url,
 		notifySuccess: notifySuccess,
 		verbose:       verbose,
+		logger:        mockLogger,
 	}
 
 	cfg := &config.Config{
@@ -27,7 +29,7 @@ func TestNewWebhookSender(t *testing.T) {
 		Verbose:              verbose,
 		MachineNotifySuccess: notifySuccess,
 	}
-	actual, _ := NewWebhookSender(mockHTTPClient, cfg)
+	actual, _ := NewWebhookSender(mockHTTPClient, cfg, mockLogger)
 
 	if !reflect.DeepEqual(expected, actual) {
 		t.Fatalf("expected %v, got %v", expected, actual)
@@ -166,7 +168,7 @@ func TestSend_Webhook(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := newConfig(url, tt.verbose, tt.notifySuccess)
-			sender, err := NewWebhookSender(tt.client, cfg)
+			sender, err := NewWebhookSender(tt.client, cfg, &testhelpers.MockLogger{})
 			if err != nil {
 				t.Fatalf("failed to create Webhook sender instance: %v", err)
 			}

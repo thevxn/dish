@@ -3,11 +3,11 @@ package alert
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"net/http"
 	"text/template"
 
 	"go.vxn.dev/dish/pkg/config"
+	"go.vxn.dev/dish/pkg/logger"
 )
 
 const (
@@ -35,11 +35,11 @@ type pushgatewaySender struct {
 	verbose       bool
 	notifySuccess bool
 	tmpl          *template.Template
+	logger        logger.Logger
 }
 
 // NewPushgatewaySender validates the provided URL, prepares and parses a message template to be used for alerting and returns a new pushgatewaySender struct with the provided attributes.
-func NewPushgatewaySender(httpClient HTTPClient, config *config.Config) (*pushgatewaySender, error) {
-	// Parse and validate the provided URL
+func NewPushgatewaySender(httpClient HTTPClient, config *config.Config, logger logger.Logger) (*pushgatewaySender, error) {
 	parsedURL, err := parseAndValidateURL(config.PushgatewayURL, nil)
 	if err != nil {
 		return nil, err
@@ -58,12 +58,14 @@ func NewPushgatewaySender(httpClient HTTPClient, config *config.Config) (*pushga
 		verbose:       config.Verbose,
 		notifySuccess: config.MachineNotifySuccess,
 		tmpl:          tmpl,
+		logger:        logger,
 	}, nil
 }
 
 // createMessage returns a string containing the message text in Pushgateway-specific format.
 func (s *pushgatewaySender) createMessage(failedCount int) (string, error) {
 	var buf bytes.Buffer
+
 	err := s.tmpl.Execute(&buf, messageData{FailedCount: failedCount})
 	if err != nil {
 		return "", fmt.Errorf("error executing Pushgateway message template: %w", err)
@@ -78,9 +80,8 @@ func (s *pushgatewaySender) createMessage(failedCount int) (string, error) {
 func (s *pushgatewaySender) send(_ *Results, failedCount int) error {
 	// If no checks failed and success should not be notified, there is nothing to send
 	if failedCount == 0 && !s.notifySuccess {
-		if s.verbose {
-			log.Println("no sockets failed, nothing will be sent to Pushgateway")
-		}
+		s.logger.Debug("no sockets failed, nothing will be sent to Pushgateway")
+
 		return nil
 	}
 
@@ -98,7 +99,7 @@ func (s *pushgatewaySender) send(_ *Results, failedCount int) error {
 		return fmt.Errorf("error pushing results to Pushgateway: %w", err)
 	}
 
-	log.Println("results pushed to Pushgateway")
+	s.logger.Info("results pushed to Pushgateway")
 
 	return nil
 }

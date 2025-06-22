@@ -10,6 +10,7 @@ import (
 
 func TestNewPushgatewaySender(t *testing.T) {
 	mockHTTPClient := &testhelpers.SuccessStatusHTTPClient{}
+	mockLogger := &testhelpers.MockLogger{}
 
 	url := "https://abc123.xyz.com"
 	instanceName := "test-instance"
@@ -22,6 +23,7 @@ func TestNewPushgatewaySender(t *testing.T) {
 		instanceName:  "test-instance",
 		notifySuccess: notifySuccess,
 		verbose:       verbose,
+		logger:        mockLogger,
 		// template will be compared based on its output, no need for it here
 	}
 
@@ -32,7 +34,7 @@ func TestNewPushgatewaySender(t *testing.T) {
 		MachineNotifySuccess: notifySuccess,
 	}
 
-	actual, err := NewPushgatewaySender(mockHTTPClient, cfg)
+	actual, err := NewPushgatewaySender(mockHTTPClient, cfg, mockLogger)
 	if err != nil {
 		t.Fatalf("error creating a new Pushgateway sender instance: %v", err)
 	}
@@ -52,6 +54,9 @@ func TestNewPushgatewaySender(t *testing.T) {
 	}
 	if fmt.Sprintf("%T", expected.httpClient) != fmt.Sprintf("%T", actual.httpClient) {
 		t.Errorf("expected httpClient type: %T, got: %T", expected.httpClient, actual.httpClient)
+	}
+	if fmt.Sprintf("%T", expected.logger) != fmt.Sprintf("%T", actual.logger) {
+		t.Errorf("expected logger type: %T, got: %T", expected.logger, actual.logger)
 	}
 }
 
@@ -210,7 +215,7 @@ func TestSend_Pushgateway(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := newConfig(url, tt.instanceName, tt.notifySuccess, tt.verbose)
-			sender, err := NewPushgatewaySender(tt.client, cfg)
+			sender, err := NewPushgatewaySender(tt.client, cfg, &testhelpers.MockLogger{})
 			if err != nil {
 				t.Fatalf("failed to create Pushgateway sender instance: %v", err)
 			}
@@ -231,7 +236,7 @@ func TestCreateMessage(t *testing.T) {
 		Verbose:              false,
 	}
 
-	sender, err := NewPushgatewaySender(&testhelpers.SuccessStatusHTTPClient{}, cfg)
+	sender, err := NewPushgatewaySender(&testhelpers.SuccessStatusHTTPClient{}, cfg, &testhelpers.MockLogger{})
 	if err != nil {
 		t.Fatalf("failed to create Pushgateway sender instance: %v", err)
 	}
