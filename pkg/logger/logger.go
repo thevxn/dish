@@ -1,3 +1,4 @@
+// Package logger provides a logging interface and implementations for formatted log output.
 package logger
 
 // LogLevel specifies a level from which logs are printed.
