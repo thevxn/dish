@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"go.vxn.dev/dish/pkg/config"
+	"go.vxn.dev/dish/pkg/logger"
 	"go.vxn.dev/dish/pkg/socket"
 )
 
@@ -22,14 +23,14 @@ const agentVersion = "1.11"
 // It runs a test for the given socket and sends the result through the given channel.
 // If the test fails to start, the error is logged to STDOUT and no result is
 // sent. On return, Done() is called on the WaitGroup and the channel is closed.
-func RunSocketTest(sock socket.Socket, out chan<- socket.Result, wg *sync.WaitGroup, cfg *config.Config) {
+func RunSocketTest(sock socket.Socket, out chan<- socket.Result, wg *sync.WaitGroup, cfg *config.Config, logger logger.Logger) {
 	defer wg.Done()
 	defer close(out)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(cfg.TimeoutSeconds)*time.Second)
 	defer cancel()
 
-	runner, err := NewNetRunner(sock, cfg.Verbose)
+	runner, err := NewNetRunner(sock, logger)
 	if err != nil {
 		log.Printf("failed to test socket: %v", err.Error())
 		return
@@ -51,39 +52,37 @@ type NetRunner interface {
 //   - If socket.Port is between 1 and 65535, a TCP runner is returned.
 //   - If socket.Host is not empty, an ICMP runner is returned.
 //   - If none of the above conditions are met, a non-nil error is returned.
-func NewNetRunner(sock socket.Socket, verbose bool) (NetRunner, error) {
+func NewNetRunner(sock socket.Socket, logger logger.Logger) (NetRunner, error) {
 	exp, err := regexp.Compile("^(http|https)://")
 	if err != nil {
 		return nil, fmt.Errorf("regex compilation failed: %w", err)
 	}
 
 	if exp.MatchString(sock.Host) {
-		return httpRunner{client: &http.Client{}, verbose: verbose}, nil
+		return &httpRunner{client: &http.Client{}, logger: logger}, nil
 	}
 
 	if sock.Port >= 1 && sock.Port <= 65535 {
-		return tcpRunner{verbose: verbose}, nil
+		return &tcpRunner{logger: logger}, nil
 	}
 
 	if sock.Host != "" {
-		return icmpRunner{verbose: verbose}, nil
+		return &icmpRunner{logger: logger}, nil
 	}
 
 	return nil, fmt.Errorf("no protocol could be determined from the socket %s", sock.ID)
 }
 
 type tcpRunner struct {
-	verbose bool
+	logger logger.Logger
 }
 
 // RunTest is used to test TCP sockets. It opens a TCP connection with the given socket.
 // The test passes if the connection is successfully opened with no errors.
-func (runner tcpRunner) RunTest(ctx context.Context, sock socket.Socket) socket.Result {
+func (runner *tcpRunner) RunTest(ctx context.Context, sock socket.Socket) socket.Result {
 	endpoint := net.JoinHostPort(sock.Host, strconv.Itoa(sock.Port))
 
-	if runner.verbose {
-		log.Println("TCP runner: connect: " + endpoint)
-	}
+	runner.logger.Debug("TCP runner: connect: " + endpoint)
 
 	d := net.Dialer{}
 
@@ -97,19 +96,17 @@ func (runner tcpRunner) RunTest(ctx context.Context, sock socket.Socket) socket.
 }
 
 type httpRunner struct {
-	client  *http.Client
-	verbose bool
+	client *http.Client
+	logger logger.Logger
 }
 
 // RunTest is used to test HTTP/S endpoints exclusively. It executes a HTTP GET
 // request to the given socket. The test passes if the request did not end with
 // an error and the response status matches the expected HTTP codes.
-func (runner httpRunner) RunTest(ctx context.Context, sock socket.Socket) socket.Result {
+func (runner *httpRunner) RunTest(ctx context.Context, sock socket.Socket) socket.Result {
 	url := sock.Host + ":" + strconv.Itoa(sock.Port) + sock.PathHTTP
 
-	if runner.verbose {
-		log.Println("HTTP runner: connect:", url)
-	}
+	runner.logger.Debug("HTTP runner: connect:", url)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {

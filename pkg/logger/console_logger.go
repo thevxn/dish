@@ -26,7 +26,7 @@ const (
 // consoleLogger logs output to stderr.
 type consoleLogger struct {
 	stdLogger *log.Logger
-	logLevel  LogLevel
+	logLevel  logLevel
 }
 
 // NewConsoleLogger creates a new ConsoleLogger instance,
@@ -46,7 +46,7 @@ func NewConsoleLogger(verbose bool) *consoleLogger {
 
 // log prints a message if the current log level allows it.
 // It adds the passed prefix and formats the output if a format string is passed.
-func (l *consoleLogger) log(level LogLevel, prefix string, format string, v ...any) {
+func (l *consoleLogger) log(level logLevel, prefix string, format string, v ...any) {
 	if l.logLevel > level {
 		return
 	}

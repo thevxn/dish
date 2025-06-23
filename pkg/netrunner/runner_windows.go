@@ -6,11 +6,12 @@ import (
 	"context"
 	"errors"
 
+	"go.vxn.dev/dish/pkg/logger"
 	"go.vxn.dev/dish/pkg/socket"
 )
 
 type icmpRunner struct {
-	verbose bool
+	logger logger.Logger
 }
 
 func (runner icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socket.Result {

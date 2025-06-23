@@ -7,26 +7,24 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"net"
 	"syscall"
 	"time"
 
+	"go.vxn.dev/dish/pkg/logger"
 	"go.vxn.dev/dish/pkg/socket"
 )
 
 type icmpRunner struct {
-	verbose bool
+	logger logger.Logger
 }
 
 // RunTest is used to test ICMP sockets. It sends an ICMP Echo Request to the given socket using
 // non-privileged ICMP and verifies the reply. The test passes if the reply has the same payload
 // as the request. Returns an error if the socket host cannot be resolved to an IPv4 address. If
 // the host resolves to more than one address, only the first one is used.
-func (runner icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socket.Result {
-	if runner.verbose {
-		log.Printf("Resolving host '%s' to an IP address", sock.Host)
-	}
+func (runner *icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socket.Result {
+	runner.logger.Debugf("Resolving host '%s' to an IP address", sock.Host)
 
 	addr, err := net.DefaultResolver.LookupIP(ctx, "ip4", sock.Host)
 	if err != nil {
@@ -71,9 +69,7 @@ func (runner icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socket
 
 	copy(reqBuf[8:], payload)
 
-	if runner.verbose {
-		log.Println("ICMP runner: send to " + ip.String())
-	}
+	runner.logger.Debug("ICMP runner: send to " + ip.String())
 
 	if err := syscall.Sendto(sysSocket, reqBuf, 0, sockAddr); err != nil {
 		return socket.Result{Socket: sock, Error: fmt.Errorf("failed to send an echo request: %w", err)}
@@ -84,9 +80,7 @@ func (runner icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socket
 	// If the length of the buffer is too small to fit the data then it's silently truncated.
 	replyBuf := make([]byte, 1500)
 
-	if runner.verbose {
-		log.Println("ICMP runner: recv from " + ip.String())
-	}
+	runner.logger.Debug("ICMP runner: recv from " + ip.String())
 
 	n, _, err := syscall.Recvfrom(sysSocket, replyBuf, 0)
 	if err != nil {

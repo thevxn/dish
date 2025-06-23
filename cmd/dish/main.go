@@ -29,7 +29,7 @@ func main() {
 	logger.Info("dish run: started")
 
 	// Run tests on sockets
-	res, err := runTests(cfg)
+	res, err := runTests(cfg, logger)
 	if err != nil {
 		logger.Error(err)
 		return

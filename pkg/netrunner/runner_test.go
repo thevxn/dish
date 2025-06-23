@@ -13,7 +13,9 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"go.vxn.dev/dish/pkg/config"
+	"go.vxn.dev/dish/pkg/logger"
 	"go.vxn.dev/dish/pkg/socket"
+	"go.vxn.dev/dish/pkg/testhelpers"
 )
 
 // TestRunSocketTest is an integration test. It executes network calls to
@@ -41,7 +43,7 @@ func TestRunSocketTest(t *testing.T) {
 		done := make(chan struct{})
 
 		wg.Add(1)
-		go RunSocketTest(sock, c, wg, cfg)
+		go RunSocketTest(sock, c, wg, cfg, &testhelpers.MockLogger{})
 
 		go func() {
 			wg.Wait()
@@ -72,9 +74,10 @@ func TestRunSocketTest(t *testing.T) {
 
 func TestNewNetRunner(t *testing.T) {
 	type args struct {
-		verbose bool
-		sock    socket.Socket
+		sock   socket.Socket
+		logger logger.Logger
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -84,15 +87,14 @@ func TestNewNetRunner(t *testing.T) {
 		{
 			name: "returns an error on an empty socket",
 			args: args{
-				verbose: testing.Verbose(),
-				sock:    socket.Socket{},
+				sock:   socket.Socket{},
+				logger: &testhelpers.MockLogger{},
 			},
 			wantErr: true,
 		},
 		{
 			name: "returns an httpRunner when given an HTTPs socket",
 			args: args{
-				verbose: testing.Verbose(),
 				sock: socket.Socket{
 					ID:                "google_https",
 					Name:              "Google HTTPs",
@@ -101,17 +103,17 @@ func TestNewNetRunner(t *testing.T) {
 					ExpectedHTTPCodes: []int{200},
 					PathHTTP:          "/",
 				},
+				logger: &testhelpers.MockLogger{},
 			},
-			want: httpRunner{
-				client:  &http.Client{},
-				verbose: testing.Verbose(),
+			want: &httpRunner{
+				client: &http.Client{},
+				logger: &testhelpers.MockLogger{},
 			},
 			wantErr: false,
 		},
 		{
 			name: "returns an httpRunner when given a HTTP socket",
 			args: args{
-				verbose: testing.Verbose(),
 				sock: socket.Socket{
 					ID:                "google_http",
 					Name:              "Google HTTP",
@@ -120,41 +122,46 @@ func TestNewNetRunner(t *testing.T) {
 					ExpectedHTTPCodes: []int{200},
 					PathHTTP:          "/",
 				},
+				logger: &testhelpers.MockLogger{},
 			},
-			want: httpRunner{
-				client:  &http.Client{},
-				verbose: testing.Verbose(),
+			want: &httpRunner{
+				client: &http.Client{},
+				logger: &testhelpers.MockLogger{},
 			},
 			wantErr: false,
 		},
 		{
 			name: "returns a tcpRunner when given a TCP socket",
 			args: args{
-				verbose: testing.Verbose(),
 				sock: socket.Socket{
 					Port:              80,
 					ExpectedHTTPCodes: []int{200},
 					PathHTTP:          "/",
 				},
+				logger: &testhelpers.MockLogger{},
 			},
-			want:    tcpRunner{verbose: testing.Verbose()},
+			want: &tcpRunner{
+				logger: &testhelpers.MockLogger{},
+			},
 			wantErr: false,
 		},
 		{
 			name: "returns an icmpRunner when given an ICMP socket",
 			args: args{
-				verbose: testing.Verbose(),
 				sock: socket.Socket{
 					Host: "google.com",
 				},
+				logger: &testhelpers.MockLogger{},
 			},
-			want:    icmpRunner{verbose: testing.Verbose()},
+			want: &icmpRunner{
+				logger: &testhelpers.MockLogger{},
+			},
 			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NewNetRunner(tt.args.sock, tt.args.verbose)
+			got, err := NewNetRunner(tt.args.sock, &testhelpers.MockLogger{})
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("NewNetRunner():\n error = %v\n wantErr = %v", err, tt.wantErr)
 			}
@@ -211,7 +218,9 @@ func TestTcpRunner_RunTest(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := tcpRunner{tt.fields.verbose}
+			r := tcpRunner{
+				&testhelpers.MockLogger{},
+			}
 
 			if got := r.RunTest(context.Background(), tt.args.sock); !cmp.Equal(got, tt.want) {
 				t.Fatalf("tcpRunner.RunTest():\n got = %v\n want = %v", got, tt.want)
@@ -233,8 +242,11 @@ func TestHttpRunner_RunTest(t *testing.T) {
 		want   socket.Result
 	}{
 		{
-			name:   "returns a success on a call to a valid HTTPs server",
-			runner: httpRunner{client: &http.Client{}, verbose: testing.Verbose()},
+			name: "returns a success on a call to a valid HTTPs server",
+			runner: httpRunner{
+				client: &http.Client{},
+				logger: &testhelpers.MockLogger{},
+			},
 			args: args{
 				sock: socket.Socket{
 					ID:                "google_http",
@@ -262,7 +274,10 @@ func TestHttpRunner_RunTest(t *testing.T) {
 			name: "returns a failure on a call to an invalid HTTPs server",
 			// Since both DNS and HTTPs use TCP, the conn opens successfully but,
 			// the request timeouts while awaiting HTTP headers.
-			runner: httpRunner{client: &http.Client{Timeout: time.Second}, verbose: testing.Verbose()},
+			runner: httpRunner{
+				client: &http.Client{Timeout: time.Second},
+				logger: &testhelpers.MockLogger{},
+			},
 			args: args{
 				sock: socket.Socket{
 					ID:                "cloudflare_dns",
@@ -317,7 +332,7 @@ func TestIcmpRunner_RunTest(t *testing.T) {
 		{
 			name: "returns a success on a call to a valid host",
 			runner: icmpRunner{
-				verbose: testing.Verbose(),
+				logger: &testhelpers.MockLogger{},
 			},
 			args: args{
 				sock: socket.Socket{
@@ -338,7 +353,7 @@ func TestIcmpRunner_RunTest(t *testing.T) {
 		{
 			name: "returns a success on a call to a valid IP address",
 			runner: icmpRunner{
-				verbose: testing.Verbose(),
+				logger: &testhelpers.MockLogger{},
 			},
 			args: args{
 				sock: socket.Socket{
@@ -359,7 +374,7 @@ func TestIcmpRunner_RunTest(t *testing.T) {
 		{
 			name: "returns an error on an empty host",
 			runner: icmpRunner{
-				verbose: testing.Verbose(),
+				logger: &testhelpers.MockLogger{},
 			},
 			args: args{
 				sock: socket.Socket{
@@ -381,7 +396,7 @@ func TestIcmpRunner_RunTest(t *testing.T) {
 		{
 			name: "returns an error on an invalid IP address",
 			runner: icmpRunner{
-				verbose: testing.Verbose(),
+				logger: &testhelpers.MockLogger{},
 			},
 			args: args{
 				sock: socket.Socket{

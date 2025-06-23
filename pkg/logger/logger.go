@@ -2,10 +2,10 @@
 package logger
 
 // LogLevel specifies a level from which logs are printed.
-type LogLevel int32
+type logLevel int32
 
 const (
-	TRACE LogLevel = iota
+	TRACE logLevel = iota
 	DEBUG
 	INFO
 	WARN

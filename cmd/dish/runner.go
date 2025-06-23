@@ -6,6 +6,7 @@ import (
 
 	"go.vxn.dev/dish/pkg/alert"
 	"go.vxn.dev/dish/pkg/config"
+	"go.vxn.dev/dish/pkg/logger"
 	"go.vxn.dev/dish/pkg/netrunner"
 	"go.vxn.dev/dish/pkg/socket"
 )
@@ -44,7 +45,7 @@ func fanInChannels(channels ...chan socket.Result) <-chan socket.Result {
 }
 
 // runTests orchestrates the process of checking of a list of sockets. It fetches the socket list, runs socket checks, collects results and returns them.
-func runTests(cfg *config.Config) (*testResults, error) {
+func runTests(cfg *config.Config, logger logger.Logger) (*testResults, error) {
 	// Load socket list to run tests on
 	list, err := socket.FetchSocketList(cfg)
 	if err != nil {
@@ -75,7 +76,7 @@ func runTests(cfg *config.Config) (*testResults, error) {
 		wg.Add(1)
 		channels[i] = make(chan socket.Result)
 
-		go netrunner.RunSocketTest(sock, channels[i], &wg, cfg)
+		go netrunner.RunSocketTest(sock, channels[i], &wg, cfg, logger)
 		i++
 	}
 
