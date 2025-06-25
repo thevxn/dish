@@ -52,3 +52,21 @@ func NewMockServer(t *testing.T, expectedHeaderName, expectedHeaderValue, respon
 
 	return server
 }
+
+// MockNotifier is a mock implementation of notifier.
+type MockNotifier struct {
+	ChatErr       error
+	MachineErr    error
+	ChatCalled    bool
+	MachineCalled bool
+}
+
+func (m *MockNotifier) SendChatNotifications(_ string, _ int) error {
+	m.ChatCalled = true
+	return m.ChatErr
+}
+
+func (m *MockNotifier) SendMachineNotifications(_ any, _ int) error {
+	m.MachineCalled = true
+	return m.MachineErr
+}
