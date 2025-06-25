@@ -111,7 +111,7 @@ func NewConfig(fs *flag.FlagSet, args []string) (*Config, error) {
 	}
 
 	// Parse args
-	parsedArgs := flag.CommandLine.Args()
+	parsedArgs := fs.Args()
 
 	// If no source is provided, return an error
 	if len(parsedArgs) == 0 {
