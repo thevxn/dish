@@ -9,7 +9,7 @@ import (
 
 	"go.vxn.dev/dish/pkg/config"
 	"go.vxn.dev/dish/pkg/logger"
-	"go.vxn.dev/dish/pkg/testhelpers"
+	testhelpers "go.vxn.dev/dish/pkg/testdata"
 )
 
 func TestPrintSockets(t *testing.T) {

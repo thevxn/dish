@@ -15,7 +15,7 @@ import (
 	"go.vxn.dev/dish/pkg/config"
 	"go.vxn.dev/dish/pkg/logger"
 	"go.vxn.dev/dish/pkg/socket"
-	"go.vxn.dev/dish/pkg/testhelpers"
+	testhelpers "go.vxn.dev/dish/pkg/testdata"
 )
 
 // TestRunSocketTest is an integration test. It executes network calls to

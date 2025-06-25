@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"go.vxn.dev/dish/pkg/testhelpers"
+	testhelpers "go.vxn.dev/dish/pkg/testdata"
 )
 
 func TestHashUrlToFilePath(t *testing.T) {
