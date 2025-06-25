@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
@@ -40,6 +41,12 @@ func (e *ErrorStatusHTTPClient) Do(req *http.Request) (*http.Response, error) {
 	return &http.Response{
 		StatusCode: 500,
 		Body:       io.NopCloser(strings.NewReader(internalServerErrorResponse)),
+		Request: &http.Request{
+			URL: &url.URL{
+				Host: "vxn.dev",
+				Path: "/",
+			},
+		},
 	}, nil
 }
 
