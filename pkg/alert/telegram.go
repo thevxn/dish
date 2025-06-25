@@ -53,9 +53,14 @@ func (s *telegramSender) send(rawMessage string, failedCount int) error {
 
 	fullURL := telegramURL + "?" + params.Encode()
 
-	err := handleSubmit(s.httpClient, http.MethodGet, fullURL, nil)
+	res, err := handleSubmit(s.httpClient, http.MethodGet, fullURL, nil)
 	if err != nil {
 		return fmt.Errorf("error submitting Telegram alert: %w", err)
+	}
+
+	err = handleRead(res, s.logger)
+	if err != nil {
+		return err
 	}
 
 	s.logger.Info("Telegram alert sent")

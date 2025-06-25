@@ -78,8 +78,12 @@ func (f *fetchHandler) fetchSocketsFromRemote(config *config.Config) (io.ReadClo
 				return nil, fetchErr
 			}
 			// If the fetch fails and expired cache is available, return the expired cache and log a warning
-			f.logger.Warnf("fetching socket list from remote API at %s failed: %v. Using expired cache from %s", config.Source, fetchErr, cacheTime.Format(time.RFC3339))
+			f.logger.Errorf("fetching socket list from remote API at %s failed: %v.", config.Source, fetchErr)
+			f.logger.Warnf("using expired cache from %s", cacheTime.Format(time.RFC3339))
+
 			return cachedReader, nil
+		} else {
+			f.logger.Infof("socket list fetched from %s", config.Source)
 		}
 
 		var buf bytes.Buffer
@@ -96,7 +100,7 @@ func (f *fetchHandler) fetchSocketsFromRemote(config *config.Config) (io.ReadClo
 	}
 
 	// Cache is valid (not expired, no error from file read)
-	f.logger.Debug("loading sockets from cache...")
+	f.logger.Info("socket list fetched from cache")
 	return cachedReader, err
 }
 

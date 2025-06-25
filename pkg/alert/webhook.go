@@ -50,9 +50,14 @@ func (s *webhookSender) send(m *Results, failedCount int) error {
 
 	s.logger.Debugf("prepared webhook data: %s", string(jsonData))
 
-	err = handleSubmit(s.httpClient, http.MethodPost, s.url, bodyReader)
+	res, err := handleSubmit(s.httpClient, http.MethodPost, s.url, bodyReader)
 	if err != nil {
 		return fmt.Errorf("error pushing results to webhook: %w", err)
+	}
+
+	err = handleRead(res, s.logger)
+	if err != nil {
+		return err
 	}
 
 	s.logger.Info("results pushed to webhook")

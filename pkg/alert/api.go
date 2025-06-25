@@ -60,9 +60,14 @@ func (s *apiSender) send(m *Results, failedCount int) error {
 		opts = append(opts, withHeader(s.headerName, s.headerValue))
 	}
 
-	err = handleSubmit(s.httpClient, http.MethodPost, s.url, bodyReader, opts...)
+	res, err := handleSubmit(s.httpClient, http.MethodPost, s.url, bodyReader, opts...)
 	if err != nil {
 		return fmt.Errorf("error pushing results to remote API: %w", err)
+	}
+
+	err = handleRead(res, s.logger)
+	if err != nil {
+		return err
 	}
 
 	s.logger.Info("results pushed to remote API")

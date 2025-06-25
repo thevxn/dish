@@ -94,9 +94,14 @@ func (s *pushgatewaySender) send(_ *Results, failedCount int) error {
 
 	formattedURL := s.url + "/metrics/job/" + jobName + "/instance/" + s.instanceName
 
-	err = handleSubmit(s.httpClient, http.MethodPut, formattedURL, bodyReader, withContentType("application/byte"))
+	res, err := handleSubmit(s.httpClient, http.MethodPut, formattedURL, bodyReader, withContentType("application/byte"))
 	if err != nil {
 		return fmt.Errorf("error pushing results to Pushgateway: %w", err)
+	}
+
+	err = handleRead(res, s.logger)
+	if err != nil {
+		return err
 	}
 
 	s.logger.Info("results pushed to Pushgateway")
