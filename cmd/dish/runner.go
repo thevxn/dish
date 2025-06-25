@@ -47,14 +47,14 @@ func fanInChannels(channels ...chan socket.Result) <-chan socket.Result {
 // runTests orchestrates the process of checking of a list of sockets. It fetches the socket list, runs socket checks, collects results and returns them.
 func runTests(cfg *config.Config, logger logger.Logger) (*testResults, error) {
 	// Load socket list to run tests on
-	list, err := socket.FetchSocketList(cfg)
+	list, err := socket.FetchSocketList(cfg, logger)
 	if err != nil {
 		return nil, fmt.Errorf("error loading socket list: %w", err)
 	}
 
 	// Print loaded sockets if flag is set in cfg
 	if cfg.Verbose {
-		socket.PrintSockets(list)
+		socket.PrintSockets(list, logger)
 	}
 
 	testResults := &testResults{

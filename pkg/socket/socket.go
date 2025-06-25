@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 
 	"go.vxn.dev/dish/pkg/config"
+	"go.vxn.dev/dish/pkg/logger"
 )
 
 type Result struct {
@@ -41,10 +41,10 @@ type Socket struct {
 }
 
 // PrintSockets prints SocketList.
-func PrintSockets(list *SocketList) {
-	log.Println("loaded sockets:")
+func PrintSockets(list *SocketList, logger logger.Logger) {
+	logger.Debug("loaded sockets:")
 	for _, socket := range list.Sockets {
-		log.Printf("Host: %s, Port: %d, ExpectedHTTPCodes: %v", socket.Host, socket.Port, socket.ExpectedHTTPCodes)
+		logger.Debugf("Host: %s, Port: %d, ExpectedHTTPCodes: %v", socket.Host, socket.Port, socket.ExpectedHTTPCodes)
 	}
 }
 
@@ -61,14 +61,15 @@ func LoadSocketList(reader io.ReadCloser) (*SocketList, error) {
 }
 
 // FetchSocketList fetches the list of sockets to be checked. 'input' should be a string like '/path/filename.json', or an HTTP URL string.
-func FetchSocketList(config *config.Config) (*SocketList, error) {
+func FetchSocketList(config *config.Config, logger logger.Logger) (*SocketList, error) {
 	var reader io.ReadCloser
 	var err error
 
+	fetchHandler := NewFetchHandler(logger)
 	if IsFilePath(config.Source) {
-		reader, err = fetchSocketsFromFile(config)
+		reader, err = fetchHandler.fetchSocketsFromFile(config)
 	} else {
-		reader, err = fetchSocketsFromRemote(config)
+		reader, err = fetchHandler.fetchSocketsFromRemote(config)
 	}
 
 	if err != nil {

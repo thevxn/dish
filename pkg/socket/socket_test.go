@@ -3,12 +3,12 @@ package socket
 import (
 	"bytes"
 	"io"
-	"log"
 	"net/http"
 	"reflect"
 	"testing"
 
 	"go.vxn.dev/dish/pkg/config"
+	"go.vxn.dev/dish/pkg/logger"
 	"go.vxn.dev/dish/pkg/testhelpers"
 )
 
@@ -20,9 +20,9 @@ func TestPrintSockets(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	log.SetOutput(&buf)
+	logger := logger.NewConsoleLogger(true, &buf)
 
-	PrintSockets(list)
+	PrintSockets(list, logger)
 
 	expected := "Host: example.com, Port: 80, ExpectedHTTPCodes: [200 404]\n"
 	if !bytes.Contains(buf.Bytes(), []byte(expected)) {
@@ -104,7 +104,7 @@ func TestFetchSocketList(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := newConfig(tt.source)
 
-			fetchedList, err := FetchSocketList(cfg)
+			fetchedList, err := FetchSocketList(cfg, &testhelpers.MockLogger{})
 			if tt.expectError {
 				if err == nil {
 					t.Errorf("expected error, got %v", err)

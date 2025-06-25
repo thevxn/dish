@@ -3,7 +3,6 @@ package netrunner
 import (
 	"context"
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 	"regexp"
@@ -32,7 +31,7 @@ func RunSocketTest(sock socket.Socket, out chan<- socket.Result, wg *sync.WaitGr
 
 	runner, err := NewNetRunner(sock, logger)
 	if err != nil {
-		log.Printf("failed to test socket: %v", err.Error())
+		logger.Errorf("failed to test socket: %v", err.Error())
 		return
 	}
 

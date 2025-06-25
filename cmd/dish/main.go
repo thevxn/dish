@@ -24,7 +24,7 @@ func main() {
 		return
 	}
 
-	logger := logger.NewConsoleLogger(cfg.Verbose)
+	logger := logger.NewConsoleLogger(cfg.Verbose, nil)
 
 	logger.Info("dish run: started")
 

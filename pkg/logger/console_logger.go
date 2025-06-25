@@ -2,18 +2,12 @@ package logger
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 )
 
 const (
-	// ANSI color codes
-	// TODO: only use these in verbose mode?
-	// colorReset = "\033[0m"
-	// yellow     = "\033[33m"
-	// red        = "\033[31m"
-	// magenta    = "\033[35m"
-
 	// Log prefixes
 	tracePrefix   = "[ TRACE ]: "
 	debugPrefix   = "[ DEBUG ]: "
@@ -23,17 +17,26 @@ const (
 	panicPrefix   = "[ PANIC ]: "
 )
 
-// consoleLogger logs output to stderr.
+// consoleLogger logs to the output provided when instantiating it via NewConsoleLogger.
 type consoleLogger struct {
 	stdLogger *log.Logger
 	logLevel  logLevel
 }
 
-// NewConsoleLogger creates a new ConsoleLogger instance,
+var defaultOut = os.Stderr
+
+// NewConsoleLogger creates a new ConsoleLogger instance logging to the provided output.
+// If the output is not specified (nil), it logs to stderr by default.
+//
 // If verbose is true, log level is set to TRACE (otherwise to INFO).
-func NewConsoleLogger(verbose bool) *consoleLogger {
+func NewConsoleLogger(verbose bool, out io.Writer) *consoleLogger {
+
+	if out == nil {
+		out = defaultOut
+	}
+
 	l := &consoleLogger{
-		stdLogger: log.New(os.Stderr, "", log.LstdFlags),
+		stdLogger: log.New(out, "", log.LstdFlags),
 	}
 
 	l.logLevel = INFO

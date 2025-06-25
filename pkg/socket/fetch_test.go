@@ -5,11 +5,48 @@ import (
 	"io"
 	"net/http"
 	"path/filepath"
+	"reflect"
 	"testing"
 
 	"go.vxn.dev/dish/pkg/config"
 	"go.vxn.dev/dish/pkg/testhelpers"
 )
+
+func TestNewFetchHandler(t *testing.T) {
+	expected := &fetchHandler{
+		logger: &testhelpers.MockLogger{},
+	}
+	actual := NewFetchHandler(&testhelpers.MockLogger{})
+
+	if !reflect.DeepEqual(expected, actual) {
+		t.Fatalf("expected %v, got %v", expected, actual)
+	}
+}
+
+func TestFetchSocketsFromFile(t *testing.T) {
+	filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
+	cfg := &config.Config{
+		Source: filePath,
+	}
+
+	fetchHandler := NewFetchHandler(&testhelpers.MockLogger{})
+
+	reader, err := fetchHandler.fetchSocketsFromFile(cfg)
+	if err != nil {
+		t.Fatalf("Failed to fetch sockets from file %v\n", err)
+	}
+	defer reader.Close()
+
+	fileData, err := io.ReadAll(reader)
+	if err != nil {
+		t.Fatalf("Failed to load data from file %v\n", err)
+	}
+
+	fileDataString := string(fileData)
+	if fileDataString != testhelpers.TestSocketList {
+		t.Errorf("Got %s, expected %s from file\n", fileDataString, testhelpers.TestSocketList)
+	}
+}
 
 func TestFetchSocketsFromRemote(t *testing.T) {
 	apiHeaderName := "Authorization"
@@ -47,7 +84,9 @@ func TestFetchSocketsFromRemote(t *testing.T) {
 			filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
 			tt.cfg.ApiCacheDirectory = filepath.Dir(filePath)
 
-			resp, err := fetchSocketsFromRemote(tt.cfg)
+			fetchHandler := NewFetchHandler(&testhelpers.MockLogger{})
+
+			resp, err := fetchHandler.fetchSocketsFromRemote(tt.cfg)
 			if tt.expectedError {
 				if err == nil || errors.Is(err, ErrExpiredCache) {
 					t.Errorf("expected error, got %v", err)

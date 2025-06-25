@@ -4,15 +4,40 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"go.vxn.dev/dish/pkg/config"
+	"go.vxn.dev/dish/pkg/logger"
 )
 
+// fetchHandler provides methods to fetch sockets either from a file or from a remote API source.
+type fetchHandler struct {
+	logger logger.Logger
+}
+
+// NewFetchHandler creates a new instance of fetchHandler.
+func NewFetchHandler(l logger.Logger) *fetchHandler {
+	return &fetchHandler{
+		logger: l,
+	}
+}
+
+// fetchSocketsFromFile opens a file and returns [io.ReadCloser] for reading from the stream.
+func (f *fetchHandler) fetchSocketsFromFile(config *config.Config) (io.ReadCloser, error) {
+	file, err := os.Open(config.Source)
+	if err != nil {
+		return nil, err
+	}
+
+	f.logger.Debugf("fetching sockets from file (%s)", config.Source)
+
+	return file, nil
+}
+
 // copyBody copies the provided response body to the provided buffer. The body is closed.
-func copyBody(body io.ReadCloser, buf *bytes.Buffer) error {
+func (f *fetchHandler) copyBody(body io.ReadCloser, buf *bytes.Buffer) error {
 	defer body.Close()
 
 	_, err := buf.ReadFrom(body)
@@ -31,54 +56,52 @@ func copyBody(body io.ReadCloser, buf *bytes.Buffer) error {
 //   - Optional query parameters
 //
 // Example url: http://api.example.com:5569/stream?query=variable
-func fetchSocketsFromRemote(config *config.Config) (io.ReadCloser, error) {
+func (f *fetchHandler) fetchSocketsFromRemote(config *config.Config) (io.ReadCloser, error) {
 	cacheFilePath := hashUrlToFilePath(config.Source, config.ApiCacheDirectory)
 
 	// If we do not want to cache sockets to the file, fetch from network
 	if !config.ApiCacheSockets {
-		return loadFreshSockets(config)
+		return f.loadFreshSockets(config)
 	}
 
 	// If cache is enabled, try to load sockets from it first
 	cachedReader, cacheTime, err := loadCachedSockets(cacheFilePath, config.ApiCacheTTLMinutes)
 	// If cache is expired or fails to load, attempt to fetch fresh sockets
 	if err != nil {
-		log.Printf("cache unavailable for URL: %s (reason: %v); attempting network fetch", config.Source, err)
+		f.logger.Warnf("cache unavailable for URL: %s (reason: %v); attempting network fetch", config.Source, err)
 
 		// Fetch fresh sockets from network
-		respBody, fetchErr := loadFreshSockets(config)
+		respBody, fetchErr := f.loadFreshSockets(config)
 		if fetchErr != nil {
-			log.Printf("fetching socket list from remote API at %s failed: %v", config.Source, fetchErr)
-
 			// If the fetch fails and expired cache is not available, return the fetch error
 			if err != ErrExpiredCache {
 				return nil, fetchErr
 			}
 			// If the fetch fails and expired cache is available, return the expired cache and log a warning
-			log.Printf("using expired cache from %s", cacheTime.Format(time.RFC3339))
+			f.logger.Warnf("fetching socket list from remote API at %s failed: %v. Using expired cache from %s", config.Source, fetchErr, cacheTime.Format(time.RFC3339))
 			return cachedReader, nil
 		}
 
 		var buf bytes.Buffer
-		err = copyBody(respBody, &buf)
+		err = f.copyBody(respBody, &buf)
 		if err != nil {
 			return nil, fmt.Errorf("failed to copy response body: %w", err)
 		}
 
 		if err := saveSocketsToCache(cacheFilePath, config.ApiCacheDirectory, buf.Bytes()); err != nil {
-			log.Printf("failed to save fetched sockets to cache: %v", err)
+			f.logger.Warnf("failed to save fetched sockets to cache: %v", err)
 		}
 
 		return io.NopCloser(bytes.NewReader(buf.Bytes())), nil
 	}
 
 	// Cache is valid (not expired, no error from file read)
-	log.Println("loading sockets from cache...")
+	f.logger.Debug("loading sockets from cache...")
 	return cachedReader, err
 }
 
 // loadFreshSockets fetches fresh sockets from the remote source.
-func loadFreshSockets(config *config.Config) (io.ReadCloser, error) {
+func (f *fetchHandler) loadFreshSockets(config *config.Config) (io.ReadCloser, error) {
 	req, err := http.NewRequest(http.MethodGet, config.Source, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create HTTP request: %w", err)

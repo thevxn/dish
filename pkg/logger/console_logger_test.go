@@ -3,22 +3,69 @@ package logger
 import (
 	"bytes"
 	"log"
+	"os"
 	"testing"
 )
 
 func TestNewConsoleLogger(t *testing.T) {
 	t.Run("verbose mode on", func(t *testing.T) {
-		logger := NewConsoleLogger(true)
+		logger := NewConsoleLogger(true, nil)
 		if logger.logLevel != TRACE {
 			t.Errorf("expected loglevel %d, got %d", TRACE, logger.logLevel)
 		}
 	})
 
 	t.Run("verbose mode off", func(t *testing.T) {
-		logger := NewConsoleLogger(false)
+		logger := NewConsoleLogger(false, nil)
 		if logger.logLevel != INFO {
 			t.Errorf("expected loglevel %d, got %d", INFO, logger.logLevel)
 		}
+	})
+
+	t.Run("default out", func(t *testing.T) {
+		origStderr := os.Stderr
+		defer func() { os.Stderr = origStderr }()
+
+		r, w, _ := os.Pipe()
+		os.Stderr = w
+
+		logger := &consoleLogger{
+			stdLogger: log.New(w, "", 0),
+			logLevel:  TRACE,
+		}
+		logger.Info("hello stderr")
+
+		w.Close()
+		var buf bytes.Buffer
+		_, err := buf.ReadFrom(r)
+		if err != nil {
+			t.Fatalf("failed to read from pipe: %v", err)
+		}
+
+		expected := infoPrefix + "hello stderr\n"
+		actual := buf.String()
+		if actual != expected {
+			t.Fatalf("expected %q in stderr, got %q", expected, actual)
+		}
+	})
+
+	t.Run("provided out", func(t *testing.T) {
+		var buf bytes.Buffer
+
+		logger := &consoleLogger{
+			stdLogger: log.New(&buf, "", 0),
+			logLevel:  TRACE,
+		}
+
+		logger.Info("output test")
+
+		expected := infoPrefix + "output test\n"
+		actual := buf.String()
+
+		if actual != expected {
+			t.Fatalf("expected %s, got %s", expected, actual)
+		}
+
 	})
 }
 
@@ -168,7 +215,7 @@ func TestConsoleLogger_log(t *testing.T) {
 }
 
 func TestConsoleLogger_log_Panic(t *testing.T) {
-	logger := NewConsoleLogger(true)
+	logger := NewConsoleLogger(true, nil)
 
 	defer func() {
 		r := recover()
@@ -186,7 +233,7 @@ func TestConsoleLogger_log_Panic(t *testing.T) {
 }
 
 func TestConsoleLogger_log_Panicf(t *testing.T) {
-	logger := NewConsoleLogger(true)
+	logger := NewConsoleLogger(true, nil)
 
 	defer func() {
 		r := recover()
