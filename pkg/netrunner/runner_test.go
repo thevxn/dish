@@ -427,3 +427,25 @@ func TestIcmpRunner_RunTest(t *testing.T) {
 		})
 	}
 }
+
+func TestIcmpRunner_RunTest_Windows(t *testing.T) {
+	if runtime.GOOS != "windows" {
+		t.Skip()
+	}
+
+	socket := socket.Socket{
+		ID:   "google_icmp",
+		Name: "Google ICMP",
+		Host: "google.com",
+	}
+
+	runner, err := NewNetRunner(socket, &MockLogger{})
+	if err != nil {
+		t.Error("failed to create a new Windows ICMP runner")
+	}
+
+	result := runner.RunTest(context.Background(), socket)
+	if result.Error == nil {
+		t.Error("expected error, got nil")
+	}
+}
