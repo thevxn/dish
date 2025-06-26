@@ -23,7 +23,7 @@ func TestNewFetchHandler(t *testing.T) {
 }
 
 func TestFetchSocketsFromFile(t *testing.T) {
-	filePath := testFile(t, "randomhash.json", []byte(testSocketList))
+	filePath := testFile(t, "randomhash.json", []byte(testSockets))
 	cfg := &config.Config{
 		Source: filePath,
 	}
@@ -42,15 +42,15 @@ func TestFetchSocketsFromFile(t *testing.T) {
 	}
 
 	fileDataString := string(fileData)
-	if fileDataString != testSocketList {
-		t.Errorf("Got %s, expected %s from file\n", fileDataString, testSocketList)
+	if fileDataString != testSockets {
+		t.Errorf("Got %s, expected %s from file\n", fileDataString, testSockets)
 	}
 }
 
 func TestFetchSocketsFromRemote(t *testing.T) {
 	apiHeaderName := "Authorization"
 	apiHeaderValue := "Bearer xyzzzzzzz"
-	mockServer := newMockServer(t, apiHeaderName, apiHeaderValue, testSocketList, http.StatusOK)
+	mockServer := newMockServer(t, apiHeaderName, apiHeaderValue, testSockets, http.StatusOK)
 
 	newConfig := func(source string, useCache bool, ttl uint) *config.Config {
 		// Temp cache directory needs to be created and specified for each test separately
@@ -80,7 +80,7 @@ func TestFetchSocketsFromRemote(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// Specify temp cache file & directory for each test separately
 			// This fixes open file handles preventing the tests from succeeding on Windows
-			filePath := testFile(t, "randomhash.json", []byte(testSocketList))
+			filePath := testFile(t, "randomhash.json", []byte(testSockets))
 			tt.cfg.ApiCacheDirectory = filepath.Dir(filePath)
 
 			fetchHandler := NewFetchHandler(&mockLogger{})
@@ -101,8 +101,8 @@ func TestFetchSocketsFromRemote(t *testing.T) {
 				t.Fatalf("failed to read from response: %v", err)
 			}
 
-			if string(readBytes) != testSocketList {
-				t.Errorf("expected %s, got %s", testSocketList, string(readBytes))
+			if string(readBytes) != testSockets {
+				t.Errorf("expected %s, got %s", testSockets, string(readBytes))
 			}
 		})
 	}
