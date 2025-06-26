@@ -9,8 +9,6 @@ import (
 
 func TestRun_InvalidFlag(t *testing.T) {
 	fs := flag.NewFlagSet("test", flag.ContinueOnError)
-	fs.SetOutput(&bytes.Buffer{})
-
 	stderr := &bytes.Buffer{}
 
 	code := run(fs, []string{"-notaflag"}, os.Stdout, stderr)
@@ -20,9 +18,8 @@ func TestRun_InvalidFlag(t *testing.T) {
 }
 
 func TestRun_NoArgs(t *testing.T) {
-	stderr := &bytes.Buffer{}
-
 	fs := flag.NewFlagSet("no_args", flag.ContinueOnError)
+	stderr := &bytes.Buffer{}
 
 	code := run(fs, []string{}, os.Stdout, stderr)
 	if code != 1 {
@@ -31,26 +28,22 @@ func TestRun_NoArgs(t *testing.T) {
 }
 
 func TestRun_ValidSockets(t *testing.T) {
+	fs := flag.NewFlagSet("valid_sockets", flag.ContinueOnError)
+	stderr := &bytes.Buffer{}
 	tmpfile := testFile(t, "test_sockets.json", []byte(testSocketsValid))
 
-	fs := flag.NewFlagSet("valid_sockets", flag.ContinueOnError)
-
-	stderr := &bytes.Buffer{}
 	code := run(fs, []string{tmpfile}, os.Stdout, stderr)
-
 	if code != 0 {
 		t.Errorf("expected exit code 0 got %d", code)
 	}
 }
 
 func TestRun_InvalidSockets(t *testing.T) {
+	fs := flag.NewFlagSet("invalid_sockets", flag.ContinueOnError)
+	stderr := &bytes.Buffer{}
 	tmpfile := testFile(t, "test_sockets.json", []byte(testSocketsSomeInvalid))
 
-	fs := flag.NewFlagSet("invalid_sockets", flag.ContinueOnError)
-
-	stderr := &bytes.Buffer{}
 	code := run(fs, []string{tmpfile}, os.Stdout, stderr)
-
 	if code != 4 {
 		t.Errorf("expected exit code 4 got %d", code)
 	}
@@ -58,10 +51,9 @@ func TestRun_InvalidSockets(t *testing.T) {
 
 func TestRun_InvalidSource(t *testing.T) {
 	fs := flag.NewFlagSet("invalid_source", flag.ContinueOnError)
-
 	stderr := &bytes.Buffer{}
-	code := run(fs, []string{""}, os.Stdout, stderr)
 
+	code := run(fs, []string{""}, os.Stdout, stderr)
 	if code != 3 {
 		t.Errorf("expected exit code 3 got %d", code)
 	}
