@@ -9,8 +9,8 @@ dish
 [![libs.tech recommends](https://libs.tech/project/468033120/badge.svg)](https://libs.tech/project/468033120/dish)
 
 + __Tiny__ one-shot monitoring service
-+ __Remote__ configuration of independent 'dish network' (via loading the socket list to be checked from a remote API)
-+ __Fast__ concurrent testing, low overall execution time, 10-sec timeout per socket by default
++ __Remote__ or local configuration
++ __Fast__ concurrent testing, low overall execution time
 + __Zero__ dependencies
 
 ## Use Cases
