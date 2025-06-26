@@ -5,12 +5,11 @@ import (
 	"testing"
 
 	"go.vxn.dev/dish/pkg/config"
-	testhelpers "go.vxn.dev/dish/pkg/testdata"
 )
 
 func TestNewTelegramSender(t *testing.T) {
-	mockHTTPClient := &testhelpers.SuccessStatusHTTPClient{}
-	mockLogger := &testhelpers.MockLogger{}
+	mockHTTPClient := &SuccessStatusHTTPClient{}
+	mockLogger := &MockLogger{}
 
 	chatID := "-123"
 	token := "abc123"
@@ -61,7 +60,7 @@ func TestSend_Telegram(t *testing.T) {
 	}{
 		{
 			name:          "Failed Sockets",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			rawMessage:    "Test message",
 			failedCount:   1,
 			notifySuccess: false,
@@ -70,7 +69,7 @@ func TestSend_Telegram(t *testing.T) {
 		},
 		{
 			name:          "Failed Sockets - Verbose",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			rawMessage:    "Test message",
 			failedCount:   1,
 			notifySuccess: false,
@@ -79,7 +78,7 @@ func TestSend_Telegram(t *testing.T) {
 		},
 		{
 			name:          "No Failed Sockets with notifySuccess",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			rawMessage:    "Test message",
 			failedCount:   0,
 			notifySuccess: true,
@@ -88,7 +87,7 @@ func TestSend_Telegram(t *testing.T) {
 		},
 		{
 			name:          "No Failed Sockets without notifySuccess",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			rawMessage:    "Test message",
 			failedCount:   0,
 			notifySuccess: false,
@@ -97,7 +96,7 @@ func TestSend_Telegram(t *testing.T) {
 		},
 		{
 			name:          "No Failed Sockets without notifySuccess - Verbose",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			rawMessage:    "Test message",
 			failedCount:   0,
 			notifySuccess: false,
@@ -106,7 +105,7 @@ func TestSend_Telegram(t *testing.T) {
 		},
 		{
 			name:          "Network Error When Sending Telegram Message",
-			client:        &testhelpers.FailureHTTPClient{},
+			client:        &FailureHTTPClient{},
 			rawMessage:    "Test message",
 			failedCount:   1,
 			notifySuccess: false,
@@ -115,7 +114,7 @@ func TestSend_Telegram(t *testing.T) {
 		},
 		{
 			name:          "Unexpected Response Code From Telegram",
-			client:        &testhelpers.ErrorStatusHTTPClient{},
+			client:        &ErrorStatusHTTPClient{},
 			rawMessage:    "Test message",
 			failedCount:   1,
 			notifySuccess: false,
@@ -124,7 +123,7 @@ func TestSend_Telegram(t *testing.T) {
 		},
 		{
 			name:          "Error Reading Response Body From Telegram",
-			client:        &testhelpers.InvalidResponseBodyHTTPClient{},
+			client:        &InvalidResponseBodyHTTPClient{},
 			rawMessage:    "Test message",
 			failedCount:   1,
 			notifySuccess: false,
@@ -136,7 +135,7 @@ func TestSend_Telegram(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := newConfig("-123", "abc123", tt.verbose, tt.notifySuccess)
-			sender := NewTelegramSender(tt.client, cfg, &testhelpers.MockLogger{})
+			sender := NewTelegramSender(tt.client, cfg, &MockLogger{})
 
 			err := sender.send(tt.rawMessage, tt.failedCount)
 

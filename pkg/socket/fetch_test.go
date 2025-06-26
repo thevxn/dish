@@ -9,14 +9,13 @@ import (
 	"testing"
 
 	"go.vxn.dev/dish/pkg/config"
-	testhelpers "go.vxn.dev/dish/pkg/testdata"
 )
 
 func TestNewFetchHandler(t *testing.T) {
 	expected := &fetchHandler{
-		logger: &testhelpers.MockLogger{},
+		logger: &mockLogger{},
 	}
-	actual := NewFetchHandler(&testhelpers.MockLogger{})
+	actual := NewFetchHandler(&mockLogger{})
 
 	if !reflect.DeepEqual(expected, actual) {
 		t.Fatalf("expected %v, got %v", expected, actual)
@@ -24,12 +23,12 @@ func TestNewFetchHandler(t *testing.T) {
 }
 
 func TestFetchSocketsFromFile(t *testing.T) {
-	filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
+	filePath := testFile(t, "randomhash.json", []byte(testSocketList))
 	cfg := &config.Config{
 		Source: filePath,
 	}
 
-	fetchHandler := NewFetchHandler(&testhelpers.MockLogger{})
+	fetchHandler := NewFetchHandler(&mockLogger{})
 
 	reader, err := fetchHandler.fetchSocketsFromFile(cfg)
 	if err != nil {
@@ -43,15 +42,15 @@ func TestFetchSocketsFromFile(t *testing.T) {
 	}
 
 	fileDataString := string(fileData)
-	if fileDataString != testhelpers.TestSocketList {
-		t.Errorf("Got %s, expected %s from file\n", fileDataString, testhelpers.TestSocketList)
+	if fileDataString != testSocketList {
+		t.Errorf("Got %s, expected %s from file\n", fileDataString, testSocketList)
 	}
 }
 
 func TestFetchSocketsFromRemote(t *testing.T) {
 	apiHeaderName := "Authorization"
 	apiHeaderValue := "Bearer xyzzzzzzz"
-	mockServer := testhelpers.NewMockServer(t, apiHeaderName, apiHeaderValue, testhelpers.TestSocketList, http.StatusOK)
+	mockServer := newMockServer(t, apiHeaderName, apiHeaderValue, testSocketList, http.StatusOK)
 
 	newConfig := func(source string, useCache bool, ttl uint) *config.Config {
 		// Temp cache directory needs to be created and specified for each test separately
@@ -81,10 +80,10 @@ func TestFetchSocketsFromRemote(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// Specify temp cache file & directory for each test separately
 			// This fixes open file handles preventing the tests from succeeding on Windows
-			filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
+			filePath := testFile(t, "randomhash.json", []byte(testSocketList))
 			tt.cfg.ApiCacheDirectory = filepath.Dir(filePath)
 
-			fetchHandler := NewFetchHandler(&testhelpers.MockLogger{})
+			fetchHandler := NewFetchHandler(&mockLogger{})
 
 			resp, err := fetchHandler.fetchSocketsFromRemote(tt.cfg)
 			if tt.expectedError {
@@ -102,8 +101,8 @@ func TestFetchSocketsFromRemote(t *testing.T) {
 				t.Fatalf("failed to read from response: %v", err)
 			}
 
-			if string(readBytes) != testhelpers.TestSocketList {
-				t.Errorf("expected %s, got %s", testhelpers.TestSocketList, string(readBytes))
+			if string(readBytes) != testSocketList {
+				t.Errorf("expected %s, got %s", testSocketList, string(readBytes))
 			}
 		})
 	}

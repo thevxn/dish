@@ -5,12 +5,11 @@ import (
 	"testing"
 
 	"go.vxn.dev/dish/pkg/config"
-	testhelpers "go.vxn.dev/dish/pkg/testdata"
 )
 
 func TestNewWebhookSender(t *testing.T) {
-	mockHTTPClient := &testhelpers.SuccessStatusHTTPClient{}
-	mockLogger := &testhelpers.MockLogger{}
+	mockHTTPClient := &SuccessStatusHTTPClient{}
+	mockLogger := &MockLogger{}
 
 	url := "https://abc123.xyz.com"
 	notifySuccess := false
@@ -75,7 +74,7 @@ func TestSend_Webhook(t *testing.T) {
 	}{
 		{
 			name:          "Failed Sockets",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			results:       failedResults,
 			failedCount:   1,
 			notifySuccess: false,
@@ -84,7 +83,7 @@ func TestSend_Webhook(t *testing.T) {
 		},
 		{
 			name:          "Failed Sockets - Verbose",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			results:       failedResults,
 			failedCount:   1,
 			notifySuccess: false,
@@ -93,7 +92,7 @@ func TestSend_Webhook(t *testing.T) {
 		},
 		{
 			name:          "No Failed Sockets With notifySuccess",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			results:       successResults,
 			failedCount:   0,
 			notifySuccess: true,
@@ -102,7 +101,7 @@ func TestSend_Webhook(t *testing.T) {
 		},
 		{
 			name:          "No Failed Sockets Without notifySuccess",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			results:       successResults,
 			failedCount:   0,
 			notifySuccess: false,
@@ -111,7 +110,7 @@ func TestSend_Webhook(t *testing.T) {
 		},
 		{
 			name:          "No Failed Sockets Without notifySuccess - Verbose",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			results:       successResults,
 			failedCount:   0,
 			notifySuccess: false,
@@ -120,7 +119,7 @@ func TestSend_Webhook(t *testing.T) {
 		},
 		{
 			name:          "Mixed Results With notifySuccess",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			results:       mixedResults,
 			failedCount:   1,
 			notifySuccess: true,
@@ -129,7 +128,7 @@ func TestSend_Webhook(t *testing.T) {
 		},
 		{
 			name:          "Mixed Results Without notifySuccess",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			results:       mixedResults,
 			failedCount:   1,
 			notifySuccess: false,
@@ -138,7 +137,7 @@ func TestSend_Webhook(t *testing.T) {
 		},
 		{
 			name:          "Network Error When Pushing to Webhook",
-			client:        &testhelpers.FailureHTTPClient{},
+			client:        &FailureHTTPClient{},
 			results:       failedResults,
 			failedCount:   1,
 			notifySuccess: false,
@@ -147,7 +146,7 @@ func TestSend_Webhook(t *testing.T) {
 		},
 		{
 			name:          "Unexpected Response Code From Webhook",
-			client:        &testhelpers.ErrorStatusHTTPClient{},
+			client:        &ErrorStatusHTTPClient{},
 			results:       failedResults,
 			failedCount:   1,
 			notifySuccess: false,
@@ -156,7 +155,7 @@ func TestSend_Webhook(t *testing.T) {
 		},
 		{
 			name:          "Error Reading Response Body From Webhook",
-			client:        &testhelpers.InvalidResponseBodyHTTPClient{},
+			client:        &InvalidResponseBodyHTTPClient{},
 			results:       failedResults,
 			failedCount:   1,
 			notifySuccess: false,
@@ -168,7 +167,7 @@ func TestSend_Webhook(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := newConfig(url, tt.verbose, tt.notifySuccess)
-			sender, err := NewWebhookSender(tt.client, cfg, &testhelpers.MockLogger{})
+			sender, err := NewWebhookSender(tt.client, cfg, &MockLogger{})
 			if err != nil {
 				t.Fatalf("failed to create Webhook sender instance: %v", err)
 			}

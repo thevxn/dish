@@ -7,8 +7,6 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
-
-	testhelpers "go.vxn.dev/dish/pkg/testdata"
 )
 
 func TestHashUrlToFilePath(t *testing.T) {
@@ -40,10 +38,10 @@ func TestHashUrlToFilePath(t *testing.T) {
 }
 
 func TestSaveSocketsToCache(t *testing.T) {
-	filePath := testhelpers.TestFile(t, "randomhash.json", nil)
+	filePath := testFile(t, "randomhash.json", nil)
 	cacheDir := filepath.Dir(filePath)
 
-	if err := saveSocketsToCache(filePath, cacheDir, []byte(testhelpers.TestSocketList)); err != nil {
+	if err := saveSocketsToCache(filePath, cacheDir, []byte(testSocketList)); err != nil {
 		t.Fatalf("expected no error, but got %v", err)
 	}
 
@@ -56,14 +54,14 @@ func TestSaveSocketsToCache(t *testing.T) {
 		t.Fatalf("failed to read saved cache: %v", err)
 	}
 
-	if string(readBytes) != testhelpers.TestSocketList {
-		t.Errorf("expected file content %s, got %s", testhelpers.TestSocketList, string(readBytes))
+	if string(readBytes) != testSocketList {
+		t.Errorf("expected file content %s, got %s", testSocketList, string(readBytes))
 	}
 }
 
 func TestLoadSocketsFromCache(t *testing.T) {
 	t.Run("Load Sockets From Cache", func(t *testing.T) {
-		filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
+		filePath := testFile(t, "randomhash.json", []byte(testSocketList))
 		cacheTTL := uint(60)
 
 		readerFromCache, _, err := loadCachedSockets(filePath, cacheTTL)
@@ -77,13 +75,13 @@ func TestLoadSocketsFromCache(t *testing.T) {
 			t.Fatalf("failed to read saved cache: %v", err)
 		}
 
-		if string(readBytes) != testhelpers.TestSocketList {
-			t.Errorf("expected retrieved data to be %s, got %s", testhelpers.TestSocketList, string(readBytes))
+		if string(readBytes) != testSocketList {
+			t.Errorf("expected retrieved data to be %s, got %s", testSocketList, string(readBytes))
 		}
 	})
 
 	t.Run("Load Sockets From Expired Cache", func(t *testing.T) {
-		filePath := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
+		filePath := testFile(t, "randomhash.json", []byte(testSocketList))
 		cacheTTL := uint(0)
 
 		// For some reason Windows tests in CI/CD think that 0 time has elapsed since the creation of the test file when it's being checked inside of loadCachedSockets, therefore the expired cache error is not returned.
@@ -101,8 +99,8 @@ func TestLoadSocketsFromCache(t *testing.T) {
 			t.Fatalf("failed to read saved cache: %v", err)
 		}
 
-		if string(readBytes) != testhelpers.TestSocketList {
-			t.Errorf("expected retrieved data to be %s, got %s", testhelpers.TestSocketList, string(readBytes))
+		if string(readBytes) != testSocketList {
+			t.Errorf("expected retrieved data to be %s, got %s", testSocketList, string(readBytes))
 		}
 	})
 }

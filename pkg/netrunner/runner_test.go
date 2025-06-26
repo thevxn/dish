@@ -15,7 +15,6 @@ import (
 	"go.vxn.dev/dish/pkg/config"
 	"go.vxn.dev/dish/pkg/logger"
 	"go.vxn.dev/dish/pkg/socket"
-	testhelpers "go.vxn.dev/dish/pkg/testdata"
 )
 
 // TestRunSocketTest is an integration test. It executes network calls to
@@ -43,7 +42,7 @@ func TestRunSocketTest(t *testing.T) {
 		done := make(chan struct{})
 
 		wg.Add(1)
-		go RunSocketTest(sock, c, wg, cfg, &testhelpers.MockLogger{})
+		go RunSocketTest(sock, c, wg, cfg, &MockLogger{})
 
 		go func() {
 			wg.Wait()
@@ -88,7 +87,7 @@ func TestNewNetRunner(t *testing.T) {
 			name: "returns an error on an empty socket",
 			args: args{
 				sock:   socket.Socket{},
-				logger: &testhelpers.MockLogger{},
+				logger: &MockLogger{},
 			},
 			wantErr: true,
 		},
@@ -103,11 +102,11 @@ func TestNewNetRunner(t *testing.T) {
 					ExpectedHTTPCodes: []int{200},
 					PathHTTP:          "/",
 				},
-				logger: &testhelpers.MockLogger{},
+				logger: &MockLogger{},
 			},
 			want: &httpRunner{
 				client: &http.Client{},
-				logger: &testhelpers.MockLogger{},
+				logger: &MockLogger{},
 			},
 			wantErr: false,
 		},
@@ -122,11 +121,11 @@ func TestNewNetRunner(t *testing.T) {
 					ExpectedHTTPCodes: []int{200},
 					PathHTTP:          "/",
 				},
-				logger: &testhelpers.MockLogger{},
+				logger: &MockLogger{},
 			},
 			want: &httpRunner{
 				client: &http.Client{},
-				logger: &testhelpers.MockLogger{},
+				logger: &MockLogger{},
 			},
 			wantErr: false,
 		},
@@ -138,10 +137,10 @@ func TestNewNetRunner(t *testing.T) {
 					ExpectedHTTPCodes: []int{200},
 					PathHTTP:          "/",
 				},
-				logger: &testhelpers.MockLogger{},
+				logger: &MockLogger{},
 			},
 			want: &tcpRunner{
-				logger: &testhelpers.MockLogger{},
+				logger: &MockLogger{},
 			},
 			wantErr: false,
 		},
@@ -151,17 +150,17 @@ func TestNewNetRunner(t *testing.T) {
 				sock: socket.Socket{
 					Host: "google.com",
 				},
-				logger: &testhelpers.MockLogger{},
+				logger: &MockLogger{},
 			},
 			want: &icmpRunner{
-				logger: &testhelpers.MockLogger{},
+				logger: &MockLogger{},
 			},
 			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NewNetRunner(tt.args.sock, &testhelpers.MockLogger{})
+			got, err := NewNetRunner(tt.args.sock, &MockLogger{})
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("NewNetRunner():\n error = %v\n wantErr = %v", err, tt.wantErr)
 			}
@@ -219,7 +218,7 @@ func TestTcpRunner_RunTest(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := tcpRunner{
-				&testhelpers.MockLogger{},
+				&MockLogger{},
 			}
 
 			if got := r.RunTest(context.Background(), tt.args.sock); !cmp.Equal(got, tt.want) {
@@ -245,7 +244,7 @@ func TestHttpRunner_RunTest(t *testing.T) {
 			name: "returns a success on a call to a valid HTTPs server",
 			runner: httpRunner{
 				client: &http.Client{},
-				logger: &testhelpers.MockLogger{},
+				logger: &MockLogger{},
 			},
 			args: args{
 				sock: socket.Socket{
@@ -276,7 +275,7 @@ func TestHttpRunner_RunTest(t *testing.T) {
 			// the request timeouts while awaiting HTTP headers.
 			runner: httpRunner{
 				client: &http.Client{Timeout: time.Second},
-				logger: &testhelpers.MockLogger{},
+				logger: &MockLogger{},
 			},
 			args: args{
 				sock: socket.Socket{
@@ -332,7 +331,7 @@ func TestIcmpRunner_RunTest(t *testing.T) {
 		{
 			name: "returns a success on a call to a valid host",
 			runner: icmpRunner{
-				logger: &testhelpers.MockLogger{},
+				logger: &MockLogger{},
 			},
 			args: args{
 				sock: socket.Socket{
@@ -353,7 +352,7 @@ func TestIcmpRunner_RunTest(t *testing.T) {
 		{
 			name: "returns a success on a call to a valid IP address",
 			runner: icmpRunner{
-				logger: &testhelpers.MockLogger{},
+				logger: &MockLogger{},
 			},
 			args: args{
 				sock: socket.Socket{
@@ -374,7 +373,7 @@ func TestIcmpRunner_RunTest(t *testing.T) {
 		{
 			name: "returns an error on an empty host",
 			runner: icmpRunner{
-				logger: &testhelpers.MockLogger{},
+				logger: &MockLogger{},
 			},
 			args: args{
 				sock: socket.Socket{
@@ -396,7 +395,7 @@ func TestIcmpRunner_RunTest(t *testing.T) {
 		{
 			name: "returns an error on an invalid IP address",
 			runner: icmpRunner{
-				logger: &testhelpers.MockLogger{},
+				logger: &MockLogger{},
 			},
 			args: args{
 				sock: socket.Socket{

@@ -5,12 +5,11 @@ import (
 	"testing"
 
 	"go.vxn.dev/dish/pkg/config"
-	testhelpers "go.vxn.dev/dish/pkg/testdata"
 )
 
 func TestNewPushgatewaySender(t *testing.T) {
-	mockHTTPClient := &testhelpers.SuccessStatusHTTPClient{}
-	mockLogger := &testhelpers.MockLogger{}
+	mockHTTPClient := &SuccessStatusHTTPClient{}
+	mockLogger := &MockLogger{}
 
 	url := "https://abc123.xyz.com"
 	instanceName := "test-instance"
@@ -102,7 +101,7 @@ func TestSend_Pushgateway(t *testing.T) {
 	}{
 		{
 			name:          "Failed Sockets",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			results:       failedResults,
 			failedCount:   1,
 			instanceName:  instanceName,
@@ -112,7 +111,7 @@ func TestSend_Pushgateway(t *testing.T) {
 		},
 		{
 			name:          "Failed Sockets - Verbose",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			results:       failedResults,
 			failedCount:   1,
 			instanceName:  instanceName,
@@ -122,7 +121,7 @@ func TestSend_Pushgateway(t *testing.T) {
 		},
 		{
 			name:          "No Failed Sockets With notifySuccess",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			results:       successResults,
 			failedCount:   0,
 			instanceName:  instanceName,
@@ -132,7 +131,7 @@ func TestSend_Pushgateway(t *testing.T) {
 		},
 		{
 			name:          "No Failed Sockets Without notifySuccess",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			results:       successResults,
 			failedCount:   0,
 			instanceName:  instanceName,
@@ -142,7 +141,7 @@ func TestSend_Pushgateway(t *testing.T) {
 		},
 		{
 			name:          "No Failed Sockets Without notifySuccess - Verbose",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			results:       successResults,
 			failedCount:   0,
 			instanceName:  instanceName,
@@ -152,7 +151,7 @@ func TestSend_Pushgateway(t *testing.T) {
 		},
 		{
 			name:          "Mixed Results With notifySuccess",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			results:       mixedResults,
 			failedCount:   1,
 			instanceName:  instanceName,
@@ -162,7 +161,7 @@ func TestSend_Pushgateway(t *testing.T) {
 		},
 		{
 			name:          "Mixed Results Without notifySuccess",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			results:       mixedResults,
 			failedCount:   1,
 			instanceName:  instanceName,
@@ -172,7 +171,7 @@ func TestSend_Pushgateway(t *testing.T) {
 		},
 		{
 			name:          "Empty Instance Name",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			results:       failedResults,
 			failedCount:   1,
 			instanceName:  "",
@@ -182,7 +181,7 @@ func TestSend_Pushgateway(t *testing.T) {
 		},
 		{
 			name:          "Network Error When Pushing to Pushgateway",
-			client:        &testhelpers.FailureHTTPClient{},
+			client:        &FailureHTTPClient{},
 			results:       failedResults,
 			failedCount:   1,
 			instanceName:  instanceName,
@@ -192,7 +191,7 @@ func TestSend_Pushgateway(t *testing.T) {
 		},
 		{
 			name:          "Unexpected Response Code From Pushgateway",
-			client:        &testhelpers.ErrorStatusHTTPClient{},
+			client:        &ErrorStatusHTTPClient{},
 			results:       failedResults,
 			failedCount:   1,
 			instanceName:  instanceName,
@@ -202,7 +201,7 @@ func TestSend_Pushgateway(t *testing.T) {
 		},
 		{
 			name:          "Error Reading Response Body From Pushgateway",
-			client:        &testhelpers.InvalidResponseBodyHTTPClient{},
+			client:        &InvalidResponseBodyHTTPClient{},
 			results:       failedResults,
 			failedCount:   1,
 			instanceName:  instanceName,
@@ -215,7 +214,7 @@ func TestSend_Pushgateway(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := newConfig(url, tt.instanceName, tt.notifySuccess, tt.verbose)
-			sender, err := NewPushgatewaySender(tt.client, cfg, &testhelpers.MockLogger{})
+			sender, err := NewPushgatewaySender(tt.client, cfg, &MockLogger{})
 			if err != nil {
 				t.Fatalf("failed to create Pushgateway sender instance: %v", err)
 			}
@@ -236,7 +235,7 @@ func TestCreateMessage(t *testing.T) {
 		Verbose:              false,
 	}
 
-	sender, err := NewPushgatewaySender(&testhelpers.SuccessStatusHTTPClient{}, cfg, &testhelpers.MockLogger{})
+	sender, err := NewPushgatewaySender(&SuccessStatusHTTPClient{}, cfg, &MockLogger{})
 	if err != nil {
 		t.Fatalf("failed to create Pushgateway sender instance: %v", err)
 	}

@@ -9,7 +9,6 @@ import (
 
 	"go.vxn.dev/dish/pkg/config"
 	"go.vxn.dev/dish/pkg/logger"
-	testhelpers "go.vxn.dev/dish/pkg/testdata"
 )
 
 func TestPrintSockets(t *testing.T) {
@@ -38,7 +37,7 @@ func TestLoadSocketList(t *testing.T) {
 	}{
 		{
 			"Valid JSON",
-			testhelpers.TestSocketList,
+			testSocketList,
 			false,
 		},
 		{
@@ -59,9 +58,9 @@ func TestLoadSocketList(t *testing.T) {
 }
 
 func TestFetchSocketList(t *testing.T) {
-	mockServer := testhelpers.NewMockServer(t, "", "", testhelpers.TestSocketList, http.StatusOK)
-	validFile := testhelpers.TestFile(t, "randomhash.json", []byte(testhelpers.TestSocketList))
-	socketStringReader := io.NopCloser(bytes.NewBufferString(testhelpers.TestSocketList))
+	mockServer := newMockServer(t, "", "", testSocketList, http.StatusOK)
+	validFile := testFile(t, "randomhash.json", []byte(testSocketList))
+	socketStringReader := io.NopCloser(bytes.NewBufferString(testSocketList))
 	originalList, err := LoadSocketList(socketStringReader)
 	if err != nil {
 		t.Fatalf("failed to parse sockets string to an object: %v", err)
@@ -104,7 +103,7 @@ func TestFetchSocketList(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := newConfig(tt.source)
 
-			fetchedList, err := FetchSocketList(cfg, &testhelpers.MockLogger{})
+			fetchedList, err := FetchSocketList(cfg, &mockLogger{})
 			if tt.expectError {
 				if err == nil {
 					t.Errorf("expected error, got %v", err)

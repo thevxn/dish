@@ -5,11 +5,10 @@ import (
 	"testing"
 
 	"go.vxn.dev/dish/pkg/config"
-	testhelpers "go.vxn.dev/dish/pkg/testdata"
 )
 
 func TestNewAPISender(t *testing.T) {
-	mockHTTPClient := &testhelpers.SuccessStatusHTTPClient{}
+	mockHTTPClient := &SuccessStatusHTTPClient{}
 
 	url := "https://abc123.xyz.com"
 	headerName := "X-Api-Key"
@@ -24,7 +23,7 @@ func TestNewAPISender(t *testing.T) {
 		headerValue:   headerValue,
 		notifySuccess: notifySuccess,
 		verbose:       verbose,
-		logger:        &testhelpers.MockLogger{},
+		logger:        &MockLogger{},
 	}
 
 	cfg := &config.Config{
@@ -35,7 +34,7 @@ func TestNewAPISender(t *testing.T) {
 		Verbose:              verbose,
 	}
 
-	actual, _ := NewAPISender(mockHTTPClient, cfg, &testhelpers.MockLogger{})
+	actual, _ := NewAPISender(mockHTTPClient, cfg, &MockLogger{})
 
 	if !reflect.DeepEqual(expected, actual) {
 		t.Fatalf("expected %v, got %v", expected, actual)
@@ -87,7 +86,7 @@ func TestSend_API(t *testing.T) {
 	}{
 		{
 			name:          "Failed Sockets",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			results:       failedResults,
 			failedCount:   1,
 			notifySuccess: false,
@@ -98,7 +97,7 @@ func TestSend_API(t *testing.T) {
 		},
 		{
 			name:          "Failed Sockets - Verbose",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			results:       failedResults,
 			failedCount:   1,
 			notifySuccess: false,
@@ -109,7 +108,7 @@ func TestSend_API(t *testing.T) {
 		},
 		{
 			name:          "No Failed Sockets With notifySuccess",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			results:       successResults,
 			failedCount:   0,
 			notifySuccess: true,
@@ -120,7 +119,7 @@ func TestSend_API(t *testing.T) {
 		},
 		{
 			name:          "No Failed Sockets Without notifySuccess",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			results:       successResults,
 			failedCount:   0,
 			notifySuccess: false,
@@ -131,7 +130,7 @@ func TestSend_API(t *testing.T) {
 		},
 		{
 			name:          "No Failed Sockets Without notifySuccess - Verbose",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			results:       successResults,
 			failedCount:   0,
 			notifySuccess: false,
@@ -142,7 +141,7 @@ func TestSend_API(t *testing.T) {
 		},
 		{
 			name:          "Mixed Results With notifySuccess",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			results:       mixedResults,
 			failedCount:   1,
 			notifySuccess: true,
@@ -153,7 +152,7 @@ func TestSend_API(t *testing.T) {
 		},
 		{
 			name:          "Mixed Results Without notifySuccess",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			results:       mixedResults,
 			failedCount:   1,
 			notifySuccess: false,
@@ -164,7 +163,7 @@ func TestSend_API(t *testing.T) {
 		},
 		{
 			name:          "No Custom Header",
-			client:        &testhelpers.SuccessStatusHTTPClient{},
+			client:        &SuccessStatusHTTPClient{},
 			results:       failedResults,
 			failedCount:   1,
 			notifySuccess: false,
@@ -175,7 +174,7 @@ func TestSend_API(t *testing.T) {
 		},
 		{
 			name:          "Network Error When Pushing to Remote API",
-			client:        &testhelpers.FailureHTTPClient{},
+			client:        &FailureHTTPClient{},
 			results:       failedResults,
 			failedCount:   1,
 			notifySuccess: false,
@@ -186,7 +185,7 @@ func TestSend_API(t *testing.T) {
 		},
 		{
 			name:          "Unexpected Response Code From Remote API",
-			client:        &testhelpers.ErrorStatusHTTPClient{},
+			client:        &ErrorStatusHTTPClient{},
 			results:       failedResults,
 			failedCount:   1,
 			notifySuccess: false,
@@ -197,7 +196,7 @@ func TestSend_API(t *testing.T) {
 		},
 		{
 			name:          "Error Reading Response Body From Remote API",
-			client:        &testhelpers.InvalidResponseBodyHTTPClient{},
+			client:        &InvalidResponseBodyHTTPClient{},
 			results:       failedResults,
 			failedCount:   1,
 			notifySuccess: false,
@@ -211,7 +210,7 @@ func TestSend_API(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := newConfig(tt.headerName, tt.headerValue, tt.notifySuccess, tt.verbose)
-			sender, err := NewAPISender(tt.client, cfg, &testhelpers.MockLogger{})
+			sender, err := NewAPISender(tt.client, cfg, &MockLogger{})
 			if err != nil {
 				t.Fatalf("failed to create API sender instance: %v", err)
 			}
