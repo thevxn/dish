@@ -105,12 +105,10 @@ func NewConfig(fs *flag.FlagSet, args []string) (*Config, error) {
 
 	defineFlags(fs, cfg)
 
-	// Parse flags
 	if err := fs.Parse(args); err != nil {
 		return nil, fmt.Errorf("error parsing flags: %w", err)
 	}
 
-	// Parse args
 	parsedArgs := fs.Args()
 
 	// If no source is provided, return an error
