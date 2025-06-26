@@ -12,6 +12,8 @@ main
 
 # test files
 cover.*
-
-sonar-project.properties
+coverage.out
 *.cov
+
+# sonarqube props
+sonar-project.properties
