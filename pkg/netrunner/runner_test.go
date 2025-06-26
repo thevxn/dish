@@ -214,6 +214,30 @@ func TestTcpRunner_RunTest(t *testing.T) {
 				Passed: true,
 			},
 		},
+		{
+			name: "returns an error when the TCP connection fails",
+			fields: fields{
+				verbose: testing.Verbose(),
+			},
+			args: args{
+				sock: socket.Socket{
+					ID:   "invalid_tcp",
+					Name: "Invalid TCP endpoint",
+					Host: "doesnotexist.invalid",
+					Port: 80,
+				},
+			},
+			want: socket.Result{
+				Socket: socket.Socket{
+					ID:   "invalid_tcp",
+					Name: "Invalid TCP endpoint",
+					Host: "doesnotexist.invalid",
+					Port: 80,
+				},
+				Passed: false,
+				Error:  cmpopts.AnyError,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -221,7 +245,7 @@ func TestTcpRunner_RunTest(t *testing.T) {
 				&MockLogger{},
 			}
 
-			if got := r.RunTest(context.Background(), tt.args.sock); !cmp.Equal(got, tt.want) {
+			if got := r.RunTest(context.Background(), tt.args.sock); !cmp.Equal(got, tt.want, cmpopts.EquateErrors()) {
 				t.Fatalf("tcpRunner.RunTest():\n got = %v\n want = %v", got, tt.want)
 			}
 		})
