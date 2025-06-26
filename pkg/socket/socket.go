@@ -1,3 +1,5 @@
+// Package socket provides functionality related to handling sockets, which is a structure
+// representing the target endpoint/socket to be checked.
 package socket
 
 import (

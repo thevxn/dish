@@ -1,3 +1,5 @@
+// Package main implements a simple, one-shot monitoring tool which checks the provided target endpoints or sockets
+// and reports the results to the configured channels (if any).
 package main
 
 import (

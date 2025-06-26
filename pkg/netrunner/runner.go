@@ -1,3 +1,6 @@
+// Package netrunner provides functionality for checking the availability of sockets and/or endpoints.
+// It provides tcpRunner, httpRunner and icmpRunner structs implementing the NetRunner interface, which can be used to
+// run checks on the provided targets.
 package netrunner
 
 import (
