@@ -29,6 +29,10 @@ func TestNewConfig_DefaultsAndSource(t *testing.T) {
 		MachineNotifySuccess: defaultMachineNotifySuccess,
 	}
 
+	if blank, err := NewConfig(nil, []string{}); err == nil || blank != nil {
+		t.Fatalf("unexpected behaviour, err should not be nil, output should be nil")
+	}
+
 	actual, err := NewConfig(fs, args)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
