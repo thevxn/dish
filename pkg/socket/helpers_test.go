@@ -42,7 +42,10 @@ func newMockServer(t *testing.T, expectedHeaderName, expectedHeaderValue, respon
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(statusCode)
-		w.Write([]byte(responseBody))
+		_, err := w.Write([]byte(responseBody))
+		if err != nil {
+			t.Fatalf("failed to create new mock server: %v", err)
+		}
 	}))
 
 	// Automatically shut down the server when the test completes or fails
