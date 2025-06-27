@@ -234,6 +234,14 @@ MAILTO=monitoring@example.com
 
 For an example of what can be built using dish integrated with a remote API, you can check out our [status page](https://status.vxn.dev).
 
+## Contributing
+
+dish is a project of a relatively small scale which we believe makes it interesting whether you are a beginner or an experienced developer.
+
+We are beginner-friendly, therefore, if you are willing to spend the time getting to know the codebase and possibly Go (depending on your experience level), we are happy to provide feedback and guidance.
+
+Feel free to check out the Issues section for a list of things we could use your help with. You can also create an issue yourself if you have a proposal for extending dish's functionality or have found a bug.
+
 ## Articles
 
 + [dish deep-dive article](https://blog.vxn.dev/dish-monitoring-service)
