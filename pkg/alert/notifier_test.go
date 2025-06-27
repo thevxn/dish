@@ -15,7 +15,7 @@ var (
 	configDefault *config.Config
 )
 
-func TestNewNotifier_Notifier(t *testing.T) {
+func TestNewNotifier(t *testing.T) {
 	var (
 		configBlank             = &config.Config{}
 		mockLogger              = &MockLogger{}
@@ -131,7 +131,7 @@ func TestNewNotifier_Notifier(t *testing.T) {
 	}
 }
 
-func TestSendChatNotifications_Notifier(t *testing.T) {
+func TestSendChatNotifications(t *testing.T) {
 	var (
 		mockLogger              = &MockLogger{}
 		successStatushTTPClient = SuccessStatusHTTPClient{}
@@ -169,7 +169,7 @@ func TestSendChatNotifications_Notifier(t *testing.T) {
 	}
 }
 
-func TestSendMachineNotifications_Notifier(t *testing.T) {
+func TestSendMachineNotifications(t *testing.T) {
 	var (
 		mockLogger              = &MockLogger{}
 		successStatushTTPClient = SuccessStatusHTTPClient{}

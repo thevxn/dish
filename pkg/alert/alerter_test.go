@@ -6,7 +6,7 @@ import (
 	"go.vxn.dev/dish/pkg/config"
 )
 
-func TestNewAlerter_Alerter(t *testing.T) {
+func TestNewAlerter(t *testing.T) {
 	var (
 		mockLogger = MockLogger{}
 	)
@@ -20,7 +20,7 @@ func TestNewAlerter_Alerter(t *testing.T) {
 	}
 }
 
-func TestHandleAlerts_Alerter(t *testing.T) {
+func TestHandleAlerts(t *testing.T) {
 	var (
 		mockConfig  = config.Config{}
 		mockLogger  = MockLogger{}
