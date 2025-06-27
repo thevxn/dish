@@ -17,6 +17,10 @@ type alerter struct {
 
 // NewAlerter returns a new instance of alerter using the provided logger.
 func NewAlerter(l logger.Logger) *alerter {
+	if l == nil {
+		return nil
+	}
+
 	return &alerter{
 		logger: l,
 	}
@@ -24,6 +28,10 @@ func NewAlerter(l logger.Logger) *alerter {
 
 // HandleAlerts notifies all configured channels with either the provided message (if text channel) or the structured results (if machine channel).
 func (a *alerter) HandleAlerts(messengerText string, results *Results, failedCount int, config *config.Config) {
+	if results == nil || config == nil {
+		return
+	}
+
 	notifier := NewNotifier(http.DefaultClient, config, a.logger)
 	if err := notifier.SendChatNotifications(messengerText, failedCount); err != nil {
 		a.logger.Errorf("some error(s) encountered when sending chat notifications: \n%v", err)
