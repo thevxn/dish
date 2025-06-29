@@ -6,6 +6,7 @@ dish
 [![PkgGoDev](https://pkg.go.dev/badge/go.vxn.dev/dish)](https://pkg.go.dev/go.vxn.dev/dish)
 [![Go Report Card](https://goreportcard.com/badge/go.vxn.dev/dish)](https://goreportcard.com/report/go.vxn.dev/dish)
 [![Go Coverage](https://github.com/thevxn/dish/wiki/coverage.svg)](https://raw.githack.com/wiki/thevxn/dish/coverage.html)
+[![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go)  
 [![libs.tech recommends](https://libs.tech/project/468033120/badge.svg)](https://libs.tech/project/468033120/dish)
 
 + __Tiny__ one-shot monitoring service
