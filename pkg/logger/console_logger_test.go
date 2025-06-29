@@ -42,7 +42,7 @@ func TestNewConsoleLogger(t *testing.T) {
 			t.Fatalf("failed to read from pipe: %v", err)
 		}
 
-		expected := infoPrefix + "hello stderr\n"
+		expected := INFO.Prefix(false) + "hello stderr\n"
 		actual := buf.String()
 		if actual != expected {
 			t.Fatalf("expected %q in stderr, got %q", expected, actual)
@@ -59,13 +59,36 @@ func TestNewConsoleLogger(t *testing.T) {
 
 		logger.Info("output test")
 
-		expected := infoPrefix + "output test\n"
+		expected := INFO.Prefix(false) + "output test\n"
 		actual := buf.String()
 
 		if actual != expected {
 			t.Fatalf("expected %s, got %s", expected, actual)
 		}
 
+	})
+
+	t.Run("with colors when verbose and no env set", func(t *testing.T) {
+		logger := NewConsoleLogger(true, nil)
+		if !logger.withColors {
+			t.Error("expected logger to have colors enabled")
+		}
+	})
+
+	t.Run("without colors when env is set", func(t *testing.T) {
+		_ = os.Setenv("NO_COLOR", "true")
+		logger := NewConsoleLogger(true, nil)
+		if logger.withColors {
+			t.Error("expected logger to have colors disabled")
+		}
+		_ = os.Setenv("NO_COLOR", "false")
+	})
+
+	t.Run("without colors when not verbose is not set", func(t *testing.T) {
+		logger := NewConsoleLogger(false, nil)
+		if logger.withColors {
+			t.Error("expected logger to have colors disabled")
+		}
 	})
 }
 
@@ -87,7 +110,19 @@ func TestConsoleLogger_log(t *testing.T) {
 				stdLogger: log.New(&buf, "", 0),
 				logLevel:  TRACE,
 			},
-			expected: infoPrefix + "hello123 321\n",
+			expected: INFO.Prefix(false) + "hello123 321\n",
+		},
+		{
+			name: "Info adds INFO prefix with colors",
+			logFunc: func(logger *consoleLogger) {
+				logger.Info("hello")
+			},
+			logger: &consoleLogger{
+				stdLogger:  log.New(&buf, "", 0),
+				logLevel:   TRACE,
+				withColors: true,
+			},
+			expected: INFO.Prefix(true) + "hello\n",
 		},
 		{
 			name: "Infof adds INFO prefix and formats string correctly",
@@ -98,7 +133,19 @@ func TestConsoleLogger_log(t *testing.T) {
 				stdLogger: log.New(&buf, "", 0),
 				logLevel:  TRACE,
 			},
-			expected: infoPrefix + "hello dish !\n",
+			expected: INFO.Prefix(false) + "hello dish !\n",
+		},
+		{
+			name: "Infof adds INFO prefix with color",
+			logFunc: func(logger *consoleLogger) {
+				logger.Infof("hello %s !", "dish")
+			},
+			logger: &consoleLogger{
+				stdLogger:  log.New(&buf, "", 0),
+				logLevel:   TRACE,
+				withColors: true,
+			},
+			expected: INFO.Prefix(true) + "hello dish !\n",
 		},
 		{
 			name: "Debug does not print if logLevel is INFO",
@@ -120,7 +167,19 @@ func TestConsoleLogger_log(t *testing.T) {
 				stdLogger: log.New(&buf, "", 0),
 				logLevel:  DEBUG,
 			},
-			expected: debugPrefix + "debug\n",
+			expected: DEBUG.Prefix(false) + "debug\n",
+		},
+		{
+			name: "Debug adds DEBUG prefix with color",
+			logFunc: func(logger *consoleLogger) {
+				logger.Debug("debug")
+			},
+			logger: &consoleLogger{
+				stdLogger:  log.New(&buf, "", 0),
+				logLevel:   DEBUG,
+				withColors: true,
+			},
+			expected: DEBUG.Prefix(true) + "debug\n",
 		},
 		{
 			name: "Debugf adds DEBUG prefix and formats string correctly",
@@ -131,7 +190,19 @@ func TestConsoleLogger_log(t *testing.T) {
 				stdLogger: log.New(&buf, "", 0),
 				logLevel:  DEBUG,
 			},
-			expected: debugPrefix + "debug 1\n",
+			expected: DEBUG.Prefix(false) + "debug 1\n",
+		},
+		{
+			name: "Debugf adds DEBUG prefix with color and formats string correctly",
+			logFunc: func(logger *consoleLogger) {
+				logger.Debugf("debug %d", 1)
+			},
+			logger: &consoleLogger{
+				stdLogger:  log.New(&buf, "", 0),
+				logLevel:   DEBUG,
+				withColors: true,
+			},
+			expected: DEBUG.Prefix(true) + "debug 1\n",
 		},
 		{
 			name: "Warn prints with WARN prefix",
@@ -142,7 +213,19 @@ func TestConsoleLogger_log(t *testing.T) {
 				stdLogger: log.New(&buf, "", 0),
 				logLevel:  TRACE,
 			},
-			expected: warningPrefix + "warn message\n",
+			expected: WARN.Prefix(false) + "warn message\n",
+		},
+		{
+			name: "Warn prints with WARN prefix with color",
+			logFunc: func(logger *consoleLogger) {
+				logger.Warn("warn message")
+			},
+			logger: &consoleLogger{
+				stdLogger:  log.New(&buf, "", 0),
+				logLevel:   TRACE,
+				withColors: true,
+			},
+			expected: WARN.Prefix(true) + "warn message\n",
 		},
 		{
 			name: "Warnf prints formatted WARN message",
@@ -153,7 +236,19 @@ func TestConsoleLogger_log(t *testing.T) {
 				stdLogger: log.New(&buf, "", 0),
 				logLevel:  TRACE,
 			},
-			expected: warningPrefix + "warn 42\n",
+			expected: WARN.Prefix(false) + "warn 42\n",
+		},
+		{
+			name: "Warnf prints formatted WARN message with color",
+			logFunc: func(logger *consoleLogger) {
+				logger.Warnf("warn %d", 42)
+			},
+			logger: &consoleLogger{
+				stdLogger:  log.New(&buf, "", 0),
+				logLevel:   TRACE,
+				withColors: true,
+			},
+			expected: WARN.Prefix(true) + "warn 42\n",
 		},
 		{
 			name: "Error prints with ERROR prefix",
@@ -164,7 +259,19 @@ func TestConsoleLogger_log(t *testing.T) {
 				stdLogger: log.New(&buf, "", 0),
 				logLevel:  TRACE,
 			},
-			expected: errorPrefix + "error\n",
+			expected: ERROR.Prefix(false) + "error\n",
+		},
+		{
+			name: "Error prints with ERROR prefix with color",
+			logFunc: func(logger *consoleLogger) {
+				logger.Error("error")
+			},
+			logger: &consoleLogger{
+				stdLogger:  log.New(&buf, "", 0),
+				logLevel:   TRACE,
+				withColors: true,
+			},
+			expected: ERROR.Prefix(true) + "error\n",
 		},
 		{
 			name: "Errorf prints formatted ERROR message",
@@ -175,7 +282,19 @@ func TestConsoleLogger_log(t *testing.T) {
 				stdLogger: log.New(&buf, "", 0),
 				logLevel:  TRACE,
 			},
-			expected: errorPrefix + "fail here\n",
+			expected: ERROR.Prefix(false) + "fail here\n",
+		},
+		{
+			name: "Errorf prints formatted ERROR message with color",
+			logFunc: func(logger *consoleLogger) {
+				logger.Errorf("fail %s", "here")
+			},
+			logger: &consoleLogger{
+				stdLogger:  log.New(&buf, "", 0),
+				logLevel:   TRACE,
+				withColors: true,
+			},
+			expected: ERROR.Prefix(true) + "fail here\n",
 		},
 		{
 			name: "Trace prints with TRACE prefix",
@@ -186,7 +305,19 @@ func TestConsoleLogger_log(t *testing.T) {
 				stdLogger: log.New(&buf, "", 0),
 				logLevel:  TRACE,
 			},
-			expected: tracePrefix + "trace\n",
+			expected: TRACE.Prefix(false) + "trace\n",
+		},
+		{
+			name: "Trace prints with TRACE prefix with color",
+			logFunc: func(logger *consoleLogger) {
+				logger.Trace("trace")
+			},
+			logger: &consoleLogger{
+				stdLogger:  log.New(&buf, "", 0),
+				logLevel:   TRACE,
+				withColors: true,
+			},
+			expected: TRACE.Prefix(true) + "trace\n",
 		},
 		{
 			name: "Tracef prints formatted TRACE message",
@@ -197,7 +328,19 @@ func TestConsoleLogger_log(t *testing.T) {
 				stdLogger: log.New(&buf, "", 0),
 				logLevel:  TRACE,
 			},
-			expected: tracePrefix + "trace 1\n",
+			expected: TRACE.Prefix(false) + "trace 1\n",
+		},
+		{
+			name: "Tracef prints formatted TRACE message with color",
+			logFunc: func(logger *consoleLogger) {
+				logger.Tracef("trace %d", 1)
+			},
+			logger: &consoleLogger{
+				stdLogger:  log.New(&buf, "", 0),
+				logLevel:   TRACE,
+				withColors: true,
+			},
+			expected: TRACE.Prefix(true) + "trace 1\n",
 		},
 	}
 
@@ -223,7 +366,7 @@ func TestConsoleLogger_log_Panic(t *testing.T) {
 			t.Fatal("expected panic but did not get one")
 		}
 
-		expected := panicPrefix + "could not start dish"
+		expected := PANIC.Prefix(true) + "could not start dish"
 		if r != expected {
 			t.Fatalf("expected panic message %s, got %s", expected, r)
 		}
@@ -241,7 +384,7 @@ func TestConsoleLogger_log_Panicf(t *testing.T) {
 			t.Fatal("expected panic but did not get one")
 		}
 
-		expected := panicPrefix + "could not start dish"
+		expected := PANIC.Prefix(true) + "could not start dish"
 		if r != expected {
 			t.Fatalf("expected panic message %s, got %s", expected, r)
 		}

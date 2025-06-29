@@ -108,7 +108,7 @@ Usage of dish:
   -updateURL string
         a string, API endpoint URL for pushing results
   -verbose
-        a bool, console stdout logging toggle
+        a bool, console stdout logging toggle, output is colored unless disabled by NO_COLOR=true environment variable
   -webhookURL string
         a string, URL of webhook endpoint
 ```
