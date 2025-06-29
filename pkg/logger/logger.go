@@ -1,6 +1,8 @@
 // Package logger provides a logging interface and implementations for formatted log output.
 package logger
 
+import "fmt"
+
 // LogLevel specifies a level from which logs are printed.
 type logLevel int32
 
@@ -13,6 +15,8 @@ const (
 	PANIC
 )
 
+const logPrefixFormat = "%s[ %s ]%s: "
+
 var logColors = map[logLevel]string{
 	TRACE: "\033[34m", // Blue
 	DEBUG: "\033[36m", // Cyan
@@ -22,13 +26,13 @@ var logColors = map[logLevel]string{
 	PANIC: "\033[35m", // Magenta
 }
 
-var logPrefixes = map[logLevel]string{
-	TRACE: "[ TRACE ]: ",
-	DEBUG: "[ DEBUG ]: ",
-	INFO:  "[ INFO ]: ",
-	WARN:  "[ WARN ]: ",
-	ERROR: "[ ERROR ]: ",
-	PANIC: "[ PANIC ]: ",
+var logLabel = map[logLevel]string{
+	TRACE: "TRACE",
+	DEBUG: "DEBUG",
+	INFO:  "INFO",
+	WARN:  "WARN",
+	ERROR: "ERROR",
+	PANIC: "PANIC",
 }
 
 func (l logLevel) Color() string {
@@ -39,17 +43,19 @@ func (l logLevel) Color() string {
 }
 
 func (l logLevel) Prefix(withColor bool) string {
-	prefix, prefixExists := logPrefixes[l]
+	label, labelExists := logLabel[l]
 
-	if !prefixExists {
+	if !labelExists {
 		return "[ UNKNOWN ]: "
 	}
 
+	colorStart, colorReset := "", ""
 	if withColor {
-		return l.Color() + prefix + "\033[0m"
+		colorStart = l.Color()
+		colorReset = "\033[0m"
 	}
 
-	return prefix
+	return fmt.Sprintf(logPrefixFormat, colorStart, label, colorReset)
 }
 
 // Logger interface defines methods for logging at various levels.
