@@ -15,7 +15,7 @@ var (
 	configDefault *config.Config
 )
 
-func TestNewNotifier(t *testing.T) {
+func TestNewNotifier_Nil(t *testing.T) {
 	var (
 		configBlank             = &config.Config{}
 		mockLogger              = &MockLogger{}
@@ -43,8 +43,13 @@ func TestNewNotifier(t *testing.T) {
 	if notifier := NewNotifier(&successStatusHTTPClient, configDefault, mockLogger); notifier == nil {
 		t.Error("unexpected nil on output")
 	}
+}
 
-	// Telegram tests
+func TestNewNotifier_Telegram(t *testing.T) {
+	var (
+		mockLogger              = &MockLogger{}
+		successStatusHTTPClient = SuccessStatusHTTPClient{}
+	)
 
 	configDefault.TelegramBotToken = "abc:2025062700"
 	configDefault.TelegramChatID = "-10987654321"
@@ -57,8 +62,13 @@ func TestNewNotifier(t *testing.T) {
 	if notifiersLen := len(notifierTelegram.chatNotifiers); notifiersLen == 0 {
 		t.Errorf("expected 1 chatNotifier: got %d", notifiersLen)
 	}
+}
 
-	// Remote API tests
+func TestNewNotifier_API(t *testing.T) {
+	var (
+		mockLogger              = &MockLogger{}
+		successStatusHTTPClient = SuccessStatusHTTPClient{}
+	)
 
 	configDefault.ApiURL = "https://api.example.com/?test=true"
 
@@ -81,8 +91,13 @@ func TestNewNotifier(t *testing.T) {
 	if len(notifierAPI.machineNotifiers) != 0 {
 		t.Errorf("expected 0 machineNotifiers, got %d", len(notifierAPI.machineNotifiers))
 	}
+}
 
-	// Webhooks tests
+func TestNewNotifier_Webhook(t *testing.T) {
+	var (
+		mockLogger              = &MockLogger{}
+		successStatusHTTPClient = SuccessStatusHTTPClient{}
+	)
 
 	configDefault.WebhookURL = "https://www.example.com/hooks/test-hook"
 
@@ -105,8 +120,13 @@ func TestNewNotifier(t *testing.T) {
 	if len(notifierWebhook.machineNotifiers) != 0 {
 		t.Errorf("expected 0 machineNotifiers, got %d", len(notifierWebhook.machineNotifiers))
 	}
+}
 
-	// Pushgateway tests
+func TestNewNotifier_Pushgateawy(t *testing.T) {
+	var (
+		mockLogger              = &MockLogger{}
+		successStatusHTTPClient = SuccessStatusHTTPClient{}
+	)
 
 	configDefault.PushgatewayURL = "https://pgw.example.com/push/"
 
