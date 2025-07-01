@@ -32,6 +32,8 @@ func TestHandleAlerts(t *testing.T) {
 		t.Error("expected alerter, got nil")
 	}
 
+	// HandleAlerts function returns no values, so these checks are to cover
+	// the body of such function.
 	alerter.HandleAlerts("", nil, 0, nil)
 
 	alerter.HandleAlerts("HandleAlerts test", &mockResults, 20, &mockConfig)
