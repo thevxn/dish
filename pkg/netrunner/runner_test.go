@@ -489,7 +489,7 @@ func TestIcmpRunner_RunTest(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		if slices.Contains(tt.skipOn, runtime.GOOS) {
+		if tt.skipOn != nil && slices.Contains(tt.skipOn, runtime.GOOS) {
 			t.Skipf("skipping test %s on %s", tt.name, runtime.GOOS)
 		}
 
