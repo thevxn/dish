@@ -77,8 +77,7 @@ jobs:
       - name: Build
         run: go build -v ./cmd/...
       - name: Test
-        # Github Actions cloud runners block any incoming ICMP packets.
-        run: go test -v ./... -skip 'TestIcmpRunner_RunTest'
+        run: go test -v ./... 
 
   macOS_arm64:
     runs-on: macos-latest
@@ -91,8 +90,7 @@ jobs:
       - name: Build
         run: go build -v ./cmd/...
       - name: Test
-        # Github Actions cloud runners block any incoming ICMP packets.
-        run: go test -v ./... -skip 'TestIcmpRunner_RunTest'
+        run: go test -v ./...
     
   # Self-hosted runner mainly intended for running ICMP integration tests which cannot be run in the GH runners due to incoming traffic being blocked
   self-hosted:
