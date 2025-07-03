@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"reflect"
 	"runtime"
+	"slices"
 	"sync"
 	"testing"
 	"time"
@@ -346,11 +347,15 @@ func TestIcmpRunner_RunTest(t *testing.T) {
 	type args struct {
 		sock socket.Socket
 	}
+
 	tests := []struct {
 		name   string
 		runner icmpRunner
 		args   args
 		want   socket.Result
+
+		// A slice defining OSes on which the given test should be skipped
+		skipOn []string
 	}{
 		{
 			name: "returns a success on a call to a valid host",
@@ -372,6 +377,7 @@ func TestIcmpRunner_RunTest(t *testing.T) {
 				},
 				Passed: true,
 			},
+			skipOn: []string{"darwin"},
 		},
 		{
 			name: "returns a success on a call to a valid IP address",
@@ -393,6 +399,7 @@ func TestIcmpRunner_RunTest(t *testing.T) {
 				},
 				Passed: true,
 			},
+			skipOn: []string{"darwin"},
 		},
 		{
 			name: "returns an error on an empty host",
@@ -438,12 +445,57 @@ func TestIcmpRunner_RunTest(t *testing.T) {
 				Error:  cmpopts.AnyError,
 			},
 		},
+		{
+			name: "returns a success on a call to localhost using hostname",
+			runner: icmpRunner{
+				logger: &MockLogger{},
+			},
+			args: args{
+				sock: socket.Socket{
+					ID:   "localhost_icmp",
+					Name: "Localhost ICMP",
+					Host: "localhost",
+				},
+			},
+			want: socket.Result{
+				Socket: socket.Socket{
+					ID:   "localhost_icmp",
+					Name: "Localhost ICMP",
+					Host: "localhost",
+				},
+				Passed: true,
+			},
+		},
+		{
+			name: "returns a success on a call to localhost using IP",
+			runner: icmpRunner{
+				logger: &MockLogger{},
+			},
+			args: args{
+				sock: socket.Socket{
+					ID:   "localhost_icmp",
+					Name: "Localhost ICMP",
+					Host: "127.0.0.1",
+				},
+			},
+			want: socket.Result{
+				Socket: socket.Socket{
+					ID:   "localhost_icmp",
+					Name: "Localhost ICMP",
+					Host: "127.0.0.1",
+				},
+				Passed: true,
+			},
+		},
 	}
 	for _, tt := range tests {
+		if slices.Contains(tt.skipOn, runtime.GOOS) {
+			t.Skipf("skipping test %s on %s", tt.name, runtime.GOOS)
+		}
+
 		t.Run(tt.name, func(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 			defer cancel()
-
 			got := tt.runner.RunTest(ctx, tt.args.sock)
 			if !cmp.Equal(got, tt.want, cmpopts.EquateErrors()) {
 				t.Fatalf("icmpRunner.RunTest():\n got = %v\n want = %v", got, tt.want)
