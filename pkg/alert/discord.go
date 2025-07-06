@@ -49,7 +49,7 @@ func (s *discordSender) send(message string, failedCount int) error {
 		return nil
 	}
 
-	formattedSendURL := fmt.Sprintf(discordMessagesURL, s.channelID)
+	formattedSendURL := fmt.Sprintf(discordMessagesURL, strings.TrimSpace(s.channelID))
 
 	payload := discordMessagePayload{
 		Content: message,
