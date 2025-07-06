@@ -151,6 +151,25 @@ func TestNewNotifier_Pushgateawy(t *testing.T) {
 	}
 }
 
+func TestNewNotifier_Discord(t *testing.T) {
+	var (
+		mockLogger              = &MockLogger{}
+		successStatusHTTPClient = SuccessStatusHTTPClient{}
+	)
+
+	configDefault.DiscordBotToken = "test"
+	configDefault.DiscordChannelID = "-123"
+
+	notifierDiscord := NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
+	if notifierDiscord == nil {
+		t.Fatal("unexpected nil on output (Discord*)")
+	}
+
+	if notifiersLen := len(notifierDiscord.chatNotifiers); notifiersLen == 0 {
+		t.Errorf("expected 1 chatNotifier: got %d", notifiersLen)
+	}
+}
+
 func TestSendChatNotifications(t *testing.T) {
 	var (
 		mockLogger              = &MockLogger{}
