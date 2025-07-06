@@ -54,7 +54,7 @@ func defineFlags(fs *flag.FlagSet, cfg *Config) {
 	// System flags
 	fs.StringVar(&cfg.InstanceName, "name", defaultInstanceName, "a string, dish instance name")
 	fs.UintVar(&cfg.TimeoutSeconds, "timeout", defaultTimeoutSeconds, "an int, timeout in seconds for http and tcp calls")
-	fs.BoolVar(&cfg.Verbose, "verbose", defaultVerbose, "a bool, console stdout logging toggle")
+	fs.BoolVar(&cfg.Verbose, "verbose", defaultVerbose, "a bool, console stdout logging toggle, output is colored unless disabled by NO_COLOR=true environment variable")
 
 	// Integration channels flags
 	//

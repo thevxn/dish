@@ -6,6 +6,7 @@ dish
 [![PkgGoDev](https://pkg.go.dev/badge/go.vxn.dev/dish)](https://pkg.go.dev/go.vxn.dev/dish)
 [![Go Report Card](https://goreportcard.com/badge/go.vxn.dev/dish)](https://goreportcard.com/report/go.vxn.dev/dish)
 [![Go Coverage](https://github.com/thevxn/dish/wiki/coverage.svg)](https://raw.githack.com/wiki/thevxn/dish/coverage.html)
+[![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go)  
 [![libs.tech recommends](https://libs.tech/project/468033120/badge.svg)](https://libs.tech/project/468033120/dish)
 
 + __Tiny__ one-shot monitoring service
@@ -108,7 +109,7 @@ Usage of dish:
   -updateURL string
         a string, API endpoint URL for pushing results
   -verbose
-        a bool, console stdout logging toggle
+        a bool, console stdout logging toggle, output is colored unless disabled by NO_COLOR=true environment variable
   -webhookURL string
         a string, URL of webhook endpoint
 ```
@@ -168,7 +169,7 @@ make run
 
 # Run using native docker run
 docker run --rm \
- dish:1.11.2-go1.24 \
+ dish:1.11.4-go1.24 \
  -verbose \
  -target https://pushgateway.example.com \
  https://api.example.com
@@ -192,7 +193,7 @@ SOURCE_URL=https://api.example.com/dish/sockets
 UPDATE_URL=https://api.example.com/dish/sockets/results
 TARGET_URL=https://pushgw.example.com
 
-DISH_TAG=dish:1.11.2-go1.24
+DISH_TAG=dish:1.11.4-go1.24
 INSTANCE_NAME=tiny-dish
 
 API_TOKEN=AbCd

@@ -5,15 +5,28 @@ package netrunner
 import (
 	"bytes"
 	"context"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"net"
+	"runtime"
 	"syscall"
 	"time"
 
 	"go.vxn.dev/dish/pkg/logger"
 	"go.vxn.dev/dish/pkg/socket"
 )
+
+type ICMPType int
+
+const (
+	echoReply   ICMPType = 0
+	echoRequest ICMPType = 8
+)
+
+const ipStripHdr = 23
+const testID = 0x1234
+const testSeq = 0x0001
 
 type icmpRunner struct {
 	logger logger.Logger
@@ -26,12 +39,15 @@ type icmpRunner struct {
 func (runner *icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socket.Result {
 	runner.logger.Debugf("Resolving host '%s' to an IP address", sock.Host)
 
-	addr, err := net.DefaultResolver.LookupIP(ctx, "ip4", sock.Host)
+	addr, err := net.DefaultResolver.LookupIPAddr(ctx, sock.Host)
 	if err != nil {
 		return socket.Result{Socket: sock, Error: fmt.Errorf("failed to resolve socket host: %w", err)}
 	}
 
-	ip := addr[0]
+	ip := addr[0].IP.To4()
+	if ip == nil {
+		return socket.Result{Socket: sock, Error: errors.New("not a valid IPv4 address")}
+	}
 
 	sockAddr := &syscall.SockaddrInet4{Addr: [4]byte(ip)}
 
@@ -50,6 +66,12 @@ func (runner *icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socke
 	}
 	defer syscall.Close(sysSocket)
 
+	if runtime.GOOS == "darwin" {
+		if err := syscall.SetsockoptInt(sysSocket, syscall.IPPROTO_IP, ipStripHdr, 1); err != nil {
+			return socket.Result{Socket: sock, Error: fmt.Errorf("failed to set ip strip header: %w", err)}
+		}
+	}
+
 	if d, ok := ctx.Deadline(); ok {
 		// Set a socket receive timeout.
 		t := syscall.NsecToTimeval(time.Until(d).Nanoseconds())
@@ -64,10 +86,18 @@ func (runner *icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socke
 	reqBuf := make([]byte, 8+len(payload))
 
 	// ICMP Header.
-	// ID, Seq and Checksum are filled in automatically by the kernel.
-	reqBuf[0] = 8 // Type: Echo
-
+	// ID, Seq and Checksum are filled in automatically by the kernel on linux machines, not on darwin ipv4
+	reqBuf[0] = byte(echoRequest) // Type: Echo
 	copy(reqBuf[8:], payload)
+
+	// Set the ID, Seq and Checksum for the darwin based machines
+	if runtime.GOOS == "darwin" {
+		binary.BigEndian.PutUint16(reqBuf[4:6], testID)
+		binary.BigEndian.PutUint16(reqBuf[6:8], testSeq)
+		csum := checksum(reqBuf)
+		reqBuf[2] ^= byte(csum)
+		reqBuf[3] ^= byte(csum >> 8)
+	}
 
 	runner.logger.Debug("ICMP runner: send to " + ip.String())
 
@@ -91,7 +121,7 @@ func (runner *icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socke
 		return socket.Result{Socket: sock, Error: fmt.Errorf("reply is too short: received %d bytes ", n)}
 	}
 
-	if replyBuf[0] != 0 {
+	if replyBuf[0] != byte(echoReply) {
 		return socket.Result{Socket: sock, Error: errors.New("received unexpected reply type")}
 	}
 
@@ -100,4 +130,21 @@ func (runner *icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socke
 	}
 
 	return socket.Result{Socket: sock, Passed: true}
+}
+
+// checksum calculates the internet checksum for the given byte slice.
+// This function was taken from the x/net/icmp package, which is not available in the standard library.
+// https://godoc.org/golang.org/x/net/icmp
+func checksum(b []byte) uint16 {
+	csumcv := len(b) - 1 // checksum coverage
+	s := uint32(0)
+	for i := 0; i < csumcv; i += 2 {
+		s += uint32(b[i+1])<<8 | uint32(b[i])
+	}
+	if csumcv&1 == 0 {
+		s += uint32(b[csumcv])
+	}
+	s = s>>16 + s&0xffff
+	s = s + s>>16
+	return ^uint16(s)
 }
