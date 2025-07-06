@@ -2,7 +2,6 @@ package alert
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 
@@ -88,11 +87,7 @@ func NewNotifier(httpClient HTTPClient, config *config.Config, logger logger.Log
 	}
 
 	// Discord
-	fmt.Println(config)
-	fmt.Println("DIscord channel ID:", config.DiscordChannelID)
-	fmt.Println("Token ID: ", config.DiscordBotToken)
 	if config.DiscordChannelID != "" && config.DiscordBotToken != "" {
-		fmt.Println("here")
 		notificationSenders = append(notificationSenders, NewDiscordSender(httpClient, config, logger))
 	}
 

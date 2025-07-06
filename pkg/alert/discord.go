@@ -3,9 +3,9 @@ package alert
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"go.vxn.dev/dish/pkg/config"
 	"go.vxn.dev/dish/pkg/logger"
@@ -19,10 +19,14 @@ type discordSender struct {
 	notifySuccess bool
 }
 
+type discordMessagePayload struct {
+	Content string `json:"content"`
+}
+
 const (
-	discordBaseURL         = "https://discord.com/api/v10"
-	discordSendMessagePath = "/channels/%s/messages"
-	discordSendMessageURL  = discordBaseURL + discordSendMessagePath
+	discordBaseURL      = "https://discord.com/api/v10"
+	discordMessagesPath = "/channels/%s/messages"
+	discordMessagesURL  = discordBaseURL + discordMessagesPath
 )
 
 func NewDiscordSender(httpClient HTTPClient, config *config.Config, logger logger.Logger) ChatNotifier {
@@ -44,38 +48,26 @@ func (s *discordSender) send(message string, failedCount int) error {
 		return nil
 	}
 
-	formattedSendURL := fmt.Sprintf(discordSendMessageURL, s.channelID)
+	formattedSendURL := fmt.Sprintf(discordMessagesURL, s.channelID)
 
-	payload := map[string]string{
-		"content": message,
-	}
+	payload := discordMessagePayload{Content: message}
 	body, err := json.Marshal(payload)
-
 	if err != nil {
 		return fmt.Errorf("error submitting discord alert: %w ", err)
 	}
 
-	req, err := http.NewRequest("POST", formattedSendURL, bytes.NewBuffer(body))
+	resp, err := handleSubmit(s.httpClient, http.MethodPost, formattedSendURL, bytes.NewBuffer(body), func(o *submitOptions) {
+		o.headers["Authorization"] = "Bot " + strings.TrimSpace(s.botToken)
+	})
+
 	if err != nil {
 		return fmt.Errorf("error submitting discord alert: %w", err)
 	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Bot %s", s.botToken))
-
-	resp, err := s.httpClient.Do(req)
-	if err != nil {
-		return fmt.Errorf("error submitting discord alert: %w", err)
-	}
-	defer resp.Body.Close()
 
 	if resp.StatusCode >= 300 {
-		return errors.New("error submitting discord alert: non-success status code")
+		return fmt.Errorf("error submitting discord alert: non-success status code: %d", resp.StatusCode)
 	}
 
 	s.logger.Debug("discord message sent")
 	return nil
 }
-
-// Test token : AR7DbyW7CL3HxQiDeyLq-aZfaL9jnV_8
-// Test channel: 1391401731329622036/1391401732046585888

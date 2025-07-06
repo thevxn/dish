@@ -87,8 +87,8 @@ func defineFlags(fs *flag.FlagSet, cfg *Config) {
 	fs.StringVar(&cfg.WebhookURL, "webhookURL", defaultWebhookURL, "a string, URL of webhook endpoint")
 
 	// Discord:
-	//fs.StringVar(&cfg.DiscordBotToken, "discordBotToken", defaultDiscordBotToken, "a string, Discord bot token")
-	//fs.StringVar(&cfg.DiscordChannelID, "discordChannelId", defaultDiscordChannelID, "a string, Discord channel ID")
+	fs.StringVar(&cfg.DiscordBotToken, "discordBotToken", defaultDiscordBotToken, "a string, Discord bot token")
+	fs.StringVar(&cfg.DiscordChannelID, "discordChannelId", defaultDiscordChannelID, "a string, Discord channel ID")
 }
 
 // NewConfig returns a new instance of Config.
