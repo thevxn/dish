@@ -21,6 +21,7 @@ type discordSender struct {
 
 type discordMessagePayload struct {
 	Content string `json:"content"`
+	Flags   int    `json:"flags,omitempty"`
 }
 
 const (
@@ -50,7 +51,10 @@ func (s *discordSender) send(message string, failedCount int) error {
 
 	formattedSendURL := fmt.Sprintf(discordMessagesURL, s.channelID)
 
-	payload := discordMessagePayload{Content: message}
+	payload := discordMessagePayload{
+		Content: message,
+		Flags:   4, // Suppress embedded links in the message
+	}
 	body, err := json.Marshal(payload)
 	if err != nil {
 		return fmt.Errorf("error submitting discord alert: %w ", err)
