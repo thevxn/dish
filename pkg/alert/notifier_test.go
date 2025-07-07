@@ -2,6 +2,7 @@ package alert
 
 import (
 	"flag"
+	"fmt"
 	"testing"
 
 	"go.vxn.dev/dish/pkg/config"
@@ -11,10 +12,6 @@ const (
 	badURL = "0řžuničx://č/tmpě/test.hook\x09"
 )
 
-var (
-	configDefault *config.Config
-)
-
 func TestNewNotifier_Nil(t *testing.T) {
 	var (
 		configBlank             = &config.Config{}
@@ -22,7 +19,7 @@ func TestNewNotifier_Nil(t *testing.T) {
 		successStatusHTTPClient = SuccessStatusHTTPClient{}
 	)
 
-	configDefault, _ = config.NewConfig(flag.CommandLine, []string{""})
+	configDefault, _ := config.NewConfig(flag.NewFlagSet("test", flag.ContinueOnError), []string{""})
 
 	if notifier := NewNotifier(nil, nil, nil); notifier != nil {
 		t.Error("unexpected behaviour, should be nil")
@@ -51,6 +48,7 @@ func TestNewNotifier_Telegram(t *testing.T) {
 		successStatusHTTPClient = SuccessStatusHTTPClient{}
 	)
 
+	configDefault, _ := config.NewConfig(flag.NewFlagSet("test", flag.ContinueOnError), []string{""})
 	configDefault.TelegramBotToken = "abc:2025062700"
 	configDefault.TelegramChatID = "-10987654321"
 
@@ -70,6 +68,7 @@ func TestNewNotifier_API(t *testing.T) {
 		successStatusHTTPClient = SuccessStatusHTTPClient{}
 	)
 
+	configDefault, _ := config.NewConfig(flag.NewFlagSet("test", flag.ContinueOnError), []string{""})
 	configDefault.ApiURL = "https://api.example.com/?test=true"
 
 	notifierAPI := NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
@@ -99,6 +98,7 @@ func TestNewNotifier_Webhook(t *testing.T) {
 		successStatusHTTPClient = SuccessStatusHTTPClient{}
 	)
 
+	configDefault, _ := config.NewConfig(flag.NewFlagSet("test", flag.ContinueOnError), []string{""})
 	configDefault.WebhookURL = "https://www.example.com/hooks/test-hook"
 
 	notifierWebhook := NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
@@ -128,6 +128,7 @@ func TestNewNotifier_Pushgateawy(t *testing.T) {
 		successStatusHTTPClient = SuccessStatusHTTPClient{}
 	)
 
+	configDefault, _ := config.NewConfig(flag.NewFlagSet("test", flag.ContinueOnError), []string{""})
 	configDefault.PushgatewayURL = "https://pgw.example.com/push/"
 
 	notifierPushgateway := NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
@@ -151,16 +152,38 @@ func TestNewNotifier_Pushgateawy(t *testing.T) {
 	}
 }
 
+func TestNewNotifier_Discord(t *testing.T) {
+	var (
+		mockLogger              = &MockLogger{}
+		successStatusHTTPClient = SuccessStatusHTTPClient{}
+	)
+
+	configDefault, _ := config.NewConfig(flag.NewFlagSet("test", flag.ContinueOnError), []string{""})
+	configDefault.DiscordBotToken = "test"
+	configDefault.DiscordChannelID = "-123"
+
+	notifierDiscord := NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
+	if notifierDiscord == nil {
+		t.Fatal("unexpected nil on output (Discord*)")
+	}
+
+	if notifiersLen := len(notifierDiscord.chatNotifiers); notifiersLen == 0 {
+		t.Errorf("expected 1 chatNotifier: got %d", notifiersLen)
+	}
+}
+
 func TestSendChatNotifications(t *testing.T) {
 	var (
 		mockLogger              = &MockLogger{}
 		successStatusHTTPClient = SuccessStatusHTTPClient{}
 	)
 
+	configDefault, _ := config.NewConfig(flag.NewFlagSet("test", flag.ContinueOnError), []string{""})
 	configDefault.TelegramBotToken = ""
 	configDefault.TelegramChatID = ""
 
 	notifierTelegram := NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
+	fmt.Println(notifierTelegram.chatNotifiers)
 	if len(notifierTelegram.chatNotifiers) > 0 {
 		t.Errorf("expected 0 chatNotifiers, got %d", len(notifierTelegram.chatNotifiers))
 	}
@@ -194,7 +217,7 @@ func TestSendMachineNotifications(t *testing.T) {
 		mockLogger              = &MockLogger{}
 		successStatusHTTPClient = SuccessStatusHTTPClient{}
 	)
-
+	configDefault, _ := config.NewConfig(flag.NewFlagSet("test", flag.ContinueOnError), []string{""})
 	configDefault.WebhookURL = ""
 
 	notifierWebhook := NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)

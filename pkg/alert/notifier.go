@@ -86,6 +86,16 @@ func NewNotifier(httpClient HTTPClient, config *config.Config, logger logger.Log
 		}
 	}
 
+	// Discord
+	if config.DiscordChannelID != "" && config.DiscordBotToken != "" {
+		discordSender, err := NewDiscordSender(httpClient, config, logger)
+		if err != nil {
+			logger.Error("error creating new Discord sender:", err)
+		} else {
+			notificationSenders = append(notificationSenders, discordSender)
+		}
+	}
+
 	return &notifier{
 		verbose:          config.Verbose,
 		chatNotifiers:    notificationSenders,

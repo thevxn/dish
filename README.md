@@ -88,6 +88,10 @@ Usage of dish:
         a string, specifies the directory used to cache the socket list fetched from the remote API source (default ".cache")
   -cacheTTL uint
         an int, time duration (in minutes) for which the cached list of sockets is valid (default 10)
+  -discordBotToken string
+        a string, Discord bot token
+  -discordChannelId string
+        a string, Discord channel ID
   -hname string
         a string, name of a custom additional header to be used when fetching and pushing results to the remote API (used mainly for auth purposes)
   -hvalue string
@@ -122,10 +126,11 @@ When a socket test fails, it's always good to be notified. For this purpose, dis
 + Check results as the Telegram message body (via the `-telegramBotToken` and `-telegramChatID` flags)
 + Failed count and last test timestamp update to Pushgateway for Prometheus (using the `-target` flag)
 + Test results push to a webhook URL (using the `-webhookURL` flag)
++ Check results as a Discord message (via the `-discordBotToken` and `-discordChannelId` flags)
 
 Whether successful runs with no failed checks should be reported can also be configured using flags:
 
-+ `-textNotifySuccess` for text channels (e.g. Telegram)
++ `-textNotifySuccess` for text channels (e.g. Telegram, Discord)
 + `-machineNotifySuccess` for machine channels (e.g. webhooks, remote API or Pushgateway)
 
 ![telegram-alerting](/.github/dish_telegram.png)

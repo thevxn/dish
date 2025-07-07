@@ -1,9 +1,11 @@
 package alert
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"go.vxn.dev/dish/pkg/logger"
 )
@@ -47,7 +49,10 @@ func handleSubmit(client HTTPClient, method string, url string, body io.Reader, 
 		opt(&options)
 	}
 
-	req, err := http.NewRequest(method, url, body)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, method, url, body)
 	if err != nil {
 		return nil, err
 	}

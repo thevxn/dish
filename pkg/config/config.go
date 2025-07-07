@@ -26,6 +26,8 @@ type Config struct {
 	WebhookURL           string
 	TextNotifySuccess    bool
 	MachineNotifySuccess bool
+	DiscordBotToken      string
+	DiscordChannelID     string
 }
 
 const (
@@ -44,6 +46,8 @@ const (
 	defaultWebhookURL           = ""
 	defaultTextNotifySuccess    = false
 	defaultMachineNotifySuccess = false
+	defaultDiscordBotToken      = ""
+	defaultDiscordChannelID     = ""
 )
 
 // ErrNoSourceProvided is returned when no source of sockets is specified.
@@ -81,6 +85,10 @@ func defineFlags(fs *flag.FlagSet, cfg *Config) {
 
 	// Webhooks:
 	fs.StringVar(&cfg.WebhookURL, "webhookURL", defaultWebhookURL, "a string, URL of webhook endpoint")
+
+	// Discord:
+	fs.StringVar(&cfg.DiscordBotToken, "discordBotToken", defaultDiscordBotToken, "a string, Discord bot token")
+	fs.StringVar(&cfg.DiscordChannelID, "discordChannelId", defaultDiscordChannelID, "a string, Discord channel ID")
 }
 
 // NewConfig returns a new instance of Config.
@@ -106,6 +114,8 @@ func NewConfig(fs *flag.FlagSet, args []string) (*Config, error) {
 		TimeoutSeconds:     defaultTimeoutSeconds,
 		ApiURL:             defaultApiURL,
 		WebhookURL:         defaultWebhookURL,
+		DiscordBotToken:    defaultDiscordBotToken,
+		DiscordChannelID:   defaultDiscordChannelID,
 	}
 
 	defineFlags(fs, cfg)

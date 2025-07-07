@@ -103,3 +103,28 @@ func TestFormatMessengerText(t *testing.T) {
 		})
 	}
 }
+
+func TestFormatMessengerTextWithHeader(t *testing.T) {
+	tests := []struct {
+		name         string
+		header       string
+		body         string
+		expectedText string
+	}{
+		{
+			name:         "Header with body formatted with 2 newlines",
+			header:       "Test Header",
+			body:         "Test Body",
+			expectedText: "Test Header\n\nTest Body",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			actualText := FormatMessengerTextWithHeader(tt.header, tt.body)
+			if actualText != tt.expectedText {
+				t.Errorf("expected %s, got %s", tt.expectedText, actualText)
+			}
+		})
+	}
+}
