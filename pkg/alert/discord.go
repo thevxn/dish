@@ -11,12 +11,15 @@ import (
 	"go.vxn.dev/dish/pkg/logger"
 )
 
+const discordMessageTitle = "📡 **dish run results**:"
+
 type discordSender struct {
 	botToken      string
 	channelID     string
 	httpClient    HTTPClient
 	logger        logger.Logger
 	notifySuccess bool
+	url           string
 }
 
 type discordMessagePayload struct {
@@ -30,14 +33,19 @@ const (
 	discordMessagesURL  = discordBaseURL + discordMessagesPath
 )
 
-func NewDiscordSender(httpClient HTTPClient, config *config.Config, logger logger.Logger) ChatNotifier {
+func NewDiscordSender(httpClient HTTPClient, config *config.Config, logger logger.Logger) (ChatNotifier, error) {
+	parsedURL, err := parseAndValidateURL(fmt.Sprintf(discordMessagesURL, strings.TrimSpace(config.DiscordChannelID)), nil)
+	if err != nil {
+		return nil, err
+	}
 	return &discordSender{
 		botToken:      config.DiscordBotToken,
 		channelID:     config.DiscordChannelID,
 		httpClient:    httpClient,
 		logger:        logger,
 		notifySuccess: config.TextNotifySuccess,
-	}
+		url:           parsedURL.String(),
+	}, nil
 
 }
 
@@ -49,10 +57,8 @@ func (s *discordSender) send(message string, failedCount int) error {
 		return nil
 	}
 
-	formattedSendURL := fmt.Sprintf(discordMessagesURL, strings.TrimSpace(s.channelID))
-
 	payload := discordMessagePayload{
-		Content: message,
+		Content: FormatMessengerTextWithHeader(discordMessageTitle, message),
 		Flags:   4, // Suppress embedded links in the message
 	}
 	body, err := json.Marshal(payload)
@@ -60,7 +66,7 @@ func (s *discordSender) send(message string, failedCount int) error {
 		return fmt.Errorf("error submitting discord alert: %w ", err)
 	}
 
-	resp, err := handleSubmit(s.httpClient, http.MethodPost, formattedSendURL, bytes.NewBuffer(body), func(o *submitOptions) {
+	resp, err := handleSubmit(s.httpClient, http.MethodPost, s.url, bytes.NewBuffer(body), func(o *submitOptions) {
 		o.headers["Authorization"] = "Bot " + strings.TrimSpace(s.botToken)
 	})
 
@@ -68,7 +74,8 @@ func (s *discordSender) send(message string, failedCount int) error {
 		return fmt.Errorf("error submitting discord alert: %w", err)
 	}
 
-	if resp.StatusCode >= 300 {
+	err = handleRead(resp, s.logger)
+	if err != nil {
 		return fmt.Errorf("error submitting discord alert: non-success status code: %d", resp.StatusCode)
 	}
 

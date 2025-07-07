@@ -33,3 +33,7 @@ func FormatMessengerText(result socket.Result) string {
 
 	return text
 }
+
+func FormatMessengerTextWithHeader(header, body string) string {
+	return header + "\n\n" + body
+}
