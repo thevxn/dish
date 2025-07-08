@@ -118,6 +118,18 @@ Usage of dish:
         a string, URL of webhook endpoint
 ```
 
+### Exit Codes
+
+`dish` exits with specific codes to signal the result of its checks or the nature of an internal failure.
+
+| Exit Code | Meaning                                 |
+|-----------|-----------------------------------------|
+| 0         | All checks passed successfully          |
+| 1         | No socket source provided               |
+| 2         | Failed to parse command-line arguments  |
+| 3         | Failed to run tests on sockets          |
+| 4         | Failed to reach one or more sockets     |
+
 ### Alerting
 
 When a socket test fails, it's always good to be notified. For this purpose, dish provides 4 different ways of doing so (can be combined):
