@@ -132,7 +132,7 @@ Usage of dish:
 
 ### Alerting
 
-When a socket test fails, it's always good to be notified. For this purpose, dish provides 4 different ways of doing so (can be combined):
+When a socket test fails, it's always good to be notified. For this purpose, dish provides 5 different ways of doing so (can be combined):
 
 + Test results upload to a remote JSON API (using the `-updateURL` flag)
 + Check results as the Telegram message body (via the `-telegramBotToken` and `-telegramChatID` flags)
