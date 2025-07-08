@@ -21,8 +21,15 @@ import (
 // TestChecksum tests the checksum calculation function
 func TestChecksum(t *testing.T) {
 	if runtime.GOOS == "windows" {
-		t.Skip("checksum test is skipped on Windows")
+		expected := 0
+		actual := checksum([]byte{})
+
+		if expected != int(actual) {
+			t.Errorf("unexpected windows checksum. expected: %d, got: %d", expected, actual)
+		}
+		return
 	}
+
 	tests := []struct {
 		name     string
 		input    []byte
@@ -129,11 +136,11 @@ func TestIcmpRunner_RunTest_InputValidation(t *testing.T) {
 			defer cancel()
 
 			got := runner.RunTest(ctx, tt.sock)
-			
+
 			if got.Passed {
 				t.Errorf("expected test to fail for invalid input %s, but it passed", tt.name)
 			}
-			
+
 			if got.Error == nil {
 				t.Errorf("expected error for invalid input %s, but got nil", tt.name)
 			}
@@ -200,7 +207,7 @@ func TestIcmpRunner_RunTest_IPv4AddressFormats(t *testing.T) {
 			defer cancel()
 
 			got := runner.RunTest(ctx, sock)
-			
+
 			if tt.shouldPass && !got.Passed {
 				t.Logf("expected pass but got failure for %s: %v", tt.name, got.Error)
 			} else if !tt.shouldPass && got.Passed {
@@ -230,7 +237,7 @@ func TestIcmpRunner_RunTest_DNSResolutionEdgeCases(t *testing.T) {
 	defer cancel()
 
 	got := runner.RunTest(ctx, sock)
-	
+
 	if !got.Passed {
 		t.Logf("IPv6 capable domain failed (expected if no IPv4): %v", got.Error)
 	}
