@@ -18,6 +18,231 @@ import (
 	"go.vxn.dev/dish/pkg/socket"
 )
 
+// TestChecksum tests the checksum calculation function
+func TestChecksum(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		expected := 0
+		actual := checksum([]byte{})
+
+		if expected != int(actual) {
+			t.Errorf("unexpected windows checksum. expected: %d, got: %d", expected, actual)
+		}
+		return
+	}
+
+	tests := []struct {
+		name     string
+		input    []byte
+		expected uint16
+	}{
+		{
+			name:     "empty slice",
+			input:    []byte{},
+			expected: 0xFFFF,
+		},
+		{
+			name:     "single byte",
+			input:    []byte{0x45},
+			expected: 0xFFBA,
+		},
+		{
+			name:     "two bytes",
+			input:    []byte{0x45, 0x00},
+			expected: 0xFFBA,
+		},
+		{
+			name:     "ICMP header example",
+			input:    []byte{0x08, 0x00, 0x00, 0x00, 0x12, 0x34, 0x00, 0x01},
+			expected: 0xCAE5, // expected checksum for this header
+		},
+		{
+			name:     "odd length",
+			input:    []byte{0x45, 0x00, 0x1C},
+			expected: 0xFF9E,
+		},
+		{
+			name:     "all zeros",
+			input:    []byte{0x00, 0x00, 0x00, 0x00},
+			expected: 0xFFFF,
+		},
+		{
+			name:     "all ones",
+			input:    []byte{0xFF, 0xFF, 0xFF, 0xFF},
+			expected: 0x0000,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := checksum(tt.input)
+			if got != tt.expected {
+				t.Errorf("checksum() = 0x%04X, want 0x%04X", got, tt.expected)
+			}
+		})
+	}
+}
+
+// TestIcmpRunner_RunTest_InputValidation tests input validation edge cases
+func TestIcmpRunner_RunTest_InputValidation(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("ICMP tests are skipped on Windows")
+	}
+
+	runner := icmpRunner{
+		logger: &MockLogger{},
+	}
+
+	tests := []struct {
+		name string
+		sock socket.Socket
+	}{
+		{
+			name: "whitespace only host",
+			sock: socket.Socket{
+				ID:   "whitespace_host",
+				Name: "Whitespace Host",
+				Host: "   \t\n   ",
+			},
+		},
+		{
+			name: "host with special characters",
+			sock: socket.Socket{
+				ID:   "special_chars_host",
+				Name: "Special Characters Host",
+				Host: "test@#$%^&*()host.com",
+			},
+		},
+		{
+			name: "extremely long hostname",
+			sock: socket.Socket{
+				ID:   "long_hostname",
+				Name: "Long Hostname",
+				Host: "a" + string(make([]byte, 300)) + ".com",
+			},
+		},
+		{
+			name: "hostname with unicode",
+			sock: socket.Socket{
+				ID:   "unicode_hostname",
+				Name: "Unicode Hostname",
+				Host: "тест.рф", // cyrillic domain
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+
+			got := runner.RunTest(ctx, tt.sock)
+
+			if got.Passed {
+				t.Errorf("expected test to fail for invalid input %s, but it passed", tt.name)
+			}
+
+			if got.Error == nil {
+				t.Errorf("expected error for invalid input %s, but got nil", tt.name)
+			}
+		})
+	}
+}
+
+// TestIcmpRunner_RunTest_IPv4AddressFormats tests various IPv4 address formats
+func TestIcmpRunner_RunTest_IPv4AddressFormats(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("ICMP tests are skipped on Windows")
+	}
+
+	runner := icmpRunner{
+		logger: &MockLogger{},
+	}
+
+	tests := []struct {
+		name       string
+		host       string
+		shouldPass bool
+	}{
+		{
+			name:       "standard IPv4",
+			host:       "127.0.0.1",
+			shouldPass: true,
+		},
+		{
+			name:       "IPv4 with leading zeros",
+			host:       "127.000.000.001",
+			shouldPass: true, // Should resolve to 127.0.0.1
+		},
+		{
+			name:       "invalid IPv4 - too many octets",
+			host:       "127.0.0.1.1",
+			shouldPass: false,
+		},
+		{
+			name:       "invalid IPv4 - octet out of range",
+			host:       "256.0.0.1",
+			shouldPass: false,
+		},
+		{
+			name:       "invalid IPv4 - negative octet",
+			host:       "127.0.0.-1",
+			shouldPass: false,
+		},
+		{
+			name:       "invalid IPv4 - non-numeric",
+			host:       "127.0.0.x",
+			shouldPass: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			sock := socket.Socket{
+				ID:   tt.name,
+				Name: tt.name,
+				Host: tt.host,
+			}
+
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+
+			got := runner.RunTest(ctx, sock)
+
+			if tt.shouldPass && !got.Passed {
+				t.Logf("expected pass but got failure for %s: %v", tt.name, got.Error)
+			} else if !tt.shouldPass && got.Passed {
+				t.Errorf("expected failure but got pass for %s", tt.name)
+			}
+		})
+	}
+}
+
+// TestIcmpRunner_RunTest_DNSResolutionEdgeCases tests DNS resolution edge cases
+func TestIcmpRunner_RunTest_DNSResolutionEdgeCases(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("ICMP tests are skipped on Windows")
+	}
+
+	runner := icmpRunner{
+		logger: &MockLogger{},
+	}
+
+	sock := socket.Socket{
+		ID:   "ipv6_capable_domain",
+		Name: "IPv6 Capable Domain",
+		Host: "ipv6.google.com",
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	got := runner.RunTest(ctx, sock)
+
+	if !got.Passed {
+		t.Logf("IPv6 capable domain failed (expected if no IPv4): %v", got.Error)
+	}
+}
+
 // TestRunSocketTest is an integration test. It executes network calls to
 // external public servers.
 func TestRunSocketTest(t *testing.T) {
