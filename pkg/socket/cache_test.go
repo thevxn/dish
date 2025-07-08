@@ -38,7 +38,7 @@ func TestHashUrlToFilePath(t *testing.T) {
 }
 
 func TestSaveSocketsToCache(t *testing.T) {
-	filePath := testFile(t, "randomhash.json", nil)
+	filePath := testFile(t, nil)
 	cacheDir := filepath.Dir(filePath)
 
 	if err := saveSocketsToCache(filePath, cacheDir, []byte(testSockets)); err != nil {
@@ -61,7 +61,7 @@ func TestSaveSocketsToCache(t *testing.T) {
 
 func TestLoadSocketsFromCache(t *testing.T) {
 	t.Run("Load Sockets From Cache", func(t *testing.T) {
-		filePath := testFile(t, "randomhash.json", []byte(testSockets))
+		filePath := testFile(t, []byte(testSockets))
 		cacheTTL := uint(60)
 
 		readerFromCache, _, err := loadCachedSockets(filePath, cacheTTL)
@@ -85,7 +85,7 @@ func TestLoadSocketsFromCache(t *testing.T) {
 	})
 
 	t.Run("Load Sockets From Expired Cache", func(t *testing.T) {
-		filePath := testFile(t, "randomhash.json", []byte(testSockets))
+		filePath := testFile(t, []byte(testSockets))
 		cacheTTL := uint(0)
 
 		// For some reason Windows tests in CI/CD think that 0 time has elapsed since the creation of the test file when it's being checked inside of loadCachedSockets, therefore the expired cache error is not returned.

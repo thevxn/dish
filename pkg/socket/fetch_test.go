@@ -23,7 +23,7 @@ func TestNewFetchHandler(t *testing.T) {
 }
 
 func TestFetchSocketsFromFile(t *testing.T) {
-	filePath := testFile(t, "randomhash.json", []byte(testSockets))
+	filePath := testFile(t, []byte(testSockets))
 	cfg := &config.Config{
 		Source: filePath,
 	}
@@ -85,7 +85,7 @@ func TestFetchSocketsFromRemote(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// Specify temp cache file & directory for each test separately
 			// This fixes open file handles preventing the tests from succeeding on Windows
-			filePath := testFile(t, "randomhash.json", []byte(testSockets))
+			filePath := testFile(t, []byte(testSockets))
 			tt.cfg.ApiCacheDirectory = filepath.Dir(filePath)
 
 			fetchHandler := NewFetchHandler(&mockLogger{})

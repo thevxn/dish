@@ -27,7 +27,7 @@ func NewConsoleLogger(verbose bool, out io.Writer) *consoleLogger {
 
 	l := &consoleLogger{
 		stdLogger:  log.New(out, "", log.LstdFlags),
-		withColors: !(os.Getenv("NO_COLOR") == "true") && verbose,
+		withColors: os.Getenv("NO_COLOR") != "true" && verbose,
 	}
 
 	l.logLevel = INFO

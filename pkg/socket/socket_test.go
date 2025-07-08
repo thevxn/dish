@@ -65,7 +65,7 @@ func TestLoadSocketList(t *testing.T) {
 
 func TestFetchSocketList(t *testing.T) {
 	mockServer := newMockServer(t, "", "", testSockets, http.StatusOK)
-	validFile := testFile(t, "randomhash.json", []byte(testSockets))
+	validFile := testFile(t, []byte(testSockets))
 	socketStringReader := io.NopCloser(bytes.NewBufferString(testSockets))
 	originalList, err := LoadSocketList(socketStringReader)
 	if err != nil {

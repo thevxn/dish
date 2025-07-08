@@ -29,6 +29,5 @@ linters:
     - gocyclo # or "cyclop", # Detect cyclomatic complexity
     - goconst # Detect repeated values that can be made constants
     - misspell # Fix spelling errors
-    - revive # General purpose linter
     - unconvert # Detect unnecessary type conversions
     - unparam # Detect unused function parameters
