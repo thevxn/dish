@@ -21,55 +21,61 @@ import (
 // TestRunSocketTest is an integration test. It executes network calls to
 // external public servers.
 func TestRunSocketTest(t *testing.T) {
-	t.Run("output chan is closed and the wait group is not blocking after a successful concurrent test", func(t *testing.T) {
-		sock := socket.Socket{
-			ID:   "google_tcp",
-			Name: "Google TCP",
-			Host: "google.com",
-			Port: 80,
-		}
+	t.Run(
+		"output chan is closed and the wait group is not blocking after a successful concurrent test",
+		func(t *testing.T) {
+			sock := socket.Socket{
+				ID:   "google_tcp",
+				Name: "Google TCP",
+				Host: "google.com",
+				Port: 80,
+			}
 
-		want := socket.Result{
-			Socket: sock,
-			Passed: true,
-		}
+			want := socket.Result{
+				Socket: sock,
+				Passed: true,
+			}
 
-		c := make(chan socket.Result)
-		wg := &sync.WaitGroup{}
-		cfg, err := config.NewConfig(flag.CommandLine, []string{"--timeout=1", "--verbose=false", "mocksource.json"})
-		if err != nil {
-			t.Fatalf("unexpected error creating config: %v", err)
-		}
-		done := make(chan struct{})
+			c := make(chan socket.Result)
+			wg := &sync.WaitGroup{}
+			cfg, err := config.NewConfig(
+				flag.CommandLine,
+				[]string{"--timeout=1", "--verbose=false", "mocksource.json"},
+			)
+			if err != nil {
+				t.Fatalf("unexpected error creating config: %v", err)
+			}
+			done := make(chan struct{})
 
-		wg.Add(1)
-		go RunSocketTest(sock, c, wg, cfg, &MockLogger{})
+			wg.Add(1)
+			go RunSocketTest(sock, c, wg, cfg, &MockLogger{})
 
-		go func() {
-			wg.Wait()
-			done <- struct{}{}
-		}()
+			go func() {
+				wg.Wait()
+				done <- struct{}{}
+			}()
 
-		got := <-c
+			got := <-c
 
-		select {
-		case <-done:
-		case <-time.After(time.Second):
-			t.Fatalf("RunSocketTest: timed out waiting for the test results")
-		}
+			select {
+			case <-done:
+			case <-time.After(time.Second):
+				t.Fatalf("RunSocketTest: timed out waiting for the test results")
+			}
 
-		select {
-		// Once the test is finished no further results are sent.
-		// If this select case blocks instead of reading the default value immediately then the channel is not closed.
-		case <-c:
-		default:
-			t.Error("RunSocketTest: the output channel has not been closed after returning")
-		}
+			select {
+			// Once the test is finished no further results are sent.
+			// If this select case blocks instead of reading the default value immediately then the channel is not closed.
+			case <-c:
+			default:
+				t.Error("RunSocketTest: the output channel has not been closed after returning")
+			}
 
-		if !cmp.Equal(got, want) {
-			t.Fatalf("RunSocketTest:\n want = %v\n got = %v\n", want, got)
-		}
-	})
+			if !cmp.Equal(got, want) {
+				t.Fatalf("RunSocketTest:\n want = %v\n got = %v\n", want, got)
+			}
+		},
+	)
 }
 
 func TestNewNetRunner(t *testing.T) {
@@ -246,7 +252,11 @@ func TestTcpRunner_RunTest(t *testing.T) {
 				&MockLogger{},
 			}
 
-			if got := r.RunTest(context.Background(), tt.args.sock); !cmp.Equal(got, tt.want, cmpopts.EquateErrors()) {
+			if got := r.RunTest(context.Background(), tt.args.sock); !cmp.Equal(
+				got,
+				tt.want,
+				cmpopts.EquateErrors(),
+			) {
 				t.Fatalf("tcpRunner.RunTest():\n got = %v\n want = %v", got, tt.want)
 			}
 		})

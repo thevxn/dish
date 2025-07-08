@@ -68,7 +68,11 @@ func (f *fetchHandler) fetchSocketsFromRemote(config *config.Config) (io.ReadClo
 	cachedReader, cacheTime, err := loadCachedSockets(cacheFilePath, config.ApiCacheTTLMinutes)
 	// If cache is expired or fails to load, attempt to fetch fresh sockets
 	if err != nil {
-		f.logger.Warnf("cache unavailable for URL: %s (reason: %v); attempting network fetch", config.Source, err)
+		f.logger.Warnf(
+			"cache unavailable for URL: %s (reason: %v); attempting network fetch",
+			config.Source,
+			err,
+		)
 
 		// Fetch fresh sockets from network
 		respBody, fetchErr := f.loadFreshSockets(config)
@@ -78,7 +82,11 @@ func (f *fetchHandler) fetchSocketsFromRemote(config *config.Config) (io.ReadClo
 				return nil, fetchErr
 			}
 			// If the fetch fails and expired cache is available, return the expired cache and log a warning
-			f.logger.Errorf("fetching socket list from remote API at %s failed: %v.", config.Source, fetchErr)
+			f.logger.Errorf(
+				"fetching socket list from remote API at %s failed: %v.",
+				config.Source,
+				fetchErr,
+			)
 			f.logger.Warnf("using expired cache from %s", cacheTime.Format(time.RFC3339))
 
 			return cachedReader, nil
@@ -124,7 +132,11 @@ func (f *fetchHandler) loadFreshSockets(config *config.Config) (io.ReadCloser, e
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to fetch sockets from remote source --- got %d (%s)", resp.StatusCode, resp.Status)
+		return nil, fmt.Errorf(
+			"failed to fetch sockets from remote source --- got %d (%s)",
+			resp.StatusCode,
+			resp.Status,
+		)
 	}
 
 	return resp.Body, nil

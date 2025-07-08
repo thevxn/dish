@@ -29,7 +29,11 @@ func testFile(t *testing.T, filename string, data []byte) string {
 
 // newMockServer creates an httptest.Server that simulates an expected API endpoint.
 // It validates a specific request header (if provided) and returns a customizable response.
-func newMockServer(t *testing.T, expectedHeaderName, expectedHeaderValue, responseBody string, statusCode int) *httptest.Server {
+func newMockServer(
+	t *testing.T,
+	expectedHeaderName, expectedHeaderValue, responseBody string,
+	statusCode int,
+) *httptest.Server {
 	t.Helper()
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

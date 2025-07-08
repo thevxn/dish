@@ -39,7 +39,11 @@ type pushgatewaySender struct {
 }
 
 // NewPushgatewaySender validates the provided URL, prepares and parses a message template to be used for alerting and returns a new pushgatewaySender struct with the provided attributes.
-func NewPushgatewaySender(httpClient HTTPClient, config *config.Config, logger logger.Logger) (*pushgatewaySender, error) {
+func NewPushgatewaySender(
+	httpClient HTTPClient,
+	config *config.Config,
+	logger logger.Logger,
+) (*pushgatewaySender, error) {
 	parsedURL, err := parseAndValidateURL(config.PushgatewayURL, nil)
 	if err != nil {
 		return nil, err
@@ -94,7 +98,13 @@ func (s *pushgatewaySender) send(_ *Results, failedCount int) error {
 
 	formattedURL := s.url + "/metrics/job/" + jobName + "/instance/" + s.instanceName
 
-	res, err := handleSubmit(s.httpClient, http.MethodPut, formattedURL, bodyReader, withContentType("application/byte"))
+	res, err := handleSubmit(
+		s.httpClient,
+		http.MethodPut,
+		formattedURL,
+		bodyReader,
+		withContentType("application/byte"),
+	)
 	if err != nil {
 		return fmt.Errorf("error pushing results to Pushgateway: %w", err)
 	}

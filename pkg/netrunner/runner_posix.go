@@ -24,9 +24,11 @@ const (
 	echoRequest ICMPType = 8
 )
 
-const ipStripHdr = 23
-const testID = 0x1234
-const testSeq = 0x0001
+const (
+	ipStripHdr = 23
+	testID     = 0x1234
+	testSeq    = 0x0001
+)
 
 type icmpRunner struct {
 	logger logger.Logger
@@ -41,7 +43,10 @@ func (runner *icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socke
 
 	addr, err := net.DefaultResolver.LookupIPAddr(ctx, sock.Host)
 	if err != nil {
-		return socket.Result{Socket: sock, Error: fmt.Errorf("failed to resolve socket host: %w", err)}
+		return socket.Result{
+			Socket: sock,
+			Error:  fmt.Errorf("failed to resolve socket host: %w", err),
+		}
 	}
 
 	ip := addr[0].IP.To4()
@@ -62,13 +67,19 @@ func (runner *icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socke
 	// varies between Windows versions, and a sequence number that is only reset at boot time."
 	sysSocket, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_DGRAM, syscall.IPPROTO_ICMP)
 	if err != nil {
-		return socket.Result{Socket: sock, Error: fmt.Errorf("failed to create a non-privileged icmp socket: %w", err)}
+		return socket.Result{
+			Socket: sock,
+			Error:  fmt.Errorf("failed to create a non-privileged icmp socket: %w", err),
+		}
 	}
 	defer syscall.Close(sysSocket)
 
 	if runtime.GOOS == "darwin" {
 		if err := syscall.SetsockoptInt(sysSocket, syscall.IPPROTO_IP, ipStripHdr, 1); err != nil {
-			return socket.Result{Socket: sock, Error: fmt.Errorf("failed to set ip strip header: %w", err)}
+			return socket.Result{
+				Socket: sock,
+				Error:  fmt.Errorf("failed to set ip strip header: %w", err),
+			}
 		}
 	}
 
@@ -76,7 +87,13 @@ func (runner *icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socke
 		// Set a socket receive timeout.
 		t := syscall.NsecToTimeval(time.Until(d).Nanoseconds())
 		if err := syscall.SetsockoptTimeval(sysSocket, syscall.SOL_SOCKET, syscall.SO_RCVTIMEO, &t); err != nil {
-			return socket.Result{Socket: sock, Error: fmt.Errorf("failed to set a timeout on a non-privileged icmp socket: %w", err)}
+			return socket.Result{
+				Socket: sock,
+				Error: fmt.Errorf(
+					"failed to set a timeout on a non-privileged icmp socket: %w",
+					err,
+				),
+			}
 		}
 	}
 
@@ -102,7 +119,10 @@ func (runner *icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socke
 	runner.logger.Debug("ICMP runner: send to " + ip.String())
 
 	if err := syscall.Sendto(sysSocket, reqBuf, 0, sockAddr); err != nil {
-		return socket.Result{Socket: sock, Error: fmt.Errorf("failed to send an echo request: %w", err)}
+		return socket.Result{
+			Socket: sock,
+			Error:  fmt.Errorf("failed to send an echo request: %w", err),
+		}
 	}
 
 	// Maximum Transmission Unit (MTU) equals 1500 bytes.
@@ -114,11 +134,17 @@ func (runner *icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socke
 
 	n, _, err := syscall.Recvfrom(sysSocket, replyBuf, 0)
 	if err != nil {
-		return socket.Result{Socket: sock, Error: fmt.Errorf("failed to receive a reply from a socket: %w", err)}
+		return socket.Result{
+			Socket: sock,
+			Error:  fmt.Errorf("failed to receive a reply from a socket: %w", err),
+		}
 	}
 
 	if n < 8 {
-		return socket.Result{Socket: sock, Error: fmt.Errorf("reply is too short: received %d bytes ", n)}
+		return socket.Result{
+			Socket: sock,
+			Error:  fmt.Errorf("reply is too short: received %d bytes ", n),
+		}
 	}
 
 	if replyBuf[0] != byte(echoReply) {
@@ -126,7 +152,10 @@ func (runner *icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socke
 	}
 
 	if !bytes.Equal(reqBuf[8:], replyBuf[8:n]) {
-		return socket.Result{Socket: sock, Error: errors.New("failed to validate echo reply: payloads are not equal")}
+		return socket.Result{
+			Socket: sock,
+			Error:  errors.New("failed to validate echo reply: payloads are not equal"),
+		}
 	}
 
 	return socket.Result{Socket: sock, Passed: true}

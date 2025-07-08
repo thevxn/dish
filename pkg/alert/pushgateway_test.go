@@ -49,7 +49,11 @@ func TestNewPushgatewaySender(t *testing.T) {
 		t.Errorf("expected verbose: %v, got: %v", expected.verbose, actual.verbose)
 	}
 	if expected.notifySuccess != actual.notifySuccess {
-		t.Errorf("expected notifySuccess: %v, got: %v", expected.notifySuccess, actual.notifySuccess)
+		t.Errorf(
+			"expected notifySuccess: %v, got: %v",
+			expected.notifySuccess,
+			actual.notifySuccess,
+		)
 	}
 	if fmt.Sprintf("%T", expected.httpClient) != fmt.Sprintf("%T", actual.httpClient) {
 		t.Errorf("expected httpClient type: %T, got: %T", expected.httpClient, actual.httpClient)
