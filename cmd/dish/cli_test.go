@@ -15,7 +15,10 @@ func TestPrintHelp(t *testing.T) {
 
 	printHelp()
 
-	w.Close()
+	if err := w.Close(); err != nil {
+		t.Errorf("pipe close: %v", err)
+	}
+
 	os.Stdout = oldStdout
 
 	var buf bytes.Buffer

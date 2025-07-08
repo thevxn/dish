@@ -68,7 +68,11 @@ func TestLoadSocketsFromCache(t *testing.T) {
 		if err != nil {
 			t.Fatalf("expected no error, but got %v", err)
 		}
-		defer readerFromCache.Close()
+		defer func() {
+			if cerr := readerFromCache.Close(); cerr != nil {
+				t.Fatalf("failed to close cache reader: %v", cerr)
+			}
+		}()
 
 		readBytes, err := io.ReadAll(readerFromCache)
 		if err != nil {
@@ -92,7 +96,12 @@ func TestLoadSocketsFromCache(t *testing.T) {
 		if !errors.Is(err, ErrExpiredCache) {
 			t.Errorf("expected error %v, but got %v", ErrExpiredCache, err)
 		}
-		defer readerFromCache.Close()
+
+		defer func() {
+			if cerr := readerFromCache.Close(); cerr != nil {
+				t.Fatalf("failed to close cache reader: %v", cerr)
+			}
+		}()
 
 		readBytes, err := io.ReadAll(readerFromCache)
 		if err != nil {

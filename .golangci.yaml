@@ -21,7 +21,6 @@ formatters:
 linters:
   enable:
     - errcheck #Errcheck is a program for checking for unchecked errors in Go code. These unchecked errors can be critical bugs in some cases.
-    - gosimple #Linter for Go source code that specializes in simplifying code. [auto-fix]
     - govet # Vet examines Go source code and reports suspicious constructs. It is roughly the same as 'go vet' and uses its passes. [auto-fix]
     - ineffassign # Detects when assignments to existing variables are not used. [fast]
     - staticcheck # It's a set of rules from staticcheck. It's not the same thing as the staticcheck binary. The author of staticcheck doesn't support or approve the use of staticcheck as a library inside golangci-lint. [auto-fix]

@@ -34,7 +34,12 @@ func TestFetchSocketsFromFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to fetch sockets from file %v\n", err)
 	}
-	defer reader.Close()
+
+	defer func() {
+		if cerr := reader.Close(); cerr != nil {
+			t.Fatalf("failed to close file reader: %v", cerr)
+		}
+	}()
 
 	fileData, err := io.ReadAll(reader)
 	if err != nil {

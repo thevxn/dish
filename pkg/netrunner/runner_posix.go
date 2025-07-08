@@ -72,7 +72,15 @@ func (runner *icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socke
 			Error:  fmt.Errorf("failed to create a non-privileged icmp socket: %w", err),
 		}
 	}
-	defer syscall.Close(sysSocket)
+
+	defer func() {
+		if cerr := syscall.Close(sysSocket); cerr != nil {
+			runner.logger.Errorf(
+				"error closing ICMP socket (fd %d) for %s:%d: %v",
+				sysSocket, sock.Host, sock.Port, cerr,
+			)
+		}
+	}()
 
 	if runtime.GOOS == "darwin" {
 		if err := syscall.SetsockoptInt(sysSocket, syscall.IPPROTO_IP, ipStripHdr, 1); err != nil {

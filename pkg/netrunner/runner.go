@@ -101,7 +101,15 @@ func (runner *tcpRunner) RunTest(ctx context.Context, sock socket.Socket) socket
 	if err != nil {
 		return socket.Result{Socket: sock, Error: err, Passed: false}
 	}
-	defer conn.Close()
+
+	defer func() {
+		if err := conn.Close(); err != nil {
+			runner.logger.Errorf(
+				"failed to close TCP connection to %s: %v",
+				endpoint, err,
+			)
+		}
+	}()
 
 	return socket.Result{Socket: sock, Passed: true}
 }
@@ -129,7 +137,12 @@ func (runner *httpRunner) RunTest(ctx context.Context, sock socket.Socket) socke
 	if err != nil {
 		return socket.Result{Socket: sock, Passed: false, Error: err}
 	}
-	defer resp.Body.Close()
+
+	defer func() {
+		if cerr := resp.Body.Close(); cerr != nil {
+			runner.logger.Errorf("failed to close body for %v", cerr)
+		}
+	}()
 
 	if !slices.Contains(sock.ExpectedHTTPCodes, resp.StatusCode) {
 		err = fmt.Errorf("expected codes: %v, got %d", sock.ExpectedHTTPCodes, resp.StatusCode)

@@ -35,7 +35,10 @@ func TestNewConsoleLogger(t *testing.T) {
 		}
 		logger.Info("hello stderr")
 
-		w.Close()
+		if err := w.Close(); err != nil {
+			t.Errorf("failed to close capture pipe writer: %v", err)
+		}
+
 		var buf bytes.Buffer
 		_, err := buf.ReadFrom(r)
 		if err != nil {
