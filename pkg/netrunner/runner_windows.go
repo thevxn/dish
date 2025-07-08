@@ -18,6 +18,6 @@ func (runner icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socket
 	return socket.Result{Socket: sock, Error: errors.New("icmp tests on windows are not implemented")}
 }
 
-func checksum(data []byte) uint16 {
-    return 0 // return invalid checksum since not implemented in Windows
+func checksum(_ []byte) uint16 {
+	return 0 // return invalid checksum since not implemented in Windows
 }
