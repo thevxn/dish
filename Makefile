@@ -70,7 +70,7 @@ endef
 
 all: info
 
-.PHONY: build local_build logs major minor patch push run stop test version lint lint-fix
+.PHONY: build local_build logs major minor patch push run stop test version lint lint-fix format
 info: 
 	@echo -e "\n${GREEN} ${PROJECT_NAME} / Makefile ${RESET}\n"
 
