@@ -115,6 +115,12 @@ push:
 	@git tag -fa 'v${APP_VERSION}' -m 'v${APP_VERSION}'
 	@git push --follow-tags --set-upstream origin master
 
+format:
+	@echo "\n>>> Formating code with golangci-lint…"
+	@golangci-lint fmt \
+		--config .golangci.yaml \
+		./...
+
 lint:
 	@echo "\n>>> Running golangci-lint…"
 	@golangci-lint run \
