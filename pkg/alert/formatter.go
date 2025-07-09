@@ -7,7 +7,6 @@ import (
 )
 
 func FormatMessengerText(result socket.Result) string {
-
 	status := "failed"
 	if result.Passed {
 		status = "success"

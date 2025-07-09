@@ -14,7 +14,13 @@ import (
 func TestPrintSockets(t *testing.T) {
 	list := &SocketList{
 		Sockets: []Socket{
-			{ID: "1", Name: "socket", Host: "example.com", Port: 80, ExpectedHTTPCodes: []int{200, 404}},
+			{
+				ID:                "1",
+				Name:              "socket",
+				Host:              "example.com",
+				Port:              80,
+				ExpectedHTTPCodes: []int{200, 404},
+			},
 		},
 	}
 
@@ -59,7 +65,7 @@ func TestLoadSocketList(t *testing.T) {
 
 func TestFetchSocketList(t *testing.T) {
 	mockServer := newMockServer(t, "", "", testSockets, http.StatusOK)
-	validFile := testFile(t, "randomhash.json", []byte(testSockets))
+	validFile := testFile(t, []byte(testSockets))
 	socketStringReader := io.NopCloser(bytes.NewBufferString(testSockets))
 	originalList, err := LoadSocketList(socketStringReader)
 	if err != nil {

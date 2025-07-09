@@ -23,7 +23,7 @@ func run(fs *flag.FlagSet, args []string, _, stderr io.Writer) int {
 			return 1
 		}
 		// Otherwise, print the error
-		fmt.Fprintln(stderr, "error loading config:", err)
+		fmt.Fprintln(stderr, "error loading config:", err) //nolint:errcheck
 		return 2
 	}
 

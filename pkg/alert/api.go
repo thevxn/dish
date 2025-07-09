@@ -20,7 +20,11 @@ type apiSender struct {
 	logger        logger.Logger
 }
 
-func NewAPISender(httpClient HTTPClient, config *config.Config, logger logger.Logger) (*apiSender, error) {
+func NewAPISender(
+	httpClient HTTPClient,
+	config *config.Config,
+	logger logger.Logger,
+) (*apiSender, error) {
 	parsedURL, err := parseAndValidateURL(config.ApiURL, nil)
 	if err != nil {
 		return nil, err

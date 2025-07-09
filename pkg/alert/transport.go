@@ -37,7 +37,13 @@ func withHeader(key string, value string) func(*submitOptions) {
 //
 // By default, the application/json Content-Type header is used. A different content type can be specified using the withContentType functional option.
 // Custom header key:value pairs can be specified using the withHeader functional option.
-func handleSubmit(client HTTPClient, method string, url string, body io.Reader, opts ...func(*submitOptions)) (*http.Response, error) {
+func handleSubmit(
+	client HTTPClient,
+	method string,
+	url string,
+	body io.Reader,
+	opts ...func(*submitOptions),
+) (*http.Response, error) {
 	// Default options
 	options := submitOptions{
 		contentType: "application/json",
@@ -74,7 +80,11 @@ func handleSubmit(client HTTPClient, method string, url string, body io.Reader, 
 
 // handleRead reads an HTTP response, ensures the status code is within the expected <200, 299> range and if not, logs the response body.
 func handleRead(res *http.Response, logger logger.Logger) error {
-	defer res.Body.Close()
+	defer func() {
+		if err := res.Body.Close(); err != nil {
+			logger.Errorf("failed to close response body: %v", err)
+		}
+	}()
 
 	if res.StatusCode < http.StatusOK || res.StatusCode >= http.StatusMultipleChoices {
 		body, err := io.ReadAll(res.Body)
@@ -84,7 +94,10 @@ func handleRead(res *http.Response, logger logger.Logger) error {
 			logger.Warnf("response from %s: %s", res.Request.URL, string(body))
 		}
 
-		return fmt.Errorf("unexpected response code received (expected: 200-299, got: %d)", res.StatusCode)
+		return fmt.Errorf(
+			"unexpected response code received (expected: 200-299, got: %d)",
+			res.StatusCode,
+		)
 	}
 
 	return nil

@@ -13,9 +13,10 @@ const testSockets string = `{ "sockets": [ { "id": "vxn_dev_https", "socket_name
 
 // testFile creates a temporary file inside of a temporary directory with the provided filename and data.
 // The temporary directory including the file is removed when the test using it finishes.
-func testFile(t *testing.T, filename string, data []byte) string {
+func testFile(t *testing.T, data []byte) string {
 	t.Helper()
 	dir := t.TempDir()
+	filename := "randomhash.json"
 
 	filepath := filepath.Join(dir, filename)
 
@@ -29,7 +30,11 @@ func testFile(t *testing.T, filename string, data []byte) string {
 
 // newMockServer creates an httptest.Server that simulates an expected API endpoint.
 // It validates a specific request header (if provided) and returns a customizable response.
-func newMockServer(t *testing.T, expectedHeaderName, expectedHeaderValue, responseBody string, statusCode int) *httptest.Server {
+func newMockServer(
+	t *testing.T,
+	expectedHeaderName, expectedHeaderValue, responseBody string,
+	statusCode int,
+) *httptest.Server {
 	t.Helper()
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

@@ -25,11 +25,20 @@ const agentVersion = "1.11"
 // It runs a test for the given socket and sends the result through the given channel.
 // If the test fails to start, the error is logged to STDOUT and no result is
 // sent. On return, Done() is called on the WaitGroup and the channel is closed.
-func RunSocketTest(sock socket.Socket, out chan<- socket.Result, wg *sync.WaitGroup, cfg *config.Config, logger logger.Logger) {
+func RunSocketTest(
+	sock socket.Socket,
+	out chan<- socket.Result,
+	wg *sync.WaitGroup,
+	cfg *config.Config,
+	logger logger.Logger,
+) {
 	defer wg.Done()
 	defer close(out)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(cfg.TimeoutSeconds)*time.Second)
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		time.Duration(cfg.TimeoutSeconds)*time.Second,
+	)
 	defer cancel()
 
 	runner, err := NewNetRunner(sock, logger)
@@ -92,7 +101,15 @@ func (runner *tcpRunner) RunTest(ctx context.Context, sock socket.Socket) socket
 	if err != nil {
 		return socket.Result{Socket: sock, Error: err, Passed: false}
 	}
-	defer conn.Close()
+
+	defer func() {
+		if err := conn.Close(); err != nil {
+			runner.logger.Errorf(
+				"failed to close TCP connection to %s: %v",
+				endpoint, err,
+			)
+		}
+	}()
 
 	return socket.Result{Socket: sock, Passed: true}
 }
@@ -120,7 +137,12 @@ func (runner *httpRunner) RunTest(ctx context.Context, sock socket.Socket) socke
 	if err != nil {
 		return socket.Result{Socket: sock, Passed: false, Error: err}
 	}
-	defer resp.Body.Close()
+
+	defer func() {
+		if cerr := resp.Body.Close(); cerr != nil {
+			runner.logger.Errorf("failed to close body for %v", cerr)
+		}
+	}()
 
 	if !slices.Contains(sock.ExpectedHTTPCodes, resp.StatusCode) {
 		err = fmt.Errorf("expected codes: %v, got %d", sock.ExpectedHTTPCodes, resp.StatusCode)

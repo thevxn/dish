@@ -10,7 +10,6 @@ import (
 func TestNewAPISender(t *testing.T) {
 	mockHTTPClient := &SuccessStatusHTTPClient{}
 
-	url := "https://abc123.xyz.com"
 	headerName := "X-Api-Key"
 	headerValue := "abc123"
 	notifySuccess := false
@@ -18,7 +17,7 @@ func TestNewAPISender(t *testing.T) {
 
 	expected := &apiSender{
 		httpClient:    mockHTTPClient,
-		url:           url,
+		url:           pushgatewayURL,
 		headerName:    headerName,
 		headerValue:   headerValue,
 		notifySuccess: notifySuccess,
@@ -27,7 +26,7 @@ func TestNewAPISender(t *testing.T) {
 	}
 
 	cfg := &config.Config{
-		ApiURL:               url,
+		ApiURL:               pushgatewayURL,
 		ApiHeaderName:        headerName,
 		ApiHeaderValue:       headerValue,
 		MachineNotifySuccess: notifySuccess,
@@ -42,7 +41,6 @@ func TestNewAPISender(t *testing.T) {
 }
 
 func TestSend_API(t *testing.T) {
-	url := "https://abc123.xyz.com"
 	headerName := "X-Api-Key"
 	headerValue := "abc123"
 
@@ -65,7 +63,7 @@ func TestSend_API(t *testing.T) {
 
 	newConfig := func(headerName, headerValue string, notifySuccess, verbose bool) *config.Config {
 		return &config.Config{
-			ApiURL:               url,
+			ApiURL:               pushgatewayURL,
 			MachineNotifySuccess: notifySuccess,
 			Verbose:              verbose,
 			ApiHeaderName:        headerName,
