@@ -19,7 +19,7 @@ import (
 	"go.vxn.dev/dish/pkg/socket"
 )
 
-const agentVersion = "1.11"
+const agentVersion = "1.12"
 
 // RunSocketTest is intended to be invoked in a separate goroutine.
 // It runs a test for the given socket and sends the result through the given channel.
