@@ -24,9 +24,11 @@ const (
 	echoRequest ICMPType = 8
 )
 
-const ipStripHdr = 23
-const testID = 0x1234
-const testSeq = 0x0001
+const (
+	ipStripHdr = 23
+	testID     = 0x1234
+	testSeq    = 0x0001
+)
 
 type icmpRunner struct {
 	logger logger.Logger
