@@ -72,8 +72,7 @@ func LoadSocketList(reader io.ReadCloser) (list *SocketList, err error) {
 
 	list = new(SocketList)
 	if err = json.NewDecoder(reader).Decode(list); err != nil {
-		err = fmt.Errorf("error decoding sockets JSON: %w", err)
-		return
+                return fmt.Errorf("error decoding sockets JSON: %w", err)
 	}
 	return
 }
