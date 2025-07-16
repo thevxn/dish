@@ -33,15 +33,8 @@ const (
 	discordMessagesURL  = discordBaseURL + discordMessagesPath
 )
 
-func NewDiscordSender(
-	httpClient HTTPClient,
-	config *config.Config,
-	logger logger.Logger,
-) (ChatNotifier, error) {
-	parsedURL, err := parseAndValidateURL(
-		fmt.Sprintf(discordMessagesURL, strings.TrimSpace(config.DiscordChannelID)),
-		nil,
-	)
+func NewDiscordSender(httpClient HTTPClient, config *config.Config, logger logger.Logger) (ChatNotifier, error) {
+	parsedURL, err := parseAndValidateURL(fmt.Sprintf(discordMessagesURL, strings.TrimSpace(config.DiscordChannelID)), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -53,6 +46,7 @@ func NewDiscordSender(
 		notifySuccess: config.TextNotifySuccess,
 		url:           parsedURL.String(),
 	}, nil
+
 }
 
 func (s *discordSender) send(message string, failedCount int) error {
@@ -72,25 +66,17 @@ func (s *discordSender) send(message string, failedCount int) error {
 		return fmt.Errorf("error submitting discord alert: %w ", err)
 	}
 
-	resp, err := handleSubmit(
-		s.httpClient,
-		http.MethodPost,
-		s.url,
-		bytes.NewBuffer(body),
-		func(o *submitOptions) {
-			o.headers["Authorization"] = "Bot " + strings.TrimSpace(s.botToken)
-		},
-	)
+	resp, err := handleSubmit(s.httpClient, http.MethodPost, s.url, bytes.NewBuffer(body), func(o *submitOptions) {
+		o.headers["Authorization"] = "Bot " + strings.TrimSpace(s.botToken)
+	})
+
 	if err != nil {
 		return fmt.Errorf("error submitting discord alert: %w", err)
 	}
 
 	err = handleRead(resp, s.logger)
 	if err != nil {
-		return fmt.Errorf(
-			"error submitting discord alert: non-success status code: %d",
-			resp.StatusCode,
-		)
+		return fmt.Errorf("error submitting discord alert: non-success status code: %d", resp.StatusCode)
 	}
 
 	s.logger.Debug("discord message sent")

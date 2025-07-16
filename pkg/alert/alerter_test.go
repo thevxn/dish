@@ -7,7 +7,9 @@ import (
 )
 
 func TestNewAlerter(t *testing.T) {
-	mockLogger := MockLogger{}
+	var (
+		mockLogger = MockLogger{}
+	)
 
 	if alerterNil := NewAlerter(nil); alerterNil != nil {
 		t.Error("expected nil, got alerter")

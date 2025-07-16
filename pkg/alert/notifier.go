@@ -50,10 +50,7 @@ func NewNotifier(httpClient HTTPClient, config *config.Config, logger logger.Log
 
 	// Telegram
 	if config.TelegramBotToken != "" && config.TelegramChatID != "" {
-		notificationSenders = append(
-			notificationSenders,
-			NewTelegramSender(httpClient, config, logger),
-		)
+		notificationSenders = append(notificationSenders, NewTelegramSender(httpClient, config, logger))
 	}
 
 	// Set machine interface integrations to be notified (e.g. Webhooks)
@@ -134,9 +131,7 @@ func (n *notifier) SendMachineNotifications(m *Results, failedCount int) error {
 	var errs []error
 
 	if len(n.machineNotifiers) == 0 {
-		n.logger.Debug(
-			"no machine interface payload receivers configured, no notifications will be sent",
-		)
+		n.logger.Debug("no machine interface payload receivers configured, no notifications will be sent")
 
 		return nil
 	}

@@ -57,118 +57,38 @@ var ErrNoSourceProvided = errors.New("no source provided")
 func defineFlags(fs *flag.FlagSet, cfg *Config) {
 	// System flags
 	fs.StringVar(&cfg.InstanceName, "name", defaultInstanceName, "a string, dish instance name")
-	fs.UintVar(
-		&cfg.TimeoutSeconds,
-		"timeout",
-		defaultTimeoutSeconds,
-		"an int, timeout in seconds for http and tcp calls",
-	)
-	fs.BoolVar(
-		&cfg.Verbose,
-		"verbose",
-		defaultVerbose,
-		"a bool, console stdout logging toggle, output is colored unless disabled by NO_COLOR=true environment variable",
-	)
+	fs.UintVar(&cfg.TimeoutSeconds, "timeout", defaultTimeoutSeconds, "an int, timeout in seconds for http and tcp calls")
+	fs.BoolVar(&cfg.Verbose, "verbose", defaultVerbose, "a bool, console stdout logging toggle, output is colored unless disabled by NO_COLOR=true environment variable")
 
 	// Integration channels flags
 	//
 	// General:
-	fs.BoolVar(
-		&cfg.TextNotifySuccess,
-		"textNotifySuccess",
-		defaultTextNotifySuccess,
-		"a bool, specifies whether successful checks with no failures should be reported to text channels",
-	)
-	fs.BoolVar(
-		&cfg.MachineNotifySuccess,
-		"machineNotifySuccess",
-		defaultMachineNotifySuccess,
-		"a bool, specifies whether successful checks with no failures should be reported to machine channels",
-	)
+	fs.BoolVar(&cfg.TextNotifySuccess, "textNotifySuccess", defaultTextNotifySuccess, "a bool, specifies whether successful checks with no failures should be reported to text channels")
+	fs.BoolVar(&cfg.MachineNotifySuccess, "machineNotifySuccess", defaultMachineNotifySuccess, "a bool, specifies whether successful checks with no failures should be reported to machine channels")
 
 	// API socket source:
-	fs.StringVar(
-		&cfg.ApiHeaderName,
-		"hname",
-		defaultApiHeaderName,
-		"a string, name of a custom additional header to be used when fetching and pushing results to the remote API (used mainly for auth purposes)",
-	)
-	fs.StringVar(
-		&cfg.ApiHeaderValue,
-		"hvalue",
-		defaultApiHeaderValue,
-		"a string, value of the custom additional header to be used when fetching and pushing results to the remote API (used mainly for auth purposes)",
-	)
-	fs.BoolVar(
-		&cfg.ApiCacheSockets,
-		"cache",
-		defaultApiCacheSockets,
-		"a bool, specifies whether to cache the socket list fetched from the remote API source",
-	)
-	fs.StringVar(
-		&cfg.ApiCacheDirectory,
-		"cacheDir",
-		defaultApiCacheDir,
-		"a string, specifies the directory used to cache the socket list fetched from the remote API source",
-	)
-	fs.UintVar(
-		&cfg.ApiCacheTTLMinutes,
-		"cacheTTL",
-		defaultApiCacheTTLMinutes,
-		"an int, time duration (in minutes) for which the cached list of sockets is valid",
-	)
+	fs.StringVar(&cfg.ApiHeaderName, "hname", defaultApiHeaderName, "a string, name of a custom additional header to be used when fetching and pushing results to the remote API (used mainly for auth purposes)")
+	fs.StringVar(&cfg.ApiHeaderValue, "hvalue", defaultApiHeaderValue, "a string, value of the custom additional header to be used when fetching and pushing results to the remote API (used mainly for auth purposes)")
+	fs.BoolVar(&cfg.ApiCacheSockets, "cache", defaultApiCacheSockets, "a bool, specifies whether to cache the socket list fetched from the remote API source")
+	fs.StringVar(&cfg.ApiCacheDirectory, "cacheDir", defaultApiCacheDir, "a string, specifies the directory used to cache the socket list fetched from the remote API source")
+	fs.UintVar(&cfg.ApiCacheTTLMinutes, "cacheTTL", defaultApiCacheTTLMinutes, "an int, time duration (in minutes) for which the cached list of sockets is valid")
 
 	// Pushgateway:
-	fs.StringVar(
-		&cfg.PushgatewayURL,
-		"target",
-		defaultPushgatewayURL,
-		"a string, result update path/URL to pushgateway, plaintext/byte output",
-	)
+	fs.StringVar(&cfg.PushgatewayURL, "target", defaultPushgatewayURL, "a string, result update path/URL to pushgateway, plaintext/byte output")
 
 	// Telegram:
-	fs.StringVar(
-		&cfg.TelegramBotToken,
-		"telegramBotToken",
-		defaultTelegramBotToken,
-		"a string, Telegram bot private token",
-	)
-	fs.StringVar(
-		&cfg.TelegramChatID,
-		"telegramChatID",
-		defaultTelegramChatID,
-		"a string, Telegram chat/channel ID",
-	)
+	fs.StringVar(&cfg.TelegramBotToken, "telegramBotToken", defaultTelegramBotToken, "a string, Telegram bot private token")
+	fs.StringVar(&cfg.TelegramChatID, "telegramChatID", defaultTelegramChatID, "a string, Telegram chat/channel ID")
 
 	// API for pushing results:
-	fs.StringVar(
-		&cfg.ApiURL,
-		"updateURL",
-		defaultApiURL,
-		"a string, API endpoint URL for pushing results",
-	)
+	fs.StringVar(&cfg.ApiURL, "updateURL", defaultApiURL, "a string, API endpoint URL for pushing results")
 
 	// Webhooks:
-	fs.StringVar(
-		&cfg.WebhookURL,
-		"webhookURL",
-		defaultWebhookURL,
-		"a string, URL of webhook endpoint",
-	)
+	fs.StringVar(&cfg.WebhookURL, "webhookURL", defaultWebhookURL, "a string, URL of webhook endpoint")
 
 	// Discord:
-	fs.StringVar(
-		&cfg.DiscordBotToken,
-		"discordBotToken",
-		defaultDiscordBotToken,
-		"a string, Discord bot token",
-	)
-	fs.StringVar(
-		&cfg.DiscordChannelID,
-		"discordChannelId",
-		defaultDiscordChannelID,
-		"a string, Discord channel ID",
-	)
+	fs.StringVar(&cfg.DiscordBotToken, "discordBotToken", defaultDiscordBotToken, "a string, Discord bot token")
+	fs.StringVar(&cfg.DiscordChannelID, "discordChannelId", defaultDiscordChannelID, "a string, Discord channel ID")
 }
 
 // NewConfig returns a new instance of Config.
@@ -176,7 +96,7 @@ func defineFlags(fs *flag.FlagSet, cfg *Config) {
 // If a flag is used for a supported config parameter, the config parameter's value is set according to the provided flag. Otherwise, a default value is used for the given parameter.
 func NewConfig(fs *flag.FlagSet, args []string) (*Config, error) {
 	if fs == nil {
-		// fs = flag.CommandLine
+		//fs = flag.CommandLine
 		return nil, fmt.Errorf("flagset argument cannot be nil")
 	}
 

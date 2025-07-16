@@ -30,11 +30,7 @@ func parseAndValidateURL(rawURL string, supportedSchemes []string) (*url.URL, er
 		return nil, fmt.Errorf("protocol must be specified in the provided URL (e.g. https://...)")
 
 	case !slices.Contains(supportedSchemes, parsedURL.Scheme):
-		return nil, fmt.Errorf(
-			"unsupported protocol provided in URL: %s (supported protocols: %v)",
-			parsedURL.Scheme,
-			supportedSchemes,
-		)
+		return nil, fmt.Errorf("unsupported protocol provided in URL: %s (supported protocols: %v)", parsedURL.Scheme, supportedSchemes)
 
 	case parsedURL.Host == "":
 		return nil, fmt.Errorf("URL must contain a host")

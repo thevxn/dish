@@ -23,11 +23,7 @@ type telegramSender struct {
 	logger        logger.Logger
 }
 
-func NewTelegramSender(
-	httpClient HTTPClient,
-	config *config.Config,
-	logger logger.Logger,
-) *telegramSender {
+func NewTelegramSender(httpClient HTTPClient, config *config.Config, logger logger.Logger) *telegramSender {
 	return &telegramSender{
 		httpClient:    httpClient,
 		chatID:        config.TelegramChatID,

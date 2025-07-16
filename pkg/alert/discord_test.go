@@ -157,11 +157,7 @@ func TestSend_Discord(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sender, _ := NewDiscordSender(
-				tt.client,
-				newConfig("test", "-123", tt.notifySuccess),
-				&MockLogger{},
-			)
+			sender, _ := NewDiscordSender(tt.client, newConfig("test", "-123", tt.notifySuccess), &MockLogger{})
 			err := sender.send(tt.rawMessage, tt.failedCount)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("send() error = %v, wantErr %v", err, tt.wantErr)

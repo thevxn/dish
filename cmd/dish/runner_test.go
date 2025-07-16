@@ -28,6 +28,7 @@ func compareResults(expected, actual []socket.Result) bool {
 }
 
 func TestFanInChannels(t *testing.T) {
+
 	testChannels := []chan socket.Result{}
 
 	for range 3 {

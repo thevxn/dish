@@ -27,11 +27,7 @@ func (c *SuccessStatusHTTPClient) Get(url string) (*http.Response, error) {
 	}, nil
 }
 
-func (c *SuccessStatusHTTPClient) Post(
-	url string,
-	contentType string,
-	body io.Reader,
-) (*http.Response, error) {
+func (c *SuccessStatusHTTPClient) Post(url string, contentType string, body io.Reader) (*http.Response, error) {
 	return &http.Response{
 		StatusCode: 200,
 		Body:       io.NopCloser(strings.NewReader("mocked Post response")),
@@ -61,10 +57,7 @@ func (e *ErrorStatusHTTPClient) Get(url string) (*http.Response, error) {
 	}, nil
 }
 
-func (e *ErrorStatusHTTPClient) Post(
-	url, contentType string,
-	body io.Reader,
-) (*http.Response, error) {
+func (e *ErrorStatusHTTPClient) Post(url, contentType string, body io.Reader) (*http.Response, error) {
 	return &http.Response{
 		StatusCode: 500,
 		Body:       io.NopCloser(strings.NewReader(internalServerErrorResponse)),
@@ -114,10 +107,7 @@ func (i *InvalidResponseBodyHTTPClient) Get(url string) (*http.Response, error) 
 	}, nil
 }
 
-func (i *InvalidResponseBodyHTTPClient) Post(
-	url, contentType string,
-	body io.Reader,
-) (*http.Response, error) {
+func (i *InvalidResponseBodyHTTPClient) Post(url, contentType string, body io.Reader) (*http.Response, error) {
 	return &http.Response{
 		StatusCode: 500,
 		Body:       &InvalidBodyReadCloser{},

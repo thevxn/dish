@@ -15,9 +15,12 @@ linters:
     - ineffassign # Detects when assignments to existing variables are not used. [fast]
     - staticcheck # It's a set of rules from staticcheck. It's not the same thing as the staticcheck binary. The author of staticcheck doesn't support or approve the use of staticcheck as a library inside golangci-lint. [auto-fix]
     - unused # Checks Go code for unused constants, variables, functions and types.
+
     # Subective additional linters
-    - gocyclo # or "cyclop", # Detect cyclomatic complexity
+    - goclyco # or "cyclop", # Detect cyclomatic complexity
     - goconst # Detect repeated values that can be made constants
+    - gofumpt # Or "gofmt", # Enforce standard formatting
+    - goimports # Ensure standard import formatting/ordering
     - misspell # Fix spelling errors
     - unconvert # Detect unnecessary type conversions
     - unparam # Detect unused function parameters

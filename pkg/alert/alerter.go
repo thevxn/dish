@@ -27,12 +27,7 @@ func NewAlerter(l logger.Logger) *alerter {
 }
 
 // HandleAlerts notifies all configured channels with either the provided message (if text channel) or the structured results (if machine channel).
-func (a *alerter) HandleAlerts(
-	messengerText string,
-	results *Results,
-	failedCount int,
-	config *config.Config,
-) {
+func (a *alerter) HandleAlerts(messengerText string, results *Results, failedCount int, config *config.Config) {
 	if results == nil || config == nil {
 		return
 	}

@@ -47,12 +47,7 @@ type Socket struct {
 func PrintSockets(list *SocketList, logger logger.Logger) {
 	logger.Debug("loaded sockets:")
 	for _, socket := range list.Sockets {
-		logger.Debugf(
-			"Host: %s, Port: %d, ExpectedHTTPCodes: %v",
-			socket.Host,
-			socket.Port,
-			socket.ExpectedHTTPCodes,
-		)
+		logger.Debugf("Host: %s, Port: %d, ExpectedHTTPCodes: %v", socket.Host, socket.Port, socket.ExpectedHTTPCodes)
 	}
 }
 

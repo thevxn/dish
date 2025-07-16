@@ -14,13 +14,7 @@ import (
 func TestPrintSockets(t *testing.T) {
 	list := &SocketList{
 		Sockets: []Socket{
-			{
-				ID:                "1",
-				Name:              "socket",
-				Host:              "example.com",
-				Port:              80,
-				ExpectedHTTPCodes: []int{200, 404},
-			},
+			{ID: "1", Name: "socket", Host: "example.com", Port: 80, ExpectedHTTPCodes: []int{200, 404}},
 		},
 	}
 

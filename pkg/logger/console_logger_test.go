@@ -68,6 +68,7 @@ func TestNewConsoleLogger(t *testing.T) {
 		if actual != expected {
 			t.Fatalf("expected %s, got %s", expected, actual)
 		}
+
 	})
 
 	t.Run("with colors when verbose and no env set", func(t *testing.T) {

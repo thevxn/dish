@@ -18,11 +18,7 @@ type webhookSender struct {
 	logger        logger.Logger
 }
 
-func NewWebhookSender(
-	httpClient HTTPClient,
-	config *config.Config,
-	logger logger.Logger,
-) (*webhookSender, error) {
+func NewWebhookSender(httpClient HTTPClient, config *config.Config, logger logger.Logger) (*webhookSender, error) {
 	parsedURL, err := parseAndValidateURL(config.WebhookURL, nil)
 	if err != nil {
 		return nil, err
