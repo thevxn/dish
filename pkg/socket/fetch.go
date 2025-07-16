@@ -39,7 +39,6 @@ func (f *fetchHandler) fetchSocketsFromFile(config *config.Config) (io.ReadClose
 
 // copyBody copies the provided response body to the provided buffer. The body is closed.
 func (f *fetchHandler) copyBody(body io.ReadCloser, buf *bytes.Buffer) (err error) {
-
 	defer func() {
 		if cerr := body.Close(); cerr != nil {
 			cerr = fmt.Errorf("close error: %w", cerr)
