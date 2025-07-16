@@ -4,6 +4,7 @@ package socket
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 
@@ -60,22 +61,18 @@ func LoadSocketList(reader io.ReadCloser) (list *SocketList, err error) {
 	// defer a closure that appends a Close() error to the returned err
 	defer func() {
 		if cerr := reader.Close(); cerr != nil {
-			if err != nil {
-				// wrap both decode error and close error
-				err = fmt.Errorf("%v; failed to close reader: %w", err, cerr)
-			} else {
-				// only a close error occurred
-				err = fmt.Errorf("failed to close reader: %w", cerr)
-			}
+			cerr = fmt.Errorf("close error: %w", cerr)
+			err = errors.Join(cerr, err)
 		}
 	}()
 
 	list = new(SocketList)
 	if err = json.NewDecoder(reader).Decode(list); err != nil {
 		err = fmt.Errorf("error decoding sockets JSON: %w", err)
-		return
+		return nil, err
 	}
-	return
+
+	return list, nil
 }
 
 // FetchSocketList fetches the list of sockets to be checked. 'input' should be a string like '/path/filename.json', or an HTTP URL string.

@@ -2,6 +2,7 @@ package socket
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -37,21 +38,17 @@ func (f *fetchHandler) fetchSocketsFromFile(config *config.Config) (io.ReadClose
 }
 
 // copyBody copies the provided response body to the provided buffer. The body is closed.
-func (f *fetchHandler) copyBody(body io.ReadCloser, buf *bytes.Buffer) error {
-	var readErr error
+func (f *fetchHandler) copyBody(body io.ReadCloser, buf *bytes.Buffer) (err error) {
+
 	defer func() {
 		if cerr := body.Close(); cerr != nil {
-			if readErr != nil {
-				// preserve both errors
-				readErr = fmt.Errorf("read error: %w; close error: %v", readErr, cerr)
-			} else {
-				readErr = fmt.Errorf("close error: %v", cerr)
-			}
+			cerr = fmt.Errorf("close error: %w", cerr)
+			err = errors.Join(cerr, err)
 		}
 	}()
 
-	_, readErr = buf.ReadFrom(body)
-	return readErr
+	_, err = buf.ReadFrom(body)
+	return err
 }
 
 // fetchSocketsFromRemote loads the sockets to be monitored from a remote RESTful API endpoint. It returns the response body implementing [io.ReadCloser] for reading from and closing the stream.

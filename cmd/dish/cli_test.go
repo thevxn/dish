@@ -10,7 +10,11 @@ import (
 
 func TestPrintHelp(t *testing.T) {
 	oldStdout := os.Stdout
-	r, w, _ := os.Pipe()
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Errorf("failed to process pipe: %v", err)
+	}
+
 	os.Stdout = w
 
 	printHelp()
@@ -22,7 +26,7 @@ func TestPrintHelp(t *testing.T) {
 	os.Stdout = oldStdout
 
 	var buf bytes.Buffer
-	_, err := io.Copy(&buf, r)
+	_, err = io.Copy(&buf, r)
 	if err != nil {
 		t.Fatalf("failed to read from pipe: %v", err)
 	}

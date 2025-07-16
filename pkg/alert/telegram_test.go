@@ -7,12 +7,11 @@ import (
 	"go.vxn.dev/dish/pkg/config"
 )
 
-const token string = "abc123"
-
 func TestNewTelegramSender(t *testing.T) {
 	mockHTTPClient := &SuccessStatusHTTPClient{}
 	mockLogger := &MockLogger{}
 
+	token := "abc123"
 	chatID := "-123"
 	verbose := false
 	notifySuccess := false

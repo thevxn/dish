@@ -6,7 +6,6 @@ issues:
 formatters:
   enable:
     - goimports # checks if the code and import statements are formatted according to the 'goimports' command
-    - golines # checks if code is formatted, and fixes long lines
     - gofumpt # Or "gofmt", # Enforce standard formatting
 
 linters:
