@@ -11,8 +11,8 @@ func TestNewTelegramSender(t *testing.T) {
 	mockHTTPClient := &SuccessStatusHTTPClient{}
 	mockLogger := &MockLogger{}
 
-	chatID := "-123"
 	token := "abc123"
+	chatID := "-123"
 	verbose := false
 	notifySuccess := false
 

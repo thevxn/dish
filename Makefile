@@ -70,7 +70,7 @@ endef
 
 all: info
 
-.PHONY: build local_build logs major minor patch push run stop test version
+.PHONY: build local_build logs major minor patch push run stop test version lint lint-fix format
 info: 
 	@echo -e "\n${GREEN} ${PROJECT_NAME} / Makefile ${RESET}\n"
 
@@ -115,6 +115,25 @@ push:
 	@git tag -fa 'v${APP_VERSION}' -m 'v${APP_VERSION}'
 	@git push --follow-tags --set-upstream origin master
 
+format:
+	@echo "\n>>> Formating code with golangci-lint…"
+	@golangci-lint fmt \
+		--config .golangci.yaml \
+		./...
+
+lint:
+	@echo "\n>>> Running golangci-lint…"
+	@golangci-lint run \
+		--config .golangci.yaml \
+		--timeout 2m \
+		./...
+
+lint-fix:
+	@echo "\n>>> Auto-fixing with golangci-lint…"
+	@golangci-lint run --fix \
+		--config .golangci.yaml \
+		--timeout 2m \
+		./...
 
 MAJOR := $(shell echo ${APP_VERSION} | cut -d. -f1)
 MINOR := $(shell echo ${APP_VERSION} | cut -d. -f2)

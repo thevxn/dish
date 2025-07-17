@@ -74,7 +74,11 @@ func handleSubmit(client HTTPClient, method string, url string, body io.Reader, 
 
 // handleRead reads an HTTP response, ensures the status code is within the expected <200, 299> range and if not, logs the response body.
 func handleRead(res *http.Response, logger logger.Logger) error {
-	defer res.Body.Close()
+	defer func() {
+		if err := res.Body.Close(); err != nil {
+			logger.Errorf("failed to close response body: %v", err)
+		}
+	}()
 
 	if res.StatusCode < http.StatusOK || res.StatusCode >= http.StatusMultipleChoices {
 		body, err := io.ReadAll(res.Body)

@@ -7,18 +7,19 @@ import (
 	"go.vxn.dev/dish/pkg/config"
 )
 
+const pushgatewayURL = "https://abc123.xyz.com"
+
 func TestNewPushgatewaySender(t *testing.T) {
 	mockHTTPClient := &SuccessStatusHTTPClient{}
 	mockLogger := &MockLogger{}
 
-	url := "https://abc123.xyz.com"
 	instanceName := "test-instance"
 	verbose := false
 	notifySuccess := false
 
 	expected := &pushgatewaySender{
 		httpClient:    mockHTTPClient,
-		url:           url,
+		url:           pushgatewayURL,
 		instanceName:  "test-instance",
 		notifySuccess: notifySuccess,
 		verbose:       verbose,
@@ -27,7 +28,7 @@ func TestNewPushgatewaySender(t *testing.T) {
 	}
 
 	cfg := &config.Config{
-		PushgatewayURL:       url,
+		PushgatewayURL:       pushgatewayURL,
 		InstanceName:         instanceName,
 		Verbose:              verbose,
 		MachineNotifySuccess: notifySuccess,
@@ -60,7 +61,6 @@ func TestNewPushgatewaySender(t *testing.T) {
 }
 
 func TestSend_Pushgateway(t *testing.T) {
-	url := "https://abc123.xyz.com"
 	instanceName := "test-instance"
 
 	successResults := Results{
@@ -213,7 +213,7 @@ func TestSend_Pushgateway(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cfg := newConfig(url, tt.instanceName, tt.notifySuccess, tt.verbose)
+			cfg := newConfig(pushgatewayURL, tt.instanceName, tt.notifySuccess, tt.verbose)
 			sender, err := NewPushgatewaySender(tt.client, cfg, &MockLogger{})
 			if err != nil {
 				t.Fatalf("failed to create Pushgateway sender instance: %v", err)
@@ -229,7 +229,7 @@ func TestSend_Pushgateway(t *testing.T) {
 
 func TestCreateMessage(t *testing.T) {
 	cfg := &config.Config{
-		PushgatewayURL:       "https://abc123.xyz.com",
+		PushgatewayURL:       pushgatewayURL,
 		InstanceName:         "test-instance",
 		MachineNotifySuccess: false,
 		Verbose:              false,

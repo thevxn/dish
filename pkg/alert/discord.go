@@ -46,7 +46,6 @@ func NewDiscordSender(httpClient HTTPClient, config *config.Config, logger logge
 		notifySuccess: config.TextNotifySuccess,
 		url:           parsedURL.String(),
 	}, nil
-
 }
 
 func (s *discordSender) send(message string, failedCount int) error {
@@ -69,7 +68,6 @@ func (s *discordSender) send(message string, failedCount int) error {
 	resp, err := handleSubmit(s.httpClient, http.MethodPost, s.url, bytes.NewBuffer(body), func(o *submitOptions) {
 		o.headers["Authorization"] = "Bot " + strings.TrimSpace(s.botToken)
 	})
-
 	if err != nil {
 		return fmt.Errorf("error submitting discord alert: %w", err)
 	}

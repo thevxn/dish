@@ -4,6 +4,7 @@ package socket
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 
@@ -51,12 +52,19 @@ func PrintSockets(list *SocketList, logger logger.Logger) {
 }
 
 // LoadSocketList decodes a JSON encoded SocketList from the provided io.ReadCloser.
-func LoadSocketList(reader io.ReadCloser) (*SocketList, error) {
-	defer reader.Close()
+func LoadSocketList(reader io.ReadCloser) (list *SocketList, err error) {
+	// defer a closure that appends a Close() error to the returned err
+	defer func() {
+		if cerr := reader.Close(); cerr != nil {
+			cerr = fmt.Errorf("close error: %w", cerr)
+			err = errors.Join(cerr, err)
+		}
+	}()
 
-	list := new(SocketList)
-	if err := json.NewDecoder(reader).Decode(list); err != nil {
-		return nil, fmt.Errorf("error decoding sockets json: %w", err)
+	list = new(SocketList)
+	if err = json.NewDecoder(reader).Decode(list); err != nil {
+		err = fmt.Errorf("error decoding sockets JSON: %w", err)
+		return nil, err
 	}
 
 	return list, nil

@@ -1,0 +1,24 @@
+version: "2"
+
+issues:
+  max-same-issues: 50
+
+formatters:
+  enable:
+    - goimports # checks if the code and import statements are formatted according to the 'goimports' command
+    - gofumpt # Or "gofmt", # Enforce standard formatting
+
+linters:
+  enable:
+    - errcheck #Errcheck is a program for checking for unchecked errors in Go code. These unchecked errors can be critical bugs in some cases.
+    - govet # Vet examines Go source code and reports suspicious constructs. It is roughly the same as 'go vet' and uses its passes. [auto-fix]
+    - ineffassign # Detects when assignments to existing variables are not used. [fast]
+    - staticcheck # It's a set of rules from staticcheck. It's not the same thing as the staticcheck binary. The author of staticcheck doesn't support or approve the use of staticcheck as a library inside golangci-lint. [auto-fix]
+    - unused # Checks Go code for unused constants, variables, functions and types.
+    # Subective additional linters
+    - gocyclo # or "cyclop", # Detect cyclomatic complexity
+    - goconst # Detect repeated values that can be made constants
+    - misspell # Fix spelling errors
+    - unconvert # Detect unnecessary type conversions
+    - unparam # Detect unused function parameters
+    - dupword # Detect duplicate words in comments and string literals (e.g. “the the”, “is is”)

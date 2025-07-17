@@ -24,9 +24,11 @@ const (
 	echoRequest ICMPType = 8
 )
 
-const ipStripHdr = 23
-const testID = 0x1234
-const testSeq = 0x0001
+const (
+	ipStripHdr = 23
+	testID     = 0x1234
+	testSeq    = 0x0001
+)
 
 type icmpRunner struct {
 	logger logger.Logger
@@ -64,7 +66,15 @@ func (runner *icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socke
 	if err != nil {
 		return socket.Result{Socket: sock, Error: fmt.Errorf("failed to create a non-privileged icmp socket: %w", err)}
 	}
-	defer syscall.Close(sysSocket)
+
+	defer func() {
+		if cerr := syscall.Close(sysSocket); cerr != nil {
+			runner.logger.Errorf(
+				"error closing ICMP socket (fd %d) for %s:%d: %v",
+				sysSocket, sock.Host, sock.Port, cerr,
+			)
+		}
+	}()
 
 	if runtime.GOOS == "darwin" {
 		if err := syscall.SetsockoptInt(sysSocket, syscall.IPPROTO_IP, ipStripHdr, 1); err != nil {

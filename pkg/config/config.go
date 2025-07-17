@@ -96,7 +96,7 @@ func defineFlags(fs *flag.FlagSet, cfg *Config) {
 // If a flag is used for a supported config parameter, the config parameter's value is set according to the provided flag. Otherwise, a default value is used for the given parameter.
 func NewConfig(fs *flag.FlagSet, args []string) (*Config, error) {
 	if fs == nil {
-		//fs = flag.CommandLine
+		// fs = flag.CommandLine
 		return nil, fmt.Errorf("flagset argument cannot be nil")
 	}
 
