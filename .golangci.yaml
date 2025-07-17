@@ -16,7 +16,7 @@ linters:
     - staticcheck # It's a set of rules from staticcheck. It's not the same thing as the staticcheck binary. The author of staticcheck doesn't support or approve the use of staticcheck as a library inside golangci-lint. [auto-fix]
     - unused # Checks Go code for unused constants, variables, functions and types.
     # Subective additional linters
-    - goclyco # or "cyclop", # Detect cyclomatic complexity
+    - gocyclo # or "cyclop", # Detect cyclomatic complexity
     - goconst # Detect repeated values that can be made constants
     - misspell # Fix spelling errors
     - unconvert # Detect unnecessary type conversions
