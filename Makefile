@@ -165,3 +165,17 @@ binaries:
 	@gzip dish-${LATEST_TAG}.macos-arm64
 	@GOARCH=amd64 GOOS=darwin go build -o dish-${LATEST_TAG}.macos-x86_64 ${MAIN_PATH}
 	@gzip dish-${LATEST_TAG}.macos-x86_64
+
+ifeq (${SONAR_HOST_URL}${SONAR_TOKEN},)
+sonar_check:
+else
+sonar_check:
+	$(call print_info, Starting the sonarqube code analysis...)
+	@docker run --rm \
+		--dns ${DNS_NAMESERVER} \
+		-e SONAR_HOST_URL="${SONAR_HOST_URL}" \
+		-e SONAR_TOKEN="${SONAR_TOKEN}" \
+		-v ".:/usr/src" \
+		sonarsource/sonar-scanner-cli
+endif
+

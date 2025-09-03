@@ -1,0 +1,35 @@
+workflow:
+  rules: 
+    - when: always
+
+stages:         
+  - test
+
+
+#
+#  stage test
+#
+
+combined-coverage-sonarqube-check:
+  stage: test
+  allow_failure: true
+  script:
+    - go clean -testcache
+    - go test -v -coverprofile ./coverage.profile ./... && go tool cover -func ./coverage.profile
+    - make sonar_check
+
+go-test:
+  stage: test
+  environment: 
+    name: test
+  script:
+    - make test
+
+go-lint:
+  stage: test
+  environment:
+    name: test
+  script:
+    - make lint
+    - make lint-fix
+
