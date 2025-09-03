@@ -15,5 +15,3 @@ cover.*
 coverage.out
 *.cov
 
-# sonarqube props
-sonar-project.properties
