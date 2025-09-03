@@ -116,20 +116,20 @@ push:
 	@git push --follow-tags --set-upstream origin master
 
 format:
-	@echo "\n>>> Formating code with golangci-lint…"
+	@echo -e "\nFormating code with golangci-lint..."
 	@golangci-lint fmt \
 		--config .golangci.yaml \
 		./...
 
 lint:
-	@echo "\n>>> Running golangci-lint…"
+	@echo -e "\nRunning golangci-lint..."
 	@golangci-lint run \
 		--config .golangci.yaml \
 		--timeout 2m \
 		./...
 
 lint-fix:
-	@echo "\n>>> Auto-fixing with golangci-lint…"
+	@echo -e "\nAuto-fixing with golangci-lint..."
 	@golangci-lint run --fix \
 		--config .golangci.yaml \
 		--timeout 2m \
