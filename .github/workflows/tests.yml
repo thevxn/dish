@@ -4,58 +4,69 @@ name: Tests
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
-  workflow_dispatch: 
+    branches: ["master"]
+  workflow_dispatch:
 
 jobs:
+  lint:
+    runs-on: ${{ vars.TEST_RUNNER_LABEL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint
+        run: make lint
+
   linux_x64:
     runs-on: ubuntu-latest
+    needs: lint
     steps:
       - uses: actions/checkout@v4
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: "1.24"
       - name: Build
         run: go build -v ./cmd/...
       - name: Test
         # Github Actions cloud runners block any incoming ICMP packets.
         # ICMP on Linux is tested on the self-hosted cloud runner.
         run: go test -v ./... -skip 'TestIcmpRunner_RunTest'
-        
+
   windows_x64:
     runs-on: windows-2025
+    needs: lint
     steps:
       - uses: actions/checkout@v4
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: "1.24"
       - name: Build
         run: go build -v ./cmd/...
       - name: Test
         # dish does not support ICMP on Windows at the moment
         run: go test -v ./... -skip 'TestIcmpRunner_RunTest'
-        
+
   linux_arm64:
     runs-on: ubuntu-24.04-arm
+    needs: lint
     steps:
       - uses: actions/checkout@v4
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: "1.24"
       - name: Build
         run: go build -v ./cmd/...
       - name: Test
-        # Github Actions cloud runners block any incoming ICMP packets. 
+        # Github Actions cloud runners block any incoming ICMP packets.
         # ICMP on Linux is tested on the self-hosted cloud runner.
         run: go test -v ./... -skip 'TestIcmpRunner_RunTest'
 
   # windows_arm64:
   #   runs-on: windows-11-arm
+  #   needs: lint
   #   steps:
   #     - uses: actions/checkout@v4
   #     - name: Set up Go
@@ -70,17 +81,18 @@ jobs:
 
   macOS_intel:
     runs-on: macos-13
+    needs: lint
     steps:
       - uses: actions/checkout@v4
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: "1.24"
       - name: Build
         run: go build -v ./cmd/...
       - name: Test
-      # On macOS cloud runners we test ICMP against the loopback address only.
-        run: go test -v ./... 
+        # On macOS cloud runners we test ICMP against the loopback address only.
+        run: go test -v ./...
 
   macOS_arm64:
     runs-on: macos-latest
@@ -89,19 +101,19 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: "1.24"
       - name: Build
         run: go build -v ./cmd/...
       - name: Test
-      # On macOS cloud runners we test ICMP against the loopback address only.
+        # On macOS cloud runners we test ICMP against the loopback address only.
         run: go test -v ./...
-    
+
   # Self-hosted runner mainly intended for running ICMP integration tests which cannot be run in the GH runners due to incoming traffic being blocked
   self-hosted:
     runs-on: ${{ vars.TEST_RUNNER_LABEL }}
     steps:
-    - uses: actions/checkout@v4
-    - name: Run tests in a container
-      env:
-        PROJECT_NAME: dish
-      run: make docker-test
+      - uses: actions/checkout@v4
+      - name: Run tests in a container
+        env:
+          PROJECT_NAME: dish
+        run: make docker-test
