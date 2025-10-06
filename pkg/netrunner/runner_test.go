@@ -18,9 +18,11 @@ import (
 	"go.vxn.dev/dish/pkg/socket"
 )
 
+const osWindows = "windows"
+
 // TestChecksum tests the checksum calculation function
 func TestChecksum(t *testing.T) {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == osWindows {
 		expected := 0
 		actual := checksum([]byte{})
 
@@ -84,7 +86,7 @@ func TestChecksum(t *testing.T) {
 
 // TestIcmpRunner_RunTest_InputValidation tests input validation edge cases
 func TestIcmpRunner_RunTest_InputValidation(t *testing.T) {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == osWindows {
 		t.Skip("ICMP tests are skipped on Windows")
 	}
 
@@ -150,7 +152,7 @@ func TestIcmpRunner_RunTest_InputValidation(t *testing.T) {
 
 // TestIcmpRunner_RunTest_IPv4AddressFormats tests various IPv4 address formats
 func TestIcmpRunner_RunTest_IPv4AddressFormats(t *testing.T) {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == osWindows {
 		t.Skip("ICMP tests are skipped on Windows")
 	}
 
@@ -219,7 +221,7 @@ func TestIcmpRunner_RunTest_IPv4AddressFormats(t *testing.T) {
 
 // TestIcmpRunner_RunTest_DNSResolutionEdgeCases tests DNS resolution edge cases
 func TestIcmpRunner_RunTest_DNSResolutionEdgeCases(t *testing.T) {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == osWindows {
 		t.Skip("ICMP tests are skipped on Windows")
 	}
 
@@ -565,7 +567,7 @@ func TestHttpRunner_RunTest(t *testing.T) {
 // external public servers.
 // This test is common for all OS implementations except for Windows which is not supported.
 func TestIcmpRunner_RunTest(t *testing.T) {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == osWindows {
 		t.Skip("ICMP tests are skipped on Windows")
 	}
 
@@ -731,7 +733,7 @@ func TestIcmpRunner_RunTest(t *testing.T) {
 }
 
 func TestIcmpRunner_RunTest_Windows(t *testing.T) {
-	if runtime.GOOS != "windows" {
+	if runtime.GOOS != osWindows {
 		t.Skip()
 	}
 
