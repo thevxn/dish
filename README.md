@@ -161,13 +161,15 @@ export PATH=$PATH:~/go/bin
 
 # Load sockets from sockets.json file, and use Telegram 
 # provider for alerting
-dish -telegramChatID "-123456789" \
+dish \
+ -telegramChatID "-123456789" \
  -telegramBotToken "123:AAAbcD_ef" \
  sockets.json
 
 # Use remote JSON API service as socket source, and push
 # the results to Pushgateway
-dish -target https://pushgw.example.com/ \
+dish \
+ -target https://pushgw.example.com/ \
  https://api.example.com/dish/sockets
 ```
 
