@@ -15,6 +15,8 @@ const (
 	PANIC
 )
 
+const colorReset = "\033[0m"
+
 const logPrefixFormat = "%s[ %s ]%s: "
 
 var logColors = map[logLevel]string{
@@ -39,20 +41,20 @@ func (l logLevel) Color() string {
 	if color, exists := logColors[l]; exists {
 		return color
 	}
-	return "\033[0m" // Default color (reset)
+
+	return colorReset // Default color (reset)
 }
 
 func (l logLevel) Prefix(withColor bool) string {
 	label, labelExists := logLabel[l]
 
 	if !labelExists {
-		return "[ UNKNOWN ]: "
+		return "[ UNKNOWN ]: " //nolint:goconst
 	}
 
 	colorStart, colorReset := "", ""
 	if withColor {
 		colorStart = l.Color()
-		colorReset = "\033[0m"
 	}
 
 	return fmt.Sprintf(logPrefixFormat, colorStart, label, colorReset)

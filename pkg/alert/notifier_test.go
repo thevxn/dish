@@ -44,7 +44,6 @@ func TestNewNotifier_Nil(t *testing.T) {
 	if err != nil {
 		t.Errorf("expected nil, got %v", err)
 	}
-
 }
 
 func TestNewNotifier_Telegram(t *testing.T) {
