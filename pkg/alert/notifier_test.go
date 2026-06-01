@@ -2,7 +2,6 @@ package alert
 
 import (
 	"flag"
-	"fmt"
 	"testing"
 
 	"go.vxn.dev/dish/pkg/config"
@@ -21,25 +20,31 @@ func TestNewNotifier_Nil(t *testing.T) {
 
 	configDefault, _ := config.NewConfig(flag.NewFlagSet("test", flag.ContinueOnError), []string{""})
 
-	if notifier := NewNotifier(nil, nil, nil); notifier != nil {
-		t.Error("unexpected behaviour, should be nil")
+	_, err := NewNotifier(nil, nil, nil)
+	if err == nil {
+		t.Error("expected error, got nil")
 	}
 
-	if notifier := NewNotifier(nil, configBlank, nil); notifier != nil {
-		t.Error("unexpected behaviour, should be nil")
+	_, err = NewNotifier(nil, configBlank, nil)
+	if err == nil {
+		t.Error("expected error, got nil")
 	}
 
-	if notifier := NewNotifier(&successStatusHTTPClient, configBlank, nil); notifier != nil {
-		t.Error("expected nil, got notifier (nil logger)")
+	_, err = NewNotifier(&successStatusHTTPClient, configBlank, nil)
+	if err == nil {
+		t.Error("expected error, got nil")
 	}
 
-	if notifier := NewNotifier(&successStatusHTTPClient, nil, mockLogger); notifier != nil {
-		t.Error("expected nil, got notifier (nil config)")
+	_, err = NewNotifier(&successStatusHTTPClient, nil, mockLogger)
+	if err == nil {
+		t.Error("expected error, got nil")
 	}
 
-	if notifier := NewNotifier(&successStatusHTTPClient, configDefault, mockLogger); notifier == nil {
-		t.Error("unexpected nil on output")
+	_, err = NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
+	if err != nil {
+		t.Errorf("expected nil, got %v", err)
 	}
+
 }
 
 func TestNewNotifier_Telegram(t *testing.T) {
@@ -52,9 +57,9 @@ func TestNewNotifier_Telegram(t *testing.T) {
 	configDefault.TelegramBotToken = "abc:2025062700"
 	configDefault.TelegramChatID = "-10987654321"
 
-	notifierTelegram := NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
-	if notifierTelegram == nil {
-		t.Fatal("unexpected nil on output (Telegram*)")
+	notifierTelegram, err := NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
+	if err != nil {
+		t.Fatalf("expected err to be nil, got %v", err)
 	}
 
 	if notifiersLen := len(notifierTelegram.chatNotifiers); notifiersLen == 0 {
@@ -71,9 +76,9 @@ func TestNewNotifier_API(t *testing.T) {
 	configDefault, _ := config.NewConfig(flag.NewFlagSet("test", flag.ContinueOnError), []string{""})
 	configDefault.ApiURL = "https://api.example.com/?test=true"
 
-	notifierAPI := NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
-	if notifierAPI == nil {
-		t.Fatal("unexpected nil on output (ApiURL)")
+	notifierAPI, err := NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
+	if err != nil {
+		t.Fatalf("expected err to be nil, got %v", err)
 	}
 
 	if len(notifierAPI.machineNotifiers) != 1 {
@@ -82,9 +87,9 @@ func TestNewNotifier_API(t *testing.T) {
 
 	configDefault.ApiURL = badURL
 
-	notifierAPI = NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
-	if notifierAPI == nil {
-		t.Fatal("unexpected nil on output (ApiURL)")
+	notifierAPI, err = NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
+	if err != nil {
+		t.Fatalf("expected err to be nil, got %v", err)
 	}
 
 	if len(notifierAPI.machineNotifiers) != 0 {
@@ -101,9 +106,9 @@ func TestNewNotifier_Webhook(t *testing.T) {
 	configDefault, _ := config.NewConfig(flag.NewFlagSet("test", flag.ContinueOnError), []string{""})
 	configDefault.WebhookURL = "https://www.example.com/hooks/test-hook"
 
-	notifierWebhook := NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
-	if notifierWebhook == nil {
-		t.Fatal("unexpected nil on output (Webhooks)")
+	notifierWebhook, err := NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
+	if err != nil {
+		t.Fatalf("expected err to be nil, got %v", err)
 	}
 
 	if len(notifierWebhook.machineNotifiers) != 1 {
@@ -112,9 +117,9 @@ func TestNewNotifier_Webhook(t *testing.T) {
 
 	configDefault.WebhookURL = badURL
 
-	notifierWebhook = NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
-	if notifierWebhook == nil {
-		t.Fatal("unexpected nil on output (Webhooks)")
+	notifierWebhook, err = NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
+	if err != nil {
+		t.Fatalf("expected err to be nil, got %v", err)
 	}
 
 	if len(notifierWebhook.machineNotifiers) != 0 {
@@ -122,7 +127,7 @@ func TestNewNotifier_Webhook(t *testing.T) {
 	}
 }
 
-func TestNewNotifier_Pushgateawy(t *testing.T) {
+func TestNewNotifier_Pushgateway(t *testing.T) {
 	var (
 		mockLogger              = &MockLogger{}
 		successStatusHTTPClient = SuccessStatusHTTPClient{}
@@ -131,9 +136,9 @@ func TestNewNotifier_Pushgateawy(t *testing.T) {
 	configDefault, _ := config.NewConfig(flag.NewFlagSet("test", flag.ContinueOnError), []string{""})
 	configDefault.PushgatewayURL = "https://pgw.example.com/push/"
 
-	notifierPushgateway := NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
-	if notifierPushgateway == nil {
-		t.Fatal("unexpected nil on output (Pushgateway)")
+	notifierPushgateway, err := NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
+	if err != nil {
+		t.Fatalf("expected err to be nil, got %v", err)
 	}
 
 	if len(notifierPushgateway.machineNotifiers) != 1 {
@@ -142,9 +147,9 @@ func TestNewNotifier_Pushgateawy(t *testing.T) {
 
 	configDefault.PushgatewayURL = badURL
 
-	notifierPushgateway = NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
-	if notifierPushgateway == nil {
-		t.Fatal("unexpected nil on output (Pushgateway)")
+	notifierPushgateway, err = NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
+	if err != nil {
+		t.Fatalf("expected err to be nil, got %v", err)
 	}
 
 	if len(notifierPushgateway.machineNotifiers) != 0 {
@@ -162,9 +167,9 @@ func TestNewNotifier_Discord(t *testing.T) {
 	configDefault.DiscordBotToken = "test"
 	configDefault.DiscordChannelID = "-123"
 
-	notifierDiscord := NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
-	if notifierDiscord == nil {
-		t.Fatal("unexpected nil on output (Discord*)")
+	notifierDiscord, err := NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
+	if err != nil {
+		t.Fatalf("expected err to be nil, got %v", err)
 	}
 
 	if notifiersLen := len(notifierDiscord.chatNotifiers); notifiersLen == 0 {
@@ -182,8 +187,11 @@ func TestSendChatNotifications(t *testing.T) {
 	configDefault.TelegramBotToken = ""
 	configDefault.TelegramChatID = ""
 
-	notifierTelegram := NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
-	fmt.Println(notifierTelegram.chatNotifiers)
+	notifierTelegram, err := NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
+	if err != nil {
+		t.Fatalf("expected err to be nil, got %v", err)
+	}
+
 	if len(notifierTelegram.chatNotifiers) > 0 {
 		t.Errorf("expected 0 chatNotifiers, got %d", len(notifierTelegram.chatNotifiers))
 	}
@@ -195,9 +203,9 @@ func TestSendChatNotifications(t *testing.T) {
 	configDefault.TelegramBotToken = "abc:2025062700"
 	configDefault.TelegramChatID = "-10987654321"
 
-	notifierTelegram = NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
-	if notifierTelegram == nil {
-		t.Fatal("unexpected nil on output")
+	notifierTelegram, err = NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
+	if err != nil {
+		t.Fatalf("expected err to be nil, got %v", err)
 	}
 
 	if err := notifierTelegram.SendChatNotifications("SendChatNotifications test", 0); err != nil {
@@ -220,9 +228,9 @@ func TestSendMachineNotifications(t *testing.T) {
 	configDefault, _ := config.NewConfig(flag.NewFlagSet("test", flag.ContinueOnError), []string{""})
 	configDefault.WebhookURL = ""
 
-	notifierWebhook := NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
-	if notifierWebhook == nil {
-		t.Fatal("unexpected nil on output (Webhooks)")
+	notifierWebhook, err := NewNotifier(&successStatusHTTPClient, configDefault, mockLogger)
+	if err != nil {
+		t.Fatalf("expected err to be nil, got %v", err)
 	}
 
 	if err := notifierWebhook.SendMachineNotifications(nil, 0); err != nil {
@@ -231,9 +239,9 @@ func TestSendMachineNotifications(t *testing.T) {
 
 	configDefault.WebhookURL = "https://www.example.com/hooks/test-hook"
 
-	notifierWebhook = NewNotifier(nil, configDefault, mockLogger)
-	if notifierWebhook == nil {
-		t.Fatal("unexpected nil on output (Webhooks)")
+	notifierWebhook, err = NewNotifier(nil, configDefault, mockLogger)
+	if err != nil {
+		t.Fatalf("expected err to be nil, got %v", err)
 	}
 
 	if err := notifierWebhook.SendMachineNotifications(nil, 0); err != nil {

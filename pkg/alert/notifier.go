@@ -35,14 +35,13 @@ type HTTPClient interface {
 }
 
 // NewNotifier creates a new instance of notifier. Based on the flags used, it spawns new instances of ChatNotifiers (e.g. Telegram) and MachineNotifiers (e.g. Webhooks) and stores them on the notifier struct to be used for alert notifications.
-func NewNotifier(httpClient HTTPClient, config *config.Config, logger logger.Logger) *notifier {
+func NewNotifier(httpClient HTTPClient, config *config.Config, logger logger.Logger) (*notifier, error) {
 	if logger == nil {
-		return nil
+		return nil, errors.New("no logger provided")
 	}
 
 	if config == nil {
-		logger.Error("nil pointer to config")
-		return nil
+		return nil, errors.New("no config provided")
 	}
 
 	// Set chat integrations to be notified (e.g. Telegram)
@@ -101,7 +100,7 @@ func NewNotifier(httpClient HTTPClient, config *config.Config, logger logger.Log
 		chatNotifiers:    notificationSenders,
 		machineNotifiers: payloadSenders,
 		logger:           logger,
-	}
+	}, nil
 }
 
 func (n *notifier) SendChatNotifications(m string, failedCount int) error {

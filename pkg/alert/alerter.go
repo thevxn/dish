@@ -32,7 +32,13 @@ func (a *alerter) HandleAlerts(messengerText string, results *Results, failedCou
 		return
 	}
 
-	notifier := NewNotifier(http.DefaultClient, config, a.logger)
+	notifier, err := NewNotifier(http.DefaultClient, config, a.logger)
+	if err != nil {
+		a.logger.Errorf("failed to create new notifier: \n%v", err)
+
+		return
+	}
+
 	if err := notifier.SendChatNotifications(messengerText, failedCount); err != nil {
 		a.logger.Errorf("some error(s) encountered when sending chat notifications: \n%v", err)
 	}
