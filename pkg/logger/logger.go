@@ -52,12 +52,11 @@ func (l logLevel) Prefix(withColor bool) string {
 		return "[ UNKNOWN ]: " //nolint:goconst
 	}
 
-	colorStart, colorReset := "", ""
 	if withColor {
-		colorStart = l.Color()
+		return fmt.Sprintf(logPrefixFormat, l.Color(), label, colorReset)
 	}
 
-	return fmt.Sprintf(logPrefixFormat, colorStart, label, colorReset)
+	return fmt.Sprintf(logPrefixFormat, "", label, "")
 }
 
 // Logger interface defines methods for logging at various levels.
