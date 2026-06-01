@@ -45,9 +45,12 @@ func (l *consoleLogger) log(level logLevel, prefix string, format string, v ...a
 		return
 	}
 
+	// Avoid being flagged as a printf wrapper in go vet
+	// See https://stackoverflow.com/a/76812386
+	f := format
 	msg := prefix + fmt.Sprint(v...)
 	if format != "" {
-		msg = prefix + fmt.Sprintf(format, v...)
+		msg = prefix + fmt.Sprintf(f, v...)
 	}
 
 	l.stdLogger.Print(msg)
