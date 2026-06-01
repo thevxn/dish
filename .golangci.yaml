@@ -22,3 +22,9 @@ linters:
     - unconvert # Detect unnecessary type conversions
     - unparam # Detect unused function parameters
     - dupword # Detect duplicate words in comments and string literals (e.g. “the the”, “is is”)
+
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - goconst
