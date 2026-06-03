@@ -8,7 +8,7 @@ on:
 
 jobs:
   generate-coverage-badge:
-    runs-on: ${{ vars.TEST_RUNNER_LABEL }}
+    runs-on: ubuntu-latest
     name: Update coverage badge
     steps:
       - name: Update coverage report
