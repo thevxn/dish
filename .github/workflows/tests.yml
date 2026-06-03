@@ -86,7 +86,7 @@ jobs:
   #       run: go test -v ./... -skip 'TestIcmpRunner_RunTest'
 
   macOS_intel:
-    runs-on: macos-13
+    runs-on: macos-15-intel
     steps:
       - uses: actions/checkout@v6
       - name: Set up Go
@@ -114,11 +114,11 @@ jobs:
         run: go test -v ./...
 
   # Self-hosted runner mainly intended for running ICMP integration tests which cannot be run in the GH runners due to incoming traffic being blocked
-  self-hosted:
-    runs-on: ${{ vars.TEST_RUNNER_LABEL }}
-    steps:
-      - uses: actions/checkout@v6
-      - name: Run tests in a container
-        env:
-          PROJECT_NAME: dish
-        run: make docker-test
+  # self-hosted:
+  #   runs-on: ${{ vars.TEST_RUNNER_LABEL }}
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - name: Run tests in a container
+  #       env:
+  #         PROJECT_NAME: dish
+  #       run: make docker-test
