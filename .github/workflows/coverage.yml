@@ -8,9 +8,12 @@ on:
 
 jobs:
   generate-coverage-badge:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     name: Update coverage badge
     steps:
+      - name: Allow unprivileged ICMP
+        run: sudo sysctl -w net.ipv4.ping_group_range="0 2147483647"
+        
       - name: Update coverage report
         uses: ncruces/go-coverage-report@v0
         with:
