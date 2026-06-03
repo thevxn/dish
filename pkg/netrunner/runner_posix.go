@@ -28,6 +28,7 @@ const (
 	ipStripHdr = 23
 	testID     = 0x1234
 	testSeq    = 0x0001
+	goosDarwin = "darwin"
 )
 
 type icmpRunner struct {
@@ -76,7 +77,7 @@ func (runner *icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socke
 		}
 	}()
 
-	if runtime.GOOS == "darwin" {
+	if runtime.GOOS == goosDarwin {
 		if err := syscall.SetsockoptInt(sysSocket, syscall.IPPROTO_IP, ipStripHdr, 1); err != nil {
 			return socket.Result{Socket: sock, Error: fmt.Errorf("failed to set ip strip header: %w", err)}
 		}
@@ -101,7 +102,7 @@ func (runner *icmpRunner) RunTest(ctx context.Context, sock socket.Socket) socke
 	copy(reqBuf[8:], payload)
 
 	// Set the ID, Seq and Checksum for the darwin based machines
-	if runtime.GOOS == "darwin" {
+	if runtime.GOOS == goosDarwin {
 		binary.BigEndian.PutUint16(reqBuf[4:6], testID)
 		binary.BigEndian.PutUint16(reqBuf[6:8], testSeq)
 		csum := checksum(reqBuf)
